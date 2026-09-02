@@ -1,0 +1,151 @@
+---
+// Ported from post-1000.css (header template).
+const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const services = [
+  { href: '/brick-repair-restoration/', label: 'Brick Repair & Restoration' },
+  { href: '/chimney-repair-rebuilds/',  label: 'Chimney Repair & Rebuilds' },
+  { href: '/commercial-masonry/',       label: 'Commercial Masonry' },
+  { href: '/tuck-pointing-repointing/', label: 'Tuck-Pointing & Repointing' },
+];
+---
+<div class="topbar">
+  <div class="topbar__in">
+    <a href="tel:4162444113">
+      <svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M164 24c-9-21-32-32-54-26L60 12A62 62 0 0 0 12 74c0 236 191 427 427 427a62 62 0 0 0 62-48l14-50c6-22-5-45-26-54l-55-23a54 54 0 0 0-62 16l-23 28A339 339 0 0 1 187 224l28-23a54 54 0 0 0 16-62l-23-55z"/></svg>
+      <span>(416) 244-4113</span></a>
+    <a href="mailto:briansmasonry@ymail.com">
+      <svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M48 64h416c26 0 48 21 48 48v16L256 292 0 128v-16c0-27 21-48 48-48zM0 176l238 152c11 7 25 7 36 0l238-152v224c0 26-22 48-48 48H48c-27 0-48-22-48-48V176z"/></svg>
+      <span>briansmasonry@ymail.com</span></a>
+  </div>
+</div>
+
+<div class="logoband">
+  <div class="logoband__in">
+    <a href="/"><img src={`${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`}
+        alt="Brian's Masonry Logo" width="320" height="112" /></a>
+  </div>
+</div>
+
+<div class="navband">
+  <div class="navband__in">
+    <input type="checkbox" id="nt" hidden />
+    <label for="nt" class="toggle" aria-label="Menu">
+      <svg viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M0 96h448v42H0zm0 128h448v42H0zm0 128h448v42H0z"/></svg>
+    </label>
+    <nav class="nav">
+      <ul>
+        <li><a href="/#About">About</a></li>
+        <li class="has-sub">
+          <a href="/#Services">Services<span class="caret" aria-hidden="true"></span></a>
+          <ul class="sub">
+            {services.map((sv) => <li><a href={sv.href}>{sv.label}</a></li>)}
+          </ul>
+        </li>
+        <li><a href="/#Testimonials">Testimonials</a></li>
+        <li><a href="/#Projects">Projects</a></li>
+        <li><a href="/#Contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<style>
+  /* #4246d95 — bg #243f98, column, centered, content-width 1400 */
+  .topbar { background: #243f98; }
+  .topbar__in {
+    max-width: var(--content); margin: 0 auto; padding: 8px 10px;
+    display: flex; gap: 26px; justify-content: center; align-items: center; flex-wrap: wrap;
+  }
+  /* #1e7b0d65 — Helvetica 16/500 #FFF, icon 15px #FFF */
+  .topbar a {
+    color: #fff; text-decoration: none; font-size: 16px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .topbar svg { width: 15px; height: 15px; fill: #fff; flex: none; }
+  .topbar a:hover { text-decoration: underline; }
+
+  /* #40a64b7 — bg #FFFFFF, padding 0 ; #677ba4d img width 40%, centered */
+  .logoband { background: #fff; }
+  .logoband__in { max-width: var(--content); margin: 0 auto; text-align: center; padding: 10px; }
+  .logoband img { width: 40%; max-width: 320px; height: auto; margin: 0 auto; }
+
+  /* #91dbb62 — bg #244097, radius 5px, width 100% */
+  .navband { background: #fff; padding: 0 10px 10px; }
+  .navband__in {
+    max-width: var(--content); margin: 0 auto; background: var(--blue-nav);
+    border-radius: var(--r);
+  }
+  /* #6865863d — Helvetica 16/400 #FFF, padding 5px 0, margin calc(35px/2) */
+  /* `>` throughout: a descendant selector here also matches ul.sub and,
+     once Astro adds its scope attributes, out-specifies `.sub{display:none}` */
+  .nav > ul {
+    list-style: none; margin: 0; padding: 0; display: flex;
+    justify-content: space-around; align-items: center; flex-wrap: wrap; width: 100%;
+  }
+  .nav > ul > li { margin: 0; }
+  .nav > ul > li > a {
+    display: block; color: #fff; fill: #fff; text-decoration: none;
+    font-size: 16px; font-weight: 400; padding: 5px 0;
+  }
+  .nav > ul > li > a:hover,
+  .nav > ul > li > a[aria-current="page"] { color: var(--red); fill: var(--red); }
+  .toggle { display: none; }
+
+  /* submenu — post-1000 #6865863d: bg #244097, 18px, padding 20px,
+     margin-top 20px, shadow 0 20px 20px rgba(0,0,0,.25),
+     divider 1px rgba(255,255,255,.3), hover bg #bd2031 */
+  .has-sub { position: relative; }
+  /* same depth as `.nav > ul > li > a`, or that rule's display:block wins
+     and the caret escapes to the top of the line box */
+  .nav > ul > li.has-sub > a {
+    display: inline-flex; align-items: center; gap: 6px; line-height: 1;
+  }
+  .caret {
+    flex: none; display: block; width: 0; height: 0;
+    border-left: 4px solid transparent; border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+  }
+  /* parent turns red while the submenu is open */
+  .has-sub:hover > a, .has-sub:has(a:focus-visible) > a { color: var(--red); }
+  .sub {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    margin-top: 20px; min-width: 267px; list-style: none; padding: 0;
+    background: var(--blue-nav); border-radius: var(--r);
+    box-shadow: 0 20px 20px 0 rgba(0,0,0,.25);
+    display: none; z-index: 60;
+  }
+  /* invisible bridge across the 20px gap: without it, dragging the pointer
+     from "Services" down to the menu leaves both elements and it snaps shut */
+  .sub::before {
+    content: ""; position: absolute; left: 0; right: 0; top: -20px; height: 20px;
+  }
+  .has-sub:hover .sub { display: block; }
+  /* keyboard users still get it; a mouse click must NOT latch it open,
+     so :focus-visible rather than :focus-within */
+  .has-sub:has(a:focus-visible) .sub { display: block; }
+  .sub li { margin: 0; border-bottom: 1px solid rgba(255,255,255,.3); }
+  .sub li:last-child { border-bottom: 0; }
+  .sub a { display: block; font-size: 18px; padding: 20px; color: #fff; }
+  .sub a:hover { background: var(--red); color: #fff; }
+
+  @media (max-width: 1024px) { .logoband img { width: 35%; } }
+  @media (max-width: 767px) {
+    .navband__in { border-radius: 0; }
+    .logoband img { width: 65%; }
+    .toggle {
+      display: block; margin: 0 auto; padding: 12px; cursor: pointer;
+      background: rgba(255,255,255,0); color: #fff;
+    }
+    .toggle svg { width: 25px; height: 25px; fill: #fff; }
+    .nav { display: none; }
+    #nt:checked ~ .nav { display: block; }
+    .nav > ul { flex-direction: column; align-items: stretch; }
+    .sub { position: static; transform: none; margin-top: 0; box-shadow: none;
+           display: block; border-radius: 0; min-width: 0; }
+    .sub a { font-size: 16px; padding: 14px 20px 14px 36px; }
+    .nav > ul > li { margin: 0; border-bottom: 1px solid rgba(255,255,255,.3); }
+    .nav > ul > li:last-child { border-bottom: 0; }
+    .nav > ul > li > a { font-size: 18px; padding: 20px; text-align: center; }
+    .nav > ul > li > a:hover { background: var(--red); color: #fff; }
+  }
+</style>

@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import ServiceHero from '../components/ServiceHero.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import Faq from '../components/Faq.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+
+const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const RW = `${IMG}/2024/12/retaining-walls.png`;
+
+const services = [
+  { icon: RW, alt: 'retaining walls', title: 'Commercial Brick & Block Repair', body: 'Structural repairs for warehouses, storefronts, and multi-unit complexes. We handle load-bearing blockwork and exterior brick skins.' },
+  { icon: RW, alt: 'retaining walls', title: 'Façade Restoration',              body: 'Comprehensive exterior rejuvenation. We match historic bricks and mortars to maintain the heritage value of GTA properties.' },
+  { icon: RW, alt: 'retaining walls', title: 'Mortar Joint Repointing',         body: 'Professional tuckpointing and repointing to seal buildings against water damage and extend the life of the masonry.' },
+  { icon: RW, alt: 'retaining walls', title: 'Chimney / Parapet Repair',        body: 'Safe repair of high-altitude masonry features. We specialize in rooftop parapet rebuilds and industrial chimney maintenance.' },
+  { icon: RW, alt: 'retaining walls', title: 'Retaining & Block Walls',         body: 'High-durability block walls for parking lots, property borders, and structural landscaping requirements.' },
+  { icon: RW, alt: 'retaining walls', title: 'Stone Repair',                    body: 'Repair and matching for natural and architectural stone features on commercial building entrances and monuments.' },
+];
+
+const faqs = [
+  { q: 'Are you fully insured and WSIB compliant?', a: 'Yes. Brian’s Masonry is fully insured with $5M commercial general liability and all our staff are WSIB covered. We can provide clearance certificates and insurance proof upon request during the bidding process.' },
+  { q: 'What is the typical job size you handle?', a: 'We handle everything from small storefront repairs to large-scale facade restorations for apartment buildings and industrial complexes. Our crews are scalable to meet project demands.' },
+  { q: 'How do you manage work around tenants or active businesses?', a: 'Disruption management is our priority. We use dust-containment systems, schedule noisy work during off-hours when necessary, and maintain clean paths for pedestrian and tenant access throughout the project.' },
+  { q: 'Do you provide detailed line-item estimates?', a: 'Absolutely. We provide transparent, detailed commercial estimates that break down materials, labor, and safety equipment costs so property managers can present clear options to their boards or stakeholders.' },
+  { q: 'What specific commercial services do you provide?', a: 'Our core services include structural blockwork, brick veneer repair, tuckpointing/repointing, facade cleaning, parapet restoration, and chimney rebuilds for commercial and industrial assets.' },
+  { q: 'How do I get started with a commercial project?', a: 'Simply fill out the form at the top of this page or call our office. We will schedule a site visit to assess the masonry condition and discuss your specific requirements before providing a formal quote.' },
+];
+---
+<Base title="Commercial Masonry – Brian's Masonry"
+      description="Brian's Masonry handles brick, block, and stone repair and restoration for commercial and multi-unit properties across the GTA.">
+
+  <ServiceHero
+    h1="Commercial Masonry, Done on Schedule."
+    lede="Brian's Masonry handles brick, block, and stone repair and restoration for commercial and multi-unit properties across the GTA."
+    ticks={['20+ years of experience', 'Multiple HomeStars Best of Awards', 'Brick, block & stone; repair and restoration', 'Fully Insured & WSIB Compliant']} />
+
+  <section class="sec">
+    <div class="wrap grid g2 problem">
+      <img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
+           alt="Brian's Masonry - About Us Image" loading="lazy" class="problem__img" />
+      <div>
+        <h2 class="h2">For property managers and business owners who need it done right.</h2>
+        <p>Deteriorating brickwork and failing mortar joints aren&rsquo;t just aesthetic issues — they&rsquo;re
+           structural liabilities. For commercial properties, water ingress and crumbling facades lead to
+           expensive interior damage and safety risks for tenants and the public.</p>
+        <p>We understand the pressure on property managers to find reliable, insured contractors who respect
+           the site. Brian&rsquo;s Masonry prioritizes clean work zones, timely completion, and professional
+           communication around occupied commercial units.</p>
+        <a class="btn" href="#Contact">Get a Quote (416) 244-4113</a>
+      </div>
+    </div>
+  </section>
+
+  <ServiceGrid heading="Our Commercial Services" items={services} />
+  <Faq items={faqs} />
+  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="bm-about us"
+    heading="A masonry partner you can schedule with confidence."
+    body="Clear scope, proper coverage, clean sites — 20+ years of it. We take the stress out of commercial property maintenance." />
+</Base>
+
+<style>
+  .problem { align-items: center; }
+  .problem__img { border-radius: var(--radius); }
+</style>

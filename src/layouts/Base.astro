@@ -1,0 +1,114 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  {description && <meta name="description" content={description} />}
+  <link rel="canonical" href={canonical} />
+  <meta name="robots" content="max-image-preview:large" />
+  <style is:global>
+    /* ------------------------------------------------------------------
+       Ported verbatim from the live Elementor stylesheets:
+         post-939.css   global kit  (colors, container widths, spacing)
+         post-1000.css  header template
+         post-943.css   home page
+         post-1005.css  footer template
+       ------------------------------------------------------------------ */
+    :root {
+      --blue:      #243F98;   /* --e-global-color-e4a79a9 */
+      --blue-nav:  #244097;   /* nav bar + dropdown (post-1000) */
+      --blue-ico:  #243e97;   /* footer icon-box titles (post-1005) */
+      --red:       #BD2031;   /* --e-global-color-1023b73 */
+      --red-ico:   #ba2031;   /* footer icon fill (post-1005) */
+      --page:      #F7F7F7;   /* kit background-color */
+      --card-line: #E6E6E6;   /* service card border */
+      --tst-line:  #E7E7E7;   /* testimonial slide border */
+      --body-txt:  #666666;   /* about paragraph */
+      --card-txt:  #3F3E3E;   /* service card body */
+      --tst-txt:   #2C2C2C;   /* testimonial text */
+      --ico-desc:  #1D1D1D;   /* footer icon-box description */
+      --r: 5px;
+      --content: 1400px;      /* --content-width on header/footer/hero rows */
+      --sans: "Helvetica", "Helvetica Neue", Roboto, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body {
+      margin: 0; background: var(--page); color: #333;
+      font-family: var(--sans); font-size: 16px; font-weight: 400; line-height: 1.5; /* 24px measured */
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: var(--blue); }
+    /* measured: headings carry no margin and line-height 1 (32/32, 20/20);
+       hero headings run 1.1 (27.5/25, 19.8/18). p margin-bottom 14.4px = .9em */
+    h1,h2,h3,h4 { margin: 0; line-height: 1; font-weight: 600; }
+    p { margin: 0 0 14.4px; }
+
+    /* e-con: padding 50px 10px, content width 1400 */
+    .wrap { max-width: var(--content); margin: 0 auto; padding: 0 10px; }
+    .sec  { padding: 50px 0; }
+    /* blue contact band (#88beb57) — this rule was lost in the port and is what
+       made the Contact block render white-on-white */
+    .sec--blue { background: var(--blue); color: #fff; }
+    .sec--blue .h2, .sec--blue h2, .sec--blue h3, .sec--blue p { color: #fff; }
+    .sec--blue a { color: #fff; }
+
+    /* section headings: 32px/600 #000 */
+    .h2   { font-size: 32px; font-weight: 600; color: #000; line-height: 1; margin-bottom: 20px; }
+    .h2--c{ text-align: center; }
+
+    /* hero / generic button — post-943 #a313cf0 */
+    .btn {
+      display: inline-block; background: var(--blue); color: #fff;
+      font-family: var(--sans); font-size: 16px; font-weight: 400; line-height: 1em;
+      padding: 8px 15px; border: none; border-radius: var(--r);
+      box-shadow: 2px 2px 10px 0 #000; text-decoration: none; text-align: center;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--red); }
+    .btn small { display: block; font-size: 12px; line-height: 1.4; }
+
+    .grid { display: grid; gap: 20px; }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); }
+    .g3 { grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); }
+    .g4 { grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); }
+
+    /* service card — post-943 #245fa2a */
+    .card {
+      background: #fff; border: 1px solid var(--card-line);
+      border-radius: var(--r); padding: 20px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+    .card h3 { font-size: 20px; font-weight: 600; color: var(--blue); text-align: center; line-height: 1; margin-bottom: 10px; }
+    .card p  { text-align: center; font-weight: 400; color: var(--card-txt); margin: 0; }
+    .card img.ico { width: 25%; min-width: 72px; border-radius: 0; margin: 0 auto 12px; }
+
+    .ticks { list-style: none; padding: 0; margin: 18px 0; display: flex; flex-wrap: wrap; gap: 8px 22px; }
+    .ticks li { position: relative; padding-left: 26px; }
+    .ticks li::before {
+      content: ""; position: absolute; left: 0; top: .35em; width: 16px; height: 16px;
+      border-radius: 50%; border: 2px solid currentColor; opacity: .85;
+    }
+    .ticks li::after {
+      content: ""; position: absolute; left: 5px; top: .62em; width: 6px; height: 3px;
+      border-left: 2px solid currentColor; border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg);
+    }
+    /* kit breakpoints: 1024 / 767 */
+    @media (max-width: 767px) { .sec { padding: 34px 0; } .h2 { font-size: 26px; } }
+  </style>
+</head>
+<body>
+  <Header />
+  <main id="content"><slot /></main>
+  <Footer />
+</body>
+</html>

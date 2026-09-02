@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import ServiceHero from '../components/ServiceHero.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import Faq from '../components/Faq.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+
+const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const RW = `${IMG}/2024/12/retaining-walls.png`;
+
+const services = [
+  { icon: RW, alt: 'retaining walls', title: 'Brick Replacement', body: 'Removing damaged, spalled, or loose bricks and replacing them with structurally sound units that match your original masonry.', ticks: ['Spalled brick repair', 'Colour matching'] },
+  { icon: RW, alt: 'retaining walls', title: 'Crack Repair / Tuckpointing', body: 'Identifying root causes of wall cracking and performing deep-fill repairs that restore both integrity and appearance.', ticks: ['Structural stabilization', 'Mortar blending'] },
+  { icon: RW, alt: 'retaining walls', title: 'Full Restoration', body: 'Comprehensive rebuilding of damaged sections, including chimneys, porches, and full wall facades using expert masonry.', ticks: ['Chimney repair', 'Wall rebuilding'] },
+];
+
+const faqs = [
+  { q: 'How much does brick repair typically cost?', a: 'Costs vary based on the extent of damage and accessibility. We provide precise, transparent quotes after an on-site inspection.' },
+  { q: 'Can you really match my existing brick?', a: 'Yes. We source from multiple suppliers and use color-matching techniques for mortar to ensure the repair is as invisible as possible.' },
+  { q: 'Are cracks in my brick wall serious?', a: 'Horizontal and vertical cracks should always be inspected. "Step cracks" often indicate structural movement that needs professional attention.' },
+  { q: 'What is your cleanup process?', a: 'We pride ourselves on leaving every job site spotless. We perform a thorough cleanup of all masonry dust and debris before we leave.' },
+];
+---
+<Base title="Brick Repair & Restoration – Brian's Masonry"
+      description="Brian's Masonry repairs and restores brick and stone on homes across the GTA — matched, solid, and built to last. Multiple HomeStars award winner.">
+
+  <ServiceHero
+    h1="Cracked or Crumbling Brick?"
+    sub="We Restore It Professionally."
+    lede="Brian's Masonry repairs and restores brick and stone on homes across the GTA — matched, solid, and built to last. Multiple HomeStars award winner."
+    ticks={['20+ years of experience', 'Multiple HomeStars Best of Awards', 'Fully Insured & WSIB Compliant', 'Spotless cleanup']} />
+
+  <section class="sec">
+    <div class="wrap grid g2 problem">
+      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="" loading="lazy" class="problem__img" />
+      <div>
+        <h2 class="h2">Don&rsquo;t Ignore Brick Damage</h2>
+        <p>Brick problems only get worse — and more expensive — when ignored. Small cracks allow water
+           to seep behind bricks, leading to freeze-thaw damage that can destabilize your entire wall.</p>
+        <p><strong>Structural Compromise</strong></p>
+        <p>If you see bulging or stepped cracks, your home&rsquo;s integrity may be at risk. We offer
+           professional assessments to determine the best course of action.</p>
+        <ul class="ticks">
+          <li>Cracked, loose, or bulging brickwork</li>
+          <li>Crumbling or flaking faces (spalling)</li>
+          <li>Water getting in behind the facade</li>
+        </ul>
+        <a class="btn" href="#Contact">Get a Quote (416) 244-4113</a>
+      </div>
+    </div>
+  </section>
+
+  <ServiceGrid heading="Our Professional Services" items={services} />
+  <Faq items={faqs} />
+  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="bm-about us"
+    heading="Stop the damage before it spreads."
+    body="Clear scope, proper coverage, clean sites — 20+ years of it." />
+</Base>
+
+<style>
+  .problem { align-items: center; }
+  .problem__img { border-radius: var(--radius); }
+</style>

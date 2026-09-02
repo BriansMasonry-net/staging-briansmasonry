@@ -1,0 +1,71 @@
+---
+// Ported from post-943.css: card #0f5a8ce, heading #4e9e23a, form #463d396.
+// Inverted variant (#284ac6a) is used inside the blue contact block.
+const { heading = 'Get a Free Estimate', city = true, submit = 'Submit',
+        id = 'estimate', card = true, invert = false, layout = 'pairs' } = Astro.props;
+// layout 'pairs'   — hero form: Name|Email, Phone|City, Message
+// layout 'contact' — blue block: Name full, Email|Phone, Message, submit left
+---
+<div class:list={['efw', card && 'efw--card', invert && 'efw--inv', `efw--${layout}`]}>
+  {heading && <h2 class="ef__h">{heading}</h2>}
+  <form class="ef" id={id} method="post" action="/api/contact" data-todo="gate-11-resend">
+    <div class="ef__grp ef__grp--name"><input type="text" name="name" placeholder="Name*" required autocomplete="name" /></div>
+    <div class="ef__grp"><input type="email" name="email" placeholder="Email*" required autocomplete="email" /></div>
+    <div class="ef__grp"><input type="tel"   name="phone" placeholder="Phone*" required autocomplete="tel" /></div>
+    {city && <div class="ef__grp"><input type="text" name="city" placeholder="City*" autocomplete="address-level2" /></div>}
+    <div class="ef__grp ef__grp--full"><textarea name="message" placeholder="Message" rows="4"></textarea></div>
+    <div class="ef__grp ef__grp--full ef__act"><button type="submit">{submit}</button></div>
+  </form>
+</div>
+
+<style>
+  /* #0f5a8ce — bg #FFF, radius 5, shadow 0 0 10px rgba(0,0,0,.5), padding 35 */
+  .efw--card {
+    background: #fff; border-radius: var(--r); padding: 35px;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,.5);
+    max-width: 480px; width: 100%;
+    transition: box-shadow .3s;
+  }
+  .efw--card:hover { box-shadow: 5px 5px 0 0 var(--blue); }
+
+  /* #4e9e23a — Helvetica 25/600 #000 centered */
+  .ef__h { font-size: 25px; font-weight: 600; color: #000; text-align: center; margin-bottom: 16px; }
+  .efw--inv .ef__h { color: #fff; }
+
+  /* #463d396 — groups: padding 0 5px, margin-bottom 10px; wrapper -5px */
+  .ef { display: flex; flex-wrap: wrap; margin: 0 -5px -10px; }
+  .ef__grp { padding: 0 5px; margin-bottom: 10px; width: 50%; }
+  .ef__grp--full { width: 100%; }
+  /* contact block: Name spans the row, Email + Phone share the next */
+  .efw--contact .ef__grp--name { width: 100%; }
+  /* contact block submit sits left, not centred */
+  .efw--contact .ef__act { text-align: left; }
+
+  .ef input, .ef textarea {
+    width: 100%; background: #fff; color: #000;
+    font-family: var(--sans); font-size: 16px; font-weight: 400;
+    border-style: solid; border-color: var(--blue); border-width: .5px 2px 2px 0;
+    border-radius: var(--r); padding: 8px 16px; line-height: 22.4px; /* measured 41px tall */
+  }
+  /* #284ac6a — inside the blue block the field border is white */
+  .efw--inv .ef input, .efw--inv .ef textarea { border-color: #fff; }
+  .ef input::placeholder, .ef textarea::placeholder { color: #8a8a8a; }
+  .ef input:focus, .ef textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+  .efw--inv .ef input:focus, .efw--inv .ef textarea:focus { outline-color: #fff; }
+  .ef textarea { resize: vertical; display: block; }
+
+  /* submit — 18/500, border 2px, radius 5, padding 12px 32px */
+  .ef__act { text-align: center; }
+  .ef button {
+    font-family: var(--sans); font-size: 18px; font-weight: 500;
+    border-style: solid; border-width: 2px; border-radius: var(--r);
+    padding: 12px 32px; cursor: pointer;
+    background: var(--blue); color: #fff; border-color: var(--blue);
+  }
+  .ef button:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  /* inverted: white button, blue label */
+  .efw--inv .ef button { background: #fff; color: var(--blue); border-color: #fff; }
+  .efw--inv .ef button:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  @media (max-width: 767px) { .ef__grp { width: 100%; } .efw--card { padding: 24px; } }
+</style>

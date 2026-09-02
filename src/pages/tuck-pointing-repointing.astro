@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import ServiceHero from '../components/ServiceHero.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import Faq from '../components/Faq.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+
+const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const RW = `${IMG}/2024/12/retaining-walls.png`;
+
+const services = [
+  { icon: RW, alt: 'retaining walls', title: 'Brick Repointing', body: 'We carefully remove old mortar and replace it with high-strength, color-matched mix for a seamless finish.' },
+  { icon: RW, alt: 'retaining walls', title: 'Tuck-Pointing',    body: 'A decorative technique using two contrasting colors of mortar to create a clean, crisp joint line appearance.' },
+  { icon: RW, alt: 'retaining walls', title: 'Raking Out',       body: 'Deep removal of deteriorated mortar to ensure the new repointing has a solid foundation for bonding.' },
+  { icon: RW, alt: 'retaining walls', title: 'Sill Repair',      body: 'Critical repair and sealing of window sills to prevent moisture from entering the most vulnerable parts of your wall.' },
+];
+
+const faqs = [
+  { q: "What's the difference between tuck-pointing and repointing?", a: 'Repointing is the process of removing failing mortar and replacing it with new mortar. Tuck-pointing is a decorative technique that uses two colors of mortar (one to match the brick, and a thin line of contrasting mortar) to give the illusion of very fine joints, often seen in heritage homes.' },
+  { q: 'Can you match the color of my existing mortar?', a: 'Yes. Matching heritage mortar is our specialty. We analyze the aggregate and pigments of your current wall and create a custom mix so the repair is virtually invisible once cured.' },
+  { q: 'How long does a typical repointing job take?', a: 'A standard residential chimney or small wall section can be completed in 1-2 days. Full house restorations vary based on size but usually take between 1 to 2 weeks depending on the condition of the masonry.' },
+  { q: 'Is there a warranty on your work?', a: 'Absolutely. We stand behind our craftsmanship. We provide a comprehensive warranty on all repointing projects against mortar failure and water penetration.' },
+];
+---
+<Base title="Tuck-Pointing & Repointing – Brian's Masonry"
+      description="Brian's Masonry restores failing mortar joints in brick and stone across the GTA — sealing out water and bringing walls back to solid.">
+
+  <ServiceHero
+    h1="Tuck-Pointing & Repointing Across the GTA"
+    sub="Crumbling Mortar? We Repoint It Right."
+    lede="Brian's Masonry restores failing mortar joints in brick and stone across the GTA — sealing out water and bringing walls back to solid."
+    ticks={['20+ years of experience', 'Multiple HomeStars Best of Awards', 'Fully Insured & WSIB Compliant', 'Spotless cleanup']} />
+
+  <section class="sec">
+    <div class="wrap grid g2 problem">
+      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="" loading="lazy" class="problem__img" />
+      <div>
+        <h2 class="h2">Failing mortar lets water in, and that&rsquo;s when real damage starts.</h2>
+        <p>Neglecting your mortar joints is the most expensive mistake a homeowner can make. Once the seal
+           is broken, freeze-thaw cycles will begin to crack your bricks from the inside out.</p>
+        <ul class="ticks">
+          <li><strong>Crumbling Mortar:</strong> Sandy or missing mortar that leaves bricks loose.</li>
+          <li><strong>Visible Gaps:</strong> Deep holes where insects, mice, and water enter.</li>
+          <li><strong>Water Staining:</strong> Dark damp patches on interior drywall after rain.</li>
+          <li><strong>Sill Deterioration:</strong> Water pooling on ledges and rotting the window frame.</li>
+        </ul>
+        <a class="btn" href="#Contact">Get a Quote (416) 244-4113</a>
+      </div>
+    </div>
+  </section>
+
+  <ServiceGrid heading="What's Included" items={services} cols="g4" />
+  <Faq items={faqs} />
+  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="bm-about us"
+    heading="Seal your mortar before water reaches the brick."
+    body="A free estimate now is the cheapest your wall will ever be to fix. Waiting leads to brick replacement and structural issues." />
+</Base>
+
+<style>
+  .problem { align-items: center; }
+  .problem__img { border-radius: var(--radius); }
+</style>

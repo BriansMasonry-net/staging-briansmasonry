@@ -1,0 +1,29 @@
+---
+const { items, heading = 'Frequently Asked Questions' } = Astro.props;
+---
+<section class="sec">
+  <div class="wrap">
+    <h2 class="h2 h2--c">{heading}</h2>
+    <div class="faq">
+      {items.map((it) => (
+        <details class="card">
+          <summary>{it.q}</summary>
+          <p>{it.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq { max-width: 900px; margin: 24px auto 0; }
+  .faq details { margin-bottom: 12px; padding: 0; }
+  .faq summary {
+    cursor: pointer; padding: 16px 20px; font-weight: 600; color: var(--blue);
+    list-style: none; display: flex; justify-content: space-between; gap: 16px; align-items: center;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--red); font-size: 22px; line-height: 1; flex: none; }
+  .faq details[open] summary::after { content: "\2212"; }
+  .faq p { padding: 0 20px 18px; margin: 0; text-align: left; }
+</style>

@@ -1,0 +1,67 @@
+---
+// Ported from post-1005.css (footer template).
+const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const MAP = 'https://maps.app.goo.gl/vcgKyWXjbYnauoy9A';
+const year = new Date().getFullYear();
+---
+<footer class="ft">
+  <div class="ft__in">
+    <div class="ft__logo">
+      <a href="/"><img src={`${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`}
+        alt="Brian's Masonry Logo" width="320" height="112" /></a>
+    </div>
+
+    <div class="ft__cards">
+      <div class="ft__card">
+        <span class="ft__ico"><svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M192 0C86 0 0 86 0 192c0 141 172 307 179 314a19 19 0 0 0 26 0c7-7 179-173 179-314C384 86 298 0 192 0zm0 289a97 97 0 1 1 0-194 97 97 0 0 1 0 194z"/></svg></span>
+        <h3><a href={MAP}>Address</a></h3>
+        <p>221 Todd Baylis Blvd, York, ON M6M 0A7</p>
+      </div>
+      <div class="ft__card">
+        <span class="ft__ico"><svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 0a256 256 0 1 0 0 512 256 256 0 0 0 0-512zm0 464a208 208 0 1 1 0-416 208 208 0 0 1 0 416zm24-336h-48v144l115 69 24-40-91-54V128z"/></svg></span>
+        <h3>Opening Hours</h3>
+        <p>Monday - Friday 8 AM - 10 PM</p>
+      </div>
+      <div class="ft__card">
+        <span class="ft__ico"><svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M164 24c-9-21-32-32-54-26L60 12A62 62 0 0 0 12 74c0 236 191 427 427 427a62 62 0 0 0 62-48l14-50c6-22-5-45-26-54l-55-23a54 54 0 0 0-62 16l-23 28A339 339 0 0 1 187 224l28-23a54 54 0 0 0 16-62l-23-55z"/></svg></span>
+        <h3>Contact</h3>
+        <p><a href="tel:4162444113">(416) 244-4113</a> or
+           <a href="mailto:briansmasonry@ymail.com">briansmasonry@ymail.com</a></p>
+      </div>
+    </div>
+
+    <p class="ft__legal">Copyright &copy; {year} Brian&rsquo;s Masonry - All Rights Reserved |
+      Proudly created by <a href="https://brandingcentres.com">Branding Centres</a></p>
+  </div>
+</footer>
+
+<style>
+  /* #4f7bbb8f — bg var(--blue), row, space-between, gap 20px 10px, pad 50px 10px */
+  .ft { background: var(--blue); padding: 50px 10px; }
+  .ft__in { max-width: var(--content); margin: 0 auto; display: flex; flex-direction: column; gap: 20px 10px; }
+
+  /* #483f2801 — white, radius 5, padding 10, centered; img width 40% */
+  .ft__logo { background: #fff; border-radius: var(--r); padding: 10px; text-align: center; }
+  .ft__logo img { width: 40%; max-width: 320px; height: auto; margin: 0 auto; }
+
+  /* #d1e4f48 — row, center, align flex-start */
+  .ft__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 20px 10px; align-items: start; }
+
+  /* #68e0dc7 / #574ee56 / #c3ce70d — white, radius 5, padding 25 */
+  .ft__card { background: #fff; border-radius: var(--r); padding: 25px; text-align: center; }
+  /* view-stacked: icon sits in a filled #ba2031 shape */
+  /* measured 50x50, background transparent, glyph filled #ba2031 (default view, not stacked) */
+  .ft__ico { display: inline-flex; width: 50px; height: 50px; color: var(--red-ico); margin-bottom: 12px; }
+  .ft__ico svg { width: 50px; height: 50px; fill: var(--red-ico); }
+  .ft__card h3 { font-size: 20px; font-weight: 600; color: var(--blue-ico); margin-block-end: 10px; }
+  .ft__card h3 a { color: var(--blue-ico); text-decoration: none; }
+  .ft__card p { font-weight: 400; color: var(--ico-desc); margin: 0; }
+  .ft__card p a { color: var(--ico-desc); }
+
+  /* #aa80100 / #d1835b8 — centered, 12px/300 #FFFFFF */
+  .ft__legal { text-align: center; font-size: 12px; font-weight: 300; color: #fff; margin: 50px 0 0; padding: 10px; }
+  .ft__legal a { color: #fff; }
+
+  @media (max-width: 1024px) { .ft__legal { margin-top: 25px; } }
+  @media (max-width: 767px) { .ft__logo img { width: 85%; } }
+</style>

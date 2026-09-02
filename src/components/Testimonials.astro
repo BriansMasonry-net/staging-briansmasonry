@@ -1,0 +1,71 @@
+---
+// Live: carousel, 2 cards visible, dot pagination, auto-advance.
+const { items } = Astro.props;
+---
+<section class="sec" id="Testimonials">
+  <div class="wrap">
+    <h2 class="h2 h2--c">Testimonials</h2>
+    <div class="tc" data-tc>
+      <div class="tc__track" data-track>
+        {items.map((t) => (
+          <figure class="card tc__item">
+            <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
+            <figcaption>{t.name}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <div class="tc__dots" data-dots></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tc { margin-top: 24px; }
+  .tc__track { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tc__item {
+    display: none; text-align: center; margin: 0;
+    background: #fff; border: 1px solid var(--tst-line); border-radius: var(--r);
+  }
+  .tc__item.on { display: block; }
+  .tc__item blockquote { margin: 0 0 14px; color: var(--tst-txt); font-size: 16px; font-weight: 400; line-height: 24px; }
+  .tc__item figcaption { color: var(--blue); font-size: 18px; font-weight: 600; }
+  .tc__dots { display: flex; justify-content: center; gap: 0; margin-top: 22px; }
+  /* measured: 6x6, radius 50%, margin 0 6px */
+  .tc__dots button {
+    width: 6px; height: 6px; border-radius: 50%; border: 0; padding: 0; margin: 0 6px;
+    background: var(--red); opacity: .2; cursor: pointer;
+  }
+  .tc__dots button[aria-current="true"] { background: var(--red); opacity: 1; }
+  @media (max-width: 760px) { .tc__track { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  document.querySelectorAll('[data-tc]').forEach((root) => {
+    const items = [...root.querySelectorAll('.tc__item')];
+    const dots  = root.querySelector('[data-dots]');
+    const perView = () => (window.matchMedia('(max-width:760px)').matches ? 1 : 2);
+    let page = 0;
+    const pages = () => Math.ceil(items.length / perView());
+
+    function render() {
+      const pv = perView();
+      const total = pages();
+      if (page >= total) page = 0;
+      items.forEach((el, i) => {
+        el.classList.toggle('on', i >= page * pv && i < page * pv + pv);
+      });
+      dots.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label', `Go to slide ${i + 1}`);
+        if (i === page) b.setAttribute('aria-current', 'true');
+        b.addEventListener('click', () => { page = i; render(); });
+        dots.appendChild(b);
+      }
+    }
+    render();
+    window.addEventListener('resize', render);
+    let timer = setInterval(() => { page = (page + 1) % pages(); render(); }, 5000);
+  });
+</script>

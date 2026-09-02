@@ -1,0 +1,132 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Testimonials from '../components/Testimonials.astro';
+import EstimateForm from '../components/EstimateForm.astro';
+import Gallery from '../components/Gallery.astro';
+
+const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const MAP = 'https://maps.app.goo.gl/vcgKyWXjbYnauoy9A';
+
+const badges = [
+  { src: `${IMG}/2024/12/verified-badge.png`,            alt: 'HomeStars verified badge' },
+  { src: `${IMG}/2024/12/BOA-2024.png`,                  alt: 'HomeStars Best of Award Winner 2024' },
+  { src: `${IMG}/2024/12/homestars-BOA-2023.webp`,       alt: 'HomeStars Best of Award Winner 2023' },
+  { src: `${IMG}/2024/12/homestars-boa-2022-black.webp`, alt: 'HomeStars Best of Award Winner 2022' },
+];
+
+const services = [
+  { icon: `${IMG}/2024/12/chimney-new.png`,       alt: 'chimney-new',       title: 'Chimney Rebuilds/Sweep',  body: 'Restoring, Rebuilding, and Cleaning chimneys to ensure safety and functionality.' },
+  { icon: `${IMG}/2024/12/historic-site-new.png`, alt: 'historic-site-new', title: 'Historical Buildings',    body: 'Specialized masonry restoration for preserving the charm and structure of heritage properties.' },
+  { icon: `${IMG}/2024/12/stones.png`,            alt: '',                  title: 'Brick/Block/Stone Work',  body: 'Custom masonry solutions using bricks, blocks, or stones for residential and commercial properties.' },
+  { icon: `${IMG}/2024/12/brickwall.png`,         alt: '',                  title: 'Brick Restoration',       body: 'Bringing aged or damaged bricks back to their original condition.' },
+  { icon: `${IMG}/2024/12/deck.png`,              alt: '',                  title: 'Porches',                 body: 'Expert masonry for durable and aesthetic porches.' },
+  { icon: `${IMG}/2024/12/road.png`,              alt: '',                  title: 'Walkways',                body: 'Designing and constructing walkways with high-quality stone and brickwork.' },
+  { icon: `${IMG}/2024/12/window-sills.png`,      alt: 'window sills',      title: 'Window Sills',            body: 'Precision masonry for window sill repairs and installations.' },
+  { icon: `${IMG}/2024/12/retaining-walls.png`,   alt: 'retaining walls',   title: 'Retaining Walls',         body: 'Strong and stylish retaining walls for landscaping and structural needs.' },
+  { icon: `${IMG}/2024/12/trowel-1.png`,          alt: 'trowel (1)',        title: 'Tuck-Pointing',           body: 'Restoring mortar joints for a clean and fresh masonry appearance.' },
+];
+
+const testimonials = [
+  { quote: "Brian's Masonry did an incredible job rebuilding our chimney. The team was professional, efficient, and left everything spotless. I couldn't be happier with the results!", name: 'Sarah Mitchell' },
+  { quote: "We hired Brian's Masonry to restore the brickwork on our heritage home, and the results were outstanding. They paid attention to every detail and preserved the original look beautifully!", name: 'John Reynolds' },
+  { quote: "Our porch and walkway needed a major upgrade, and Brian's team delivered beyond expectations. The stonework is flawless, and we get compliments all the time!", name: 'Emily Thompson' },
+  { quote: "The tuck-pointing on our house was done with such precision and care. Brian's Masonry exceeded our expectations and made our brickwork look brand new again.", name: 'Michael Williamson' },
+  { quote: "The team built a retaining wall for our garden, and it's both sturdy and stunning. Their craftsmanship speaks for itself. I highly recommend Brian's Masonry!", name: 'Lisa Patterson' },
+  { quote: "We called Brian's Masonry for a chimney sweep and inspection, and they were prompt, thorough, and professional. It's great to know our home is in good hands!", name: 'David Harrison' },
+];
+
+const projects = [
+  `${IMG}/2025/01/pillar-before.png`, `${IMG}/2025/01/pillar-after.png`,
+  `${IMG}/2025/01/tower-before.jpg`,  `${IMG}/2025/01/tower-after.jpg`,
+  `${IMG}/2024/12/b10.jpg`, `${IMG}/2024/12/b2.jpg`, `${IMG}/2024/12/b8.jpg`,
+  `${IMG}/2024/12/b3.jpg`,  `${IMG}/2024/12/b4.jpg`, `${IMG}/2024/12/b5.jpg`,
+  `${IMG}/2024/12/b6.jpg`,  `${IMG}/2024/12/b7.jpg`,
+];
+---
+<Base title="Brian's Masonry"
+      description="Expert masonry services for your home and business across the GTA. Chimney rebuilds, brick restoration, tuck-pointing and more.">
+
+  <Hero h2="Expert Masonry Services for Your Home and Business"
+        sub="Professional, reliable, and affordable masonry solutions." />
+
+  <section class="sec" id="About">
+    <div class="wrap grid g2 about">
+      <div>
+        <h2 class="h2">About Us</h2>
+        <p>At Brian&rsquo;s Masonry, located in York, Ontario, we bring over 20 years of expertise to
+          deliver top-notch masonry services for residential and commercial properties. Our specialties
+          include Chimney Rebuilds and Sweeps, Historical Building restoration, Brick, Block, and Stone
+          Work, Tuck-pointing, Retaining Walls, Window Sills, Porches, Walkways, and more. Dedicated to
+          quality craftsmanship and attention to detail, we ensure durable and visually appealing results
+          for all your masonry needs. Contact us today to enhance the beauty and integrity of your property!</p>
+        <div class="badges">
+          {badges.map((b) => <span><img src={b.src} alt={b.alt} loading="lazy" /></span>)}
+        </div>
+      </div>
+      <img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
+           alt="Brian's Masonry - About Us Image" loading="lazy" class="about__img" />
+    </div>
+  </section>
+
+  <section class="sec" id="Services">
+    <div class="wrap">
+      <h2 class="h2 h2--c">Our Services</h2>
+      <div class="grid g3 svc">
+        {services.map((s) => (
+          <article class="card">
+            <img class="ico" src={s.icon} alt={s.alt} width="90" height="90" loading="lazy" />
+            <h3>{s.title}</h3>
+            <p>{s.body}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Testimonials items={testimonials} />
+
+  <section class="sec" id="Projects">
+    <div class="wrap">
+      <h2 class="h2 h2--c">Projects</h2>
+      <Gallery images={projects} />
+    </div>
+  </section>
+
+  <section class="sec sec--blue ctsec" id="Contact">
+    <div class="wrap ct">
+      <div class="ct__img-col">
+        <img src={`${IMG}/2024/12/chimney-e1738015791924.png`} alt="chimney"
+             loading="lazy" class="ct__img" />
+      </div>
+      <div class="ct__txt-col">
+        <h2 class="h2">Contact Us</h2>
+        <p>Contact us for a free consultation and quote.</p>
+        <EstimateForm heading={null} city={false} card={false}
+                      invert={true} layout="contact" id="bottom-estimate" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* #0b25c32 row, padding 50px 10px ; #811918f h2 32/600 #000 ; #61d2d5e 16/400 #666666 */
+  .about { align-items: center; gap: 40px; }
+  .about p { font-size: 16px; font-weight: 400; color: var(--body-txt); }
+  .about__img { border-radius: var(--r); }
+  /* #7ad7af6 row centered ; #38ad626 width 25%, img 65% */
+  .badges { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; margin-top: 26px; }
+  .badges > span { width: 25%; max-width: 25%; text-align: center; }
+  .badges img { width: 65%; margin: 0 auto; height: auto; }
+  @media (max-width: 1024px) { .about p { text-align: justify; } }
+  .svc { margin-top: 24px; }
+  /* #88beb57 row, align center, gap 0, padding 50px 10px ; cols #62eb648/#ad0b23e padding 25px */
+  .ctsec { padding: 50px 0; }
+  .ct { display: flex; flex-direction: row; align-items: center; gap: 0; }
+  .ct__img-col, .ct__txt-col { padding: 25px; flex: 1 1 0; min-width: 0; }
+  .ct__txt-col { display: flex; flex-direction: column; justify-content: center; }
+  .ct__img { border-radius: var(--r); }                        /* #a6b2fba */
+  .ct .h2 { font-size: 32px; font-weight: 600; color: #fff; }  /* #86d0cc9 */
+  .ct p   { font-size: 16px; font-weight: 400; color: #fff; }  /* #414539d */
+  @media (max-width: 1024px) { .ct { flex-direction: column; } .ct__img-col, .ct__txt-col { width: 100%; } }
+</style>

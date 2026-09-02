@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+
+# local preview artefacts (generated, not source)
+preview/
+preview2/
+standalone/

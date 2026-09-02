@@ -1,0 +1,32 @@
+---
+import EstimateForm from './EstimateForm.astro';
+const { image, alt = '', heading, body } = Astro.props;
+---
+<section class="cc" id="Contact">
+  <div class="cc__in">
+    <div class="cc__col">
+      {image && <img src={image} alt={alt} loading="lazy" class="cc__img" />}
+    </div>
+    <div class="cc__col cc__col--txt">
+      <h2 class="cc__h">{heading}</h2>
+      <p class="cc__b">{body}</p>
+      <EstimateForm heading={null} city={false} card={false} invert={true} id="closing-estimate" />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* #88beb57 — row, align center, gap 0, padding 50px 10px */
+  .cc { background: var(--blue); padding: 50px 10px; }
+  .cc__in {
+    max-width: var(--content); margin: 0 auto;
+    display: flex; flex-direction: row; align-items: center; gap: 0;
+  }
+  /* #62eb648 / #ad0b23e — padding 25 */
+  .cc__col { padding: 25px; flex: 1 1 0; min-width: 0; }
+  .cc__col--txt { display: flex; flex-direction: column; justify-content: center; }
+  .cc__img { border-radius: var(--r); }        /* #a6b2fba */
+  .cc__h { font-size: 32px; font-weight: 600; color: #fff; }   /* #86d0cc9 */
+  .cc__b { font-size: 16px; font-weight: 400; color: #fff; }   /* #414539d */
+  @media (max-width: 1024px) { .cc__in { flex-direction: column; } .cc__col { width: 100%; } }
+</style>

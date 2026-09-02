@@ -1,0 +1,91 @@
+---
+// Measured from live: 4 columns of 342.5px, gap 10px, item 343x257 (4:3),
+// border-radius 5px, hover overlay rgba(0,0,0,.5), 12 lightbox links.
+const { images } = Astro.props;
+---
+<div class="gal" data-lightbox>
+  {images.map((src, i) => (
+    <a href={src} class="gal__item" data-i={i} aria-label={`Open project image ${i + 1}`}>
+      <img src={src} alt="" loading="lazy" />
+    </a>
+  ))}
+</div>
+
+<div class="lb" data-lb hidden>
+  <button class="lb__btn lb__close" data-lb-close aria-label="Close">&times;</button>
+  <button class="lb__btn lb__prev"  data-lb-prev  aria-label="Previous">&#8249;</button>
+  <img class="lb__img" data-lb-img alt="" />
+  <button class="lb__btn lb__next"  data-lb-next  aria-label="Next">&#8250;</button>
+  <div class="lb__count" data-lb-count></div>
+</div>
+
+<style>
+  /* #223221c — 4 cols, gap 10px, --image-border-radius 5px */
+  .gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 24px; }
+  .gal__item { position: relative; display: block; border-radius: var(--r); overflow: hidden; }
+  .gal__item::after {
+    content: ""; position: absolute; inset: 0;
+    background: rgba(0,0,0,.5); opacity: 0; transition: opacity .3s;
+  }
+  .gal__item:hover::after { opacity: 1; }
+  .gal__item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+  @media (max-width: 1024px) { .gal { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 767px)  { .gal { grid-template-columns: repeat(2, 1fr); } }
+
+  .lb {
+    position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.9);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lb[hidden] { display: none; }
+  .lb__img { max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: var(--r); }
+  .lb__btn {
+    position: absolute; background: none; border: 0; color: #fff; cursor: pointer;
+    font-size: 44px; line-height: 1; padding: 12px; opacity: .8;
+  }
+  .lb__btn:hover { opacity: 1; }
+  .lb__close { top: 10px; right: 18px; font-size: 40px; }
+  .lb__prev { left: 12px; }
+  .lb__next { right: 12px; }
+  .lb__count { position: absolute; bottom: 18px; color: #fff; font-size: 14px; opacity: .85; }
+</style>
+
+<script>
+  (() => {
+    const grid  = document.querySelector('[data-lightbox]');
+    const lb    = document.querySelector('[data-lb]');
+    if (!grid || !lb) return;
+    const img   = lb.querySelector('[data-lb-img]');
+    const count = lb.querySelector('[data-lb-count]');
+    const links = [...grid.querySelectorAll('.gal__item')];
+    let i = 0, lastFocus = null;
+
+    const show = (n) => {
+      i = (n + links.length) % links.length;
+      img.src = links[i].getAttribute('href');
+      count.textContent = `${i + 1} / ${links.length}`;
+    };
+    const open = (n) => {
+      lastFocus = document.activeElement;
+      show(n); lb.hidden = false;
+      document.body.style.overflow = 'hidden';
+      lb.querySelector('[data-lb-close]').focus();
+    };
+    const close = () => {
+      lb.hidden = true; img.src = '';
+      document.body.style.overflow = '';
+      if (lastFocus) lastFocus.focus();
+    };
+
+    links.forEach((a, n) => a.addEventListener('click', (e) => { e.preventDefault(); open(n); }));
+    lb.querySelector('[data-lb-close]').addEventListener('click', close);
+    lb.querySelector('[data-lb-prev]').addEventListener('click', () => show(i - 1));
+    lb.querySelector('[data-lb-next]').addEventListener('click', () => show(i + 1));
+    lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft')  show(i - 1);
+      if (e.key === 'ArrowRight') show(i + 1);
+    });
+  })();
+</script>

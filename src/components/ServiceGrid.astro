@@ -1,0 +1,25 @@
+---
+const { heading, items, cols = 'g3' } = Astro.props;
+---
+<section class="sec">
+  <div class="wrap">
+    {heading && <h2 class="h2 h2--c">{heading}</h2>}
+    <div class:list={['grid', cols, 'sg']}>
+      {items.map((it) => (
+        <article class="card">
+          {it.icon && <img class="ico" src={it.icon} alt={it.alt ?? ''} loading="lazy" />}
+          <h3>{it.title}</h3>
+          <p>{it.body}</p>
+          {it.ticks && <ul class="sg__ticks">{it.ticks.map((t) => <li>{t}</li>)}</ul>}
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .sg { margin-top: 24px; }
+  .sg__ticks { list-style: none; padding: 0; margin: 12px 0 0; text-align: center; }
+  .sg__ticks li { font-size: 15px; color: var(--card-txt); }
+  .sg__ticks li::before { content: "\2611  "; color: var(--blue); }
+</style>
