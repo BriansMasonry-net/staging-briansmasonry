@@ -35,9 +35,12 @@ does not win the cascade).
 
 ## Known gaps
 
-1. Images are hotlinked to briansmasonry.net and are blocked cross-origin.
-   They will not render from any other origin, including the Railway preview
-   URL. Fixed by moving them to Backblaze B2 (migration gates 4-5).
+1. ~~Images are hotlinked to briansmasonry.net and are blocked cross-origin.~~
+   Closed. All 184 files from `wp-content/uploads` now live in the Backblaze
+   B2 bucket `staging-briansmasonry-img` and are served through Cloudflare at
+   `img.staging.briansmasonry.net`. Paths are unchanged from WordPress, so the
+   gate 18 redirects stay one-to-one. The host is defined once, in
+   `src/lib/images.js` — that is the only line that changes at go-live.
 
 2. The four service pages and thank-you are styled by inference. Their own
    Elementor stylesheets return 404 on the live server:
