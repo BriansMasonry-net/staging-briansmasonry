@@ -8,4 +8,10 @@
 //
 // Never reference *.backblazeb2.com directly: traffic has to go through
 // Cloudflare or the client is billed for every image view.
+//
+// This hostname is permanent, not staging-only. The conventional
+// img.briansmasonry.net is already taken by the gallery project — it has its
+// own bucket (briansmasonry-img) and its own transform rule on the same zone —
+// so this site keeps img.staging.briansmasonry.net through go-live. Nothing
+// here changes at gate 13.
 export const IMG = 'https://img.staging.briansmasonry.net';
