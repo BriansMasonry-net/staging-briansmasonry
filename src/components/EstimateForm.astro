@@ -5,18 +5,57 @@ const { heading = 'Get a Free Estimate', city = true, submit = 'Submit',
         id = 'estimate', card = true, invert = false, layout = 'pairs' } = Astro.props;
 // layout 'pairs'   — hero form: Name|Email, Phone|City, Message
 // layout 'contact' — blue block: Name full, Email|Phone, Message, submit left
+
+// Turnstile is optional. The widget only renders once PUBLIC_TURNSTILE_SITE_KEY
+// is set, and /api/contact only enforces it once TURNSTILE_SECRET_KEY is set on
+// the Worker. Set both or neither.
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 <div class:list={['efw', card && 'efw--card', invert && 'efw--inv', `efw--${layout}`]}>
   {heading && <h2 class="ef__h">{heading}</h2>}
-  <form class="ef" id={id} method="post" action="/api/contact" data-todo="gate-11-resend">
+  <p class="ef__err" id={`${id}-err`} role="alert" hidden></p>
+  <form class="ef" id={id} method="post" action="/api/contact">
+    {/* Honeypot — off-screen, never announced, never focusable. A filled value
+        means a bot, and /api/contact drops the submission silently. */}
+    <div class="ef__pot" aria-hidden="true">
+      <label for={`${id}-company`}>Company</label>
+      <input type="text" id={`${id}-company`} name="company" tabindex="-1" autocomplete="off" />
+    </div>
+    <input type="hidden" name="source" value={id} />
     <div class="ef__grp ef__grp--name"><input type="text" name="name" placeholder="Name*" required autocomplete="name" /></div>
     <div class="ef__grp"><input type="email" name="email" placeholder="Email*" required autocomplete="email" /></div>
     <div class="ef__grp"><input type="tel"   name="phone" placeholder="Phone*" required autocomplete="tel" /></div>
     {city && <div class="ef__grp"><input type="text" name="city" placeholder="City*" autocomplete="address-level2" /></div>}
     <div class="ef__grp ef__grp--full"><textarea name="message" placeholder="Message" rows="4"></textarea></div>
+    {turnstileKey && (
+      <div class="ef__grp ef__grp--full">
+        <div class="cf-turnstile" data-sitekey={turnstileKey} data-theme={invert ? 'light' : 'auto'}></div>
+      </div>
+    )}
     <div class="ef__grp ef__grp--full ef__act"><button type="submit">{submit}</button></div>
   </form>
 </div>
+
+{turnstileKey && <script is:inline async src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>}
+
+{/* The form posts without JavaScript. This only surfaces the reason when
+    /api/contact bounces a submission back with ?error=. */}
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var code = new URLSearchParams(location.search).get('error');
+    if (!code || location.hash.replace('#', '') !== id) return;
+    var box = document.getElementById(id + '-err');
+    if (!box) return;
+    box.textContent = ({
+      invalid: 'Please add your name, a valid email address and a phone number.',
+      challenge: 'Please complete the challenge below and send again.',
+      send: 'That did not send. Please call (416) 244-4113 and we will pick it up.',
+      server: 'That did not send. Please call (416) 244-4113 and we will pick it up.',
+    })[code] || 'That did not send. Please try again.';
+    box.hidden = false;
+    box.scrollIntoView({ block: 'center' });
+  })();
+</script>
 
 <style>
   /* #0f5a8ce — bg #FFF, radius 5, shadow 0 0 10px rgba(0,0,0,.5), padding 35 */
@@ -66,6 +105,19 @@ const { heading = 'Get a Free Estimate', city = true, submit = 'Submit',
   /* inverted: white button, blue label */
   .efw--inv .ef button { background: #fff; color: var(--blue); border-color: #fff; }
   .efw--inv .ef button:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* honeypot — out of sight, out of the tab order, still fillable by a bot */
+  .ef__pot {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+
+  /* error banner, shown only when /api/contact bounces the submission back */
+  .ef__err {
+    background: var(--red); color: #fff; border-radius: var(--r);
+    padding: 10px 16px; margin-bottom: 12px; font-size: 15px; line-height: 1.4;
+  }
+  .efw--inv .ef__err { background: #fff; color: var(--red); }
 
   @media (max-width: 767px) { .ef__grp { width: 100%; } .efw--card { padding: 24px; } }
 </style>

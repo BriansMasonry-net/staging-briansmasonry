@@ -1,0 +1,20 @@
+# Copy to .dev.vars for local dev. .dev.vars is git-ignored — never commit a key.
+#
+# In production these live on the Worker under
+# Settings -> Variables & Secrets, with RESEND_API_KEY added as a SECRET.
+# A key added under Build settings is present while the build runs and absent
+# when the route executes: the build passes and the form fails in production.
+
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
+
+# Optional overrides. The route falls back to these same values in code.
+# From must stay on the shared TBOX sending domain, never the client's domain.
+CONTACT_FROM="Brian's Masonry Website <forms@brandingcentres.com>"
+CONTACT_TO=briansmasonry@ymail.com
+CONTACT_REPLY_TO=briansmasonry@ymail.com
+
+# Optional abuse protection. Set both or neither:
+#   TURNSTILE_SECRET_KEY       here / Worker secret  (server verification)
+#   PUBLIC_TURNSTILE_SITE_KEY  build variable        (renders the widget)
+# TURNSTILE_SECRET_KEY=
+# PUBLIC_TURNSTILE_SITE_KEY=
