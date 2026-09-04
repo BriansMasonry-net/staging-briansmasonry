@@ -8,10 +8,12 @@
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
 
 # Optional overrides. The route falls back to these same values in code.
-# From must stay on the shared TBOX sending domain, never the client's domain.
-CONTACT_FROM="Brian's Masonry Website <forms@brandingcentres.com>"
+# From sends as the client's own domain here (see README — a deliberate
+# exception to the stack default), and it must stay on a domain verified in
+# Resend. CONTACT_REPLY_TO overrides the default, which is the visitor.
+CONTACT_FROM="Brian's Masonry Website <forms@briansmasonry.net>"
 CONTACT_TO=briansmasonry@ymail.com
-CONTACT_REPLY_TO=briansmasonry@ymail.com
+# CONTACT_REPLY_TO=  # unset = the visitor's own address
 
 # Optional abuse protection. Set both or neither:
 #   TURNSTILE_SECRET_KEY       here / Worker secret  (server verification)

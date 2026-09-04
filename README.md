@@ -63,14 +63,22 @@ file and silently accepts nothing.
 
 ### Addressing
 
-    From ......  the shared TBOX sending domain (brandingcentres.com)
+    From ......  forms@briansmasonry.net — the client's own domain
     To ........  the client's inbox (briansmasonry@ymail.com)
     Reply-To ..  the visitor, so hitting reply answers the customer
 
-The client's own domain is never used as a sending domain, so nothing here can
-touch their existing mail reputation. briansmasonry.net publishes no MX and no
-SPF, and a DMARC of p=quarantine — mail sent as @briansmasonry.net would be
-quarantined, which is exactly why the shared domain sends instead.
+**This site sends from the client's own domain, which is a deliberate exception
+to the stack default** (wp-15 says to send from the shared TBOX domain and never
+from the client's). The rule exists to protect a client's existing mail, and
+this zone had almost none to protect: briansmasonry.net publishes no MX — Brian
+reads mail at Yahoo, on ymail.com — and no apex SPF. Setting it up added three
+records on `resend._domainkey` and a `send.` subdomain and touched nothing at
+the apex, which still has 0 MX and 0 TXT.
+
+It also fixed a latent problem rather than creating one. The domain already
+published `DMARC p=quarantine` with no SPF and no DKIM to satisfy it, so
+anything claiming to be from briansmasonry.net was destined for the spam
+folder. It now has aligned DKIM and SPF.
 
 The visitor's address is never put in From — receiving servers read that as
 forgery — it goes in Reply-To. (The gate-11 note in wp-15 says Reply-To should
@@ -88,7 +96,7 @@ production. Locally it comes from `.dev.vars` (git-ignored; see
 | Variable | Where | Default |
 |---|---|---|
 | `RESEND_API_KEY` | Worker secret | none — the route 500s without it |
-| `CONTACT_FROM` | Worker variable | `Brian's Masonry Website <forms@brandingcentres.com>` |
+| `CONTACT_FROM` | Worker variable | `Brian's Masonry Website <forms@briansmasonry.net>` |
 | `CONTACT_TO` | Worker variable | `briansmasonry@ymail.com` |
 | `CONTACT_REPLY_TO` | Worker variable | the visitor's own address |
 | `TURNSTILE_SECRET_KEY` | Worker secret, optional | unset — no challenge |
@@ -153,8 +161,14 @@ that touches mail re-proves the client's own mail survived it.
                         Ash@brandingcentres.com's, 47a8235...)
     Address ........... https://staging.briansmasonry.net — the ONLY one.
     Secret ............ RESEND_API_KEY, secret_text on the Worker
-    Resend API key .... "staging.briansmasonry.net worker", sending_access,
-                        restricted to the brandingcentres.com domain
+    Resend API key .... "staging.briansmasonry.net worker — own domain",
+                        sending_access, restricted to briansmasonry.net
+    Sending domain .... briansmasonry.net, verified on Resend 2026-09-04.
+                        Records in the client's Cloudflare zone:
+                          TXT resend._domainkey  (DKIM)
+                          TXT send               v=spf1 include:amazonses.com ~all
+                          MX  send  10           feedback-smtp.us-east-1.amazonses.com
+                        The apex carries none of these and must stay that way.
 
 `wrangler.jsonc` sets `workers_dev: false` and `preview_urls: false` on
 purpose. Without them every `wrangler deploy` re-enables a public
@@ -191,3 +205,25 @@ The one test message was addressed to Paolo@tboxstudio.com via a temporary
 client's inbox) applies. **Delivery to briansmasonry@ymail.com has therefore
 not been proven** — Yahoo's spam filtering and Brian's reply behaviour are
 still untested, and that is what gate 11's SEE step asks for.
+
+
+## Staging must not be indexed
+
+`public/_headers` sets `X-Robots-Tag: noindex, nofollow`, scoped to
+`https://staging.briansmasonry.net/*`.
+
+Two things make that scoping load-bearing. Every page's canonical points at
+`https://briansmasonry.net/`, so an indexed preview would compete with the
+client's live site. And at the domain cutover the real domain is attached to
+**this same Worker** — an unscoped `/*` rule would follow it into production and
+quietly deindex the business.
+
+It lives in `public/` so it survives every deploy. The build before this one
+served the header from a `_headers` file that existed only inside the build
+output and never in git, so the first redeploy from a clean checkout silently
+dropped it and left the preview indexable. Check the header after any deploy:
+
+    curl -sD - -o /dev/null https://staging.briansmasonry.net/ | grep -i x-robots-tag
+
+Cloudflare applies `_headers` only to static asset responses — `/api/contact` is
+the Worker script and sets its own.
