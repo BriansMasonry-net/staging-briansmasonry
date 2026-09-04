@@ -16,10 +16,12 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   <p class="ef__err" id={`${id}-err`} role="alert" hidden></p>
   <form class="ef" id={id} method="post" action="/api/contact">
     {/* Honeypot — off-screen, never announced, never focusable. A filled value
-        means a bot, and /api/contact drops the submission silently. */}
+        means a bot, and /api/contact drops the submission silently. The name is
+        deliberately NOT "company": browser address autofill maps that one to
+        `organization` and would fill it for a real person, losing the lead. */}
     <div class="ef__pot" aria-hidden="true">
-      <label for={`${id}-company`}>Company</label>
-      <input type="text" id={`${id}-company`} name="company" tabindex="-1" autocomplete="off" />
+      <label for={`${id}-ref`}>Leave this field empty</label>
+      <input type="text" id={`${id}-ref`} name="form_ref" tabindex="-1" autocomplete="off" />
     </div>
     <input type="hidden" name="source" value={id} />
     <div class="ef__grp ef__grp--name"><input type="text" name="name" placeholder="Name*" required autocomplete="name" /></div>
@@ -38,19 +40,39 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 {turnstileKey && <script is:inline async src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>}
 
-{/* The form posts without JavaScript. This only surfaces the reason when
-    /api/contact bounces a submission back with ?error=. */}
+{/* The form posts without JavaScript. This only stops a double-click sending
+    the lead twice, and surfaces the reason when /api/contact bounces one back
+    with ?error=. */}
 <script is:inline define:vars={{ id }}>
   (function () {
+    var form = document.getElementById(id);
+    if (form) {
+      form.addEventListener('submit', function () {
+        var btn = form.querySelector('button[type="submit"]');
+        if (!btn || btn.disabled) return;
+        // Disable AFTER this tick so the button's own value still posts.
+        setTimeout(function () { btn.disabled = true; btn.textContent = 'Sending…'; }, 0);
+      });
+      // Back button / bfcache: give the form back to the visitor.
+      window.addEventListener('pageshow', function () {
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) btn.disabled = false;
+      });
+    }
+
     var code = new URLSearchParams(location.search).get('error');
     if (!code || location.hash.replace('#', '') !== id) return;
     var box = document.getElementById(id + '-err');
     if (!box) return;
+    var callUs = 'That did not send. Please call (416) 244-4113 and we will pick it up.';
     box.textContent = ({
       invalid: 'Please add your name, a valid email address and a phone number.',
       challenge: 'Please complete the challenge below and send again.',
-      send: 'That did not send. Please call (416) 244-4113 and we will pick it up.',
-      server: 'That did not send. Please call (416) 244-4113 and we will pick it up.',
+      busy: 'That is taking longer than usual. Please try again in a moment.',
+      toomany: 'That is a lot of submissions from this connection. Please call (416) 244-4113.',
+      toobig: 'That message is too long. Please shorten it and try again.',
+      send: callUs,
+      server: callUs,
     })[code] || 'That did not send. Please try again.';
     box.hidden = false;
     box.scrollIntoView({ block: 'center' });

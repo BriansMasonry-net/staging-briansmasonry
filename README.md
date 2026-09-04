@@ -64,12 +64,18 @@ file and silently accepts nothing.
 ### Addressing
 
     From ......  the shared TBOX sending domain (brandingcentres.com)
-    To ........  the client's inbox
-    Reply-To ..  the client's own address
+    To ........  the client's inbox (briansmasonry@ymail.com)
+    Reply-To ..  the visitor, so hitting reply answers the customer
 
 The client's own domain is never used as a sending domain, so nothing here can
-touch their existing mail reputation. The visitor's address is never put in
-From — receiving servers read that as forgery — it travels in the body.
+touch their existing mail reputation. briansmasonry.net publishes no MX and no
+SPF, and a DMARC of p=quarantine — mail sent as @briansmasonry.net would be
+quarantined, which is exactly why the shared domain sends instead.
+
+The visitor's address is never put in From — receiving servers read that as
+forgery — it goes in Reply-To. (The gate-11 note in wp-15 says Reply-To should
+be the client's own address; that would have Brian replying to himself, so this
+build sends the visitor instead. Set CONTACT_REPLY_TO to override.)
 
 ### Configuration
 
@@ -84,14 +90,25 @@ production. Locally it comes from `.dev.vars` (git-ignored; see
 | `RESEND_API_KEY` | Worker secret | none — the route 500s without it |
 | `CONTACT_FROM` | Worker variable | `Brian's Masonry Website <forms@brandingcentres.com>` |
 | `CONTACT_TO` | Worker variable | `briansmasonry@ymail.com` |
-| `CONTACT_REPLY_TO` | Worker variable | `briansmasonry@ymail.com` |
+| `CONTACT_REPLY_TO` | Worker variable | the visitor's own address |
 | `TURNSTILE_SECRET_KEY` | Worker secret, optional | unset — no challenge |
 | `PUBLIC_TURNSTILE_SITE_KEY` | build variable, optional | unset — no widget |
 
 Turnstile is off until both halves are set. Set both or neither: the widget
 only renders with the site key, and the route only verifies with the secret.
-A honeypot field runs regardless; a WAF rate-limit rule on the same Cloudflare
-account is the other half of the abuse protection.
+
+Three things run regardless of Turnstile:
+
+- a **honeypot** field, deliberately NOT named `company` — browser address
+  autofill maps that name to `organization` and would fill it for a real
+  person, silently binning the lead;
+- a **per-IP cap** of 5 posts an hour, counted in the Worker's existing SESSION
+  KV namespace. It fails open: if KV is unavailable the lead still goes
+  through, because losing a customer costs more than receiving a spam message;
+- an **idempotency key** derived from the submission itself, so a double-click
+  or a retry after a timeout collapses into one email at Resend.
+
+A WAF rate-limit rule on the same Cloudflare account is still the hard edge.
 
 ### Responses
 
@@ -100,8 +117,12 @@ account is the other half of the abuse protection.
 | accepted | `202 {ok, id}` | `303 → /thank-you/` |
 | honeypot filled | `202 {ok}` (dropped) | `303 → /thank-you/` (dropped) |
 | missing/invalid fields | `400 invalid` | `303 → <page>?error=invalid#<form id>` |
+| body over 64 KB | `413 toobig` | `303 → ...?error=toobig` |
 | challenge failed | `403 challenge` | `303 → ...?error=challenge` |
+| over 5 posts/hour from one IP | `429 toomany` | `303 → ...?error=toomany` |
 | key missing at runtime | `500 server` | `303 → ...?error=server` |
+| Resend busy (429/5xx/quota) | `503 busy` | `303 → ...?error=busy` |
+| Resend silent past 12s | `504 busy` | `303 → ...?error=busy` |
 | Resend rejected the send | `502 send` | `303 → ...?error=send` |
 | not POST | `405` | `405` |
 
@@ -124,3 +145,49 @@ Then open the message in the client's inbox and hit reply: it must address the
 client, not the sending domain. Re-check `dig +short MX briansmasonry.net` and
 `dig +short TXT briansmasonry.net` against the gate 0.3 baseline — every gate
 that touches mail re-proves the client's own mail survived it.
+
+
+## What is deployed, and where the key lives
+
+    Worker ............ staging-briansmasonry (Cloudflare account
+                        Ash@brandingcentres.com's, 47a8235...)
+    Address ........... https://staging.briansmasonry.net — the ONLY one.
+    Secret ............ RESEND_API_KEY, secret_text on the Worker
+    Resend API key .... "staging.briansmasonry.net worker", sending_access,
+                        restricted to the brandingcentres.com domain
+
+`wrangler.jsonc` sets `workers_dev: false` and `preview_urls: false` on
+purpose. Without them every `wrangler deploy` re-enables a public
+`*.workers.dev` hostname and per-version preview URLs, which puts the client's
+unfinished site on the open internet under a second name. Note that wrangler
+reads its deploy config from the adapter's generated `dist/server/wrangler.json`,
+so if those flags ever stop taking effect, turn the subdomain off directly:
+
+    curl -X POST -H "Authorization: Bearer $CF_API_TOKEN" \
+      -H 'Content-Type: application/json' --data '{"enabled":false,"previews_enabled":false}' \
+      https://api.cloudflare.com/client/v4/accounts/<account>/workers/scripts/staging-briansmasonry/subdomain
+
+Secrets cannot be changed while an undeployed version exists — `wrangler secret
+put` fails with "deploy the latest version first". Deploy, then set secrets.
+
+### Proven on 2026-09-04
+
+    route deployed ............ yes, /api/contact answers on staging
+    prerendered ............... no
+    secret at runtime ......... yes, Worker secret (not a build variable)
+    build-time key inlining ... none — a canary key in the build env does not
+                                appear anywhere in dist/
+    GET / bad fields / 64KB ... 405 / 400 / 413, no mail sent
+    honeypot .................. 202, dropped, no mail sent
+    rate limit ................ 6th post in an hour returns 429
+    one real submission ....... 202, Resend id cf9eca5c-…, last_event delivered
+    from ...................... Brian's Masonry Website <forms@brandingcentres.com>
+    reply_to .................. the visitor's address
+    client MX / TXT / DMARC ... unchanged: 0 MX, 0 apex TXT, 1 DMARC — identical
+                                to the pre-work baseline
+
+The one test message was addressed to Paolo@tboxstudio.com via a temporary
+`CONTACT_TO` secret, which has since been deleted so the code default (the
+client's inbox) applies. **Delivery to briansmasonry@ymail.com has therefore
+not been proven** — Yahoo's spam filtering and Brian's reply behaviour are
+still untested, and that is what gate 11's SEE step asks for.

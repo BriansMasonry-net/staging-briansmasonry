@@ -4,6 +4,13 @@
   "compatibility_date": "2026-09-03",
   "compatibility_flags": ["nodejs_compat"],
 
+  // staging.briansmasonry.net (a Custom Domain) is the ONLY address this build
+  // should answer on. Without these two, wrangler enables a public
+  // *.workers.dev URL and per-version preview URLs on every deploy, which puts
+  // the client's unfinished site on the open internet under another hostname.
+  "workers_dev": false,
+  "preview_urls": false,
+
   // The adapter's own entrypoint (@astrojs/cloudflare v12+; older builds in the
   // house notes point `main` at ./dist/_worker.js/index.js, which this version
   // rejects at build time). It exists for /api/contact and nothing else — every
