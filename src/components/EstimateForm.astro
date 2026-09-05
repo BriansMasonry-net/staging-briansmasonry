@@ -4,7 +4,7 @@
 const { heading = 'Get a Free Estimate', city = true, submit = 'Submit',
         id = 'estimate', card = true, invert = false, layout = 'pairs' } = Astro.props;
 // layout 'pairs'   — hero form: Name|Email, Phone|City, Message
-// layout 'contact' — blue block: Name full, Email|Phone, Message, submit left
+// layout 'contact' — blue block: Name full, Email|Phone, City full, Message, submit left
 ---
 <div class:list={['efw', card && 'efw--card', invert && 'efw--inv', `efw--${layout}`]}>
   {heading && <h2 class="ef__h">{heading}</h2>}
@@ -12,7 +12,7 @@ const { heading = 'Get a Free Estimate', city = true, submit = 'Submit',
     <div class="ef__grp ef__grp--name"><input type="text" name="name" placeholder="Name*" required autocomplete="name" /></div>
     <div class="ef__grp"><input type="email" name="email" placeholder="Email*" required autocomplete="email" /></div>
     <div class="ef__grp"><input type="tel"   name="phone" placeholder="Phone*" required autocomplete="tel" /></div>
-    {city && <div class="ef__grp"><input type="text" name="city" placeholder="City*" autocomplete="address-level2" /></div>}
+    {city && <div class="ef__grp ef__grp--city"><input type="text" name="city" placeholder="City*" autocomplete="address-level2" /></div>}
     <div class="ef__grp ef__grp--full"><textarea name="message" placeholder="Message" rows="4"></textarea></div>
     <div class="ef__grp ef__grp--full ef__act"><button type="submit">{submit}</button></div>
   </form>
@@ -36,8 +36,9 @@ const { heading = 'Get a Free Estimate', city = true, submit = 'Submit',
   .ef { display: flex; flex-wrap: wrap; margin: 0 -5px -10px; }
   .ef__grp { padding: 0 5px; margin-bottom: 10px; width: 50%; }
   .ef__grp--full { width: 100%; }
-  /* contact block: Name spans the row, Email + Phone share the next */
-  .efw--contact .ef__grp--name { width: 100%; }
+  /* contact block: Name spans the row, Email + Phone share the next, City spans its own */
+  .efw--contact .ef__grp--name,
+  .efw--contact .ef__grp--city { width: 100%; }
   /* contact block submit sits left, not centred */
   .efw--contact .ef__act { text-align: left; }
 
