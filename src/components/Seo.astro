@@ -1,0 +1,96 @@
+---
+/* ------------------------------------------------------------------
+   The only place the site writes head metadata. Base.astro renders it
+   once; pages pass their own title, description and any extra JSON-LD
+   nodes.
+
+   Metadata is validated here rather than linted later: a page with a
+   missing or out-of-range title or description fails `npm run build`
+   instead of shipping. bin/check-seo.mjs re-checks the built output,
+   because a component can only vouch for what it was handed.
+   ------------------------------------------------------------------ */
+import { seo, businessNode } from '../seo.config.ts';
+
+const {
+  title,
+  description,
+  noindex = false,
+  image = seo.ogImage.path,
+  graph = [],
+  type = 'website',
+} = Astro.props;
+
+const path = Astro.url.pathname;
+
+function fail(what: string, detail: string): never {
+  throw new Error(`Seo: ${path} — ${what} ${detail}. Fix it in the page, not here.`);
+}
+if (!title) fail('title', 'is missing');
+if (title.length < seo.limits.titleMin || title.length > seo.limits.titleMax) {
+  fail('title', `is ${title.length} characters; keep it between ${seo.limits.titleMin} and ${seo.limits.titleMax}`);
+}
+if (!description) fail('description', 'is missing');
+if (description.length < seo.limits.descriptionMin || description.length > seo.limits.descriptionMax) {
+  fail('description', `is ${description.length} characters; keep it between ${seo.limits.descriptionMin} and ${seo.limits.descriptionMax}`);
+}
+
+const canonical = new URL(path, seo.url).href;
+const ogImage = new URL(image, seo.url).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    businessNode(),
+    {
+      '@type': 'WebSite',
+      '@id': `${seo.url}/#website`,
+      url: `${seo.url}/`,
+      name: seo.siteName,
+      publisher: { '@id': `${seo.url}/#business` },
+      inLanguage: seo.locale.replace('_', '-'),
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${canonical}#webpage`,
+      url: canonical,
+      name: title,
+      description,
+      isPartOf: { '@id': `${seo.url}/#website` },
+      about: { '@id': `${seo.url}/#business` },
+      primaryImageOfPage: ogImage,
+      inLanguage: seo.locale.replace('_', '-'),
+    },
+    ...graph,
+  ],
+};
+
+// `<` is escaped so a stray "</script>" inside any string cannot close the block.
+const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={seo.siteName} />
+<meta property="og:locale" content={seo.locale} />
+<meta property="og:url" content={canonical} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content={String(seo.ogImage.width)} />
+<meta property="og:image:height" content={String(seo.ogImage.height)} />
+<meta property="og:image:type" content={seo.ogImage.type} />
+<meta property="og:image:alt" content={title} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<script type="application/ld+json" set:html={jsonLdText} is:inline />

@@ -8,7 +8,10 @@ const slides = [
   `${IMG}/2025/01/Brians-Masonry-Banner-Image-2.webp`,
   `${IMG}/2025/01/Brians-Masonry-Banner-Image-3.webp`,
 ];
-const { h2, sub } = Astro.props;
+// The headline is the page's <h1>. The live site marks both lines up as <h2>,
+// which leaves the home page with no top-level heading at all; the styling is
+// carried by the classes, so the tags change without the look changing.
+const { h1, sub } = Astro.props;
 ---
 <section class="hero">
   <div class="hero__bg" aria-hidden="true">
@@ -19,8 +22,8 @@ const { h2, sub } = Astro.props;
   <div class="hero__ov" aria-hidden="true"></div>
   <div class="hero__in">
     <div class="hero__copy">
-      <h2 class="hero__h">{h2}</h2>
-      <h2 class="hero__sub">{sub}</h2>
+      <h1 class="hero__h">{h1}</h1>
+      <p class="hero__sub">{sub}</p>
       <a class="btn" href="#Contact"><small>Get a Quote</small>(416) 244-4113</a>
     </div>
     <EstimateForm id="top-estimate" />

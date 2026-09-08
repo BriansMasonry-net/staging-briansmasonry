@@ -5,15 +5,17 @@ import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
 import { size } from '../image-sizes.js';
+import { seo, serviceNode, faqNode, breadcrumbNode } from '../seo.config.ts';
 
 const IMG = 'https://briansmasonry.net/wp-content/uploads';
 const PROBLEM = `${IMG}/2026/06/Brick-Work.webp`;
+const PROBLEM_ALT = 'Close-up of a red brick wall with weathered, receding mortar joints';
 const RW = `${IMG}/2024/12/retaining-walls.png`;
 
 const services = [
-  { icon: RW, alt: 'retaining walls', title: 'Brick Replacement', body: 'Removing damaged, spalled, or loose bricks and replacing them with structurally sound units that match your original masonry.', ticks: ['Spalled brick repair', 'Colour matching'] },
-  { icon: RW, alt: 'retaining walls', title: 'Crack Repair / Tuckpointing', body: 'Identifying root causes of wall cracking and performing deep-fill repairs that restore both integrity and appearance.', ticks: ['Structural stabilization', 'Mortar blending'] },
-  { icon: RW, alt: 'retaining walls', title: 'Full Restoration', body: 'Comprehensive rebuilding of damaged sections, including chimneys, porches, and full wall facades using expert masonry.', ticks: ['Chimney repair', 'Wall rebuilding'] },
+  { icon: RW, title: 'Brick Replacement', body: 'Removing damaged, spalled, or loose bricks and replacing them with structurally sound units that match your original masonry.', ticks: ['Spalled brick repair', 'Colour matching'] },
+  { icon: RW, title: 'Crack Repair / Tuckpointing', body: 'Identifying root causes of wall cracking and performing deep-fill repairs that restore both integrity and appearance.', ticks: ['Structural stabilization', 'Mortar blending'] },
+  { icon: RW, title: 'Full Restoration', body: 'Comprehensive rebuilding of damaged sections, including chimneys, porches, and full wall facades using expert masonry.', ticks: ['Chimney repair', 'Wall rebuilding'] },
 ];
 
 const faqs = [
@@ -22,9 +24,16 @@ const faqs = [
   { q: 'Are cracks in my brick wall serious?', a: 'Horizontal and vertical cracks should always be inspected. "Step cracks" often indicate structural movement that needs professional attention.' },
   { q: 'What is your cleanup process?', a: 'We pride ourselves on leaving every job site spotless. We perform a thorough cleanup of all masonry dust and debris before we leave.' },
 ];
+const DESCRIPTION = "Brian's Masonry repairs and restores brick and stone on homes across the GTA — matched, solid, and built to last. Multiple HomeStars award winner.";
+const PAGE = new URL('/brick-repair-restoration/', seo.url).href;
+const graph = [
+  serviceNode({ name: 'Brick Repair & Restoration', description: DESCRIPTION, url: PAGE }),
+  faqNode(faqs, PAGE),
+  breadcrumbNode('Brick Repair & Restoration', PAGE),
+];
 ---
 <Base title="Brick Repair & Restoration – Brian's Masonry"
-      description="Brian's Masonry repairs and restores brick and stone on homes across the GTA — matched, solid, and built to last. Multiple HomeStars award winner.">
+      description={DESCRIPTION} graph={graph}>
 
   <ServiceHero
     h1="Cracked or Crumbling Brick?"
@@ -34,7 +43,7 @@ const faqs = [
 
   <section class="sec">
     <div class="wrap grid g2 problem">
-      <img src={PROBLEM} alt="" loading="lazy" class="problem__img" {...size(PROBLEM)} />
+      <img src={PROBLEM} alt={PROBLEM_ALT} loading="lazy" class="problem__img" {...size(PROBLEM)} />
       <div>
         <h2 class="h2">Don&rsquo;t Ignore Brick Damage</h2>
         <p>Brick problems only get worse — and more expensive — when ignored. Small cracks allow water
@@ -54,7 +63,7 @@ const faqs = [
 
   <ServiceGrid heading="Our Professional Services" items={services} />
   <Faq items={faqs} />
-  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="bm-about us"
+  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="Tradespeople reviewing project drawings together over a workbench"
     heading="Stop the damage before it spreads."
     body="Clear scope, proper coverage, clean sites — 20+ years of it." />
 </Base>

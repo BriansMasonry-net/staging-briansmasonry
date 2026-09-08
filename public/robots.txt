@@ -36,5 +36,4 @@ Disallow: /
 User-agent: meta-externalagent
 Disallow: /
 
-# No Sitemap: line yet — the live site declares one that returns 404, and there
-# is nothing to point at here until a sitemap is generated.
+Sitemap: https://briansmasonry.net/sitemap-index.xml

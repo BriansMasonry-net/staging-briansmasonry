@@ -5,9 +5,9 @@ import { size } from '../image-sizes.js';
 const { images } = Astro.props;
 ---
 <div class="gal" data-lightbox>
-  {images.map((src, i) => (
-    <a href={src} class="gal__item" data-i={i} aria-label={`Open project image ${i + 1}`}>
-      <img src={src} alt="" loading="lazy" {...size(src)} />
+  {images.map((img, i) => (
+    <a href={img.src} class="gal__item" data-i={i} aria-label={`Open full-size photo: ${img.alt}`}>
+      <img src={img.src} alt={img.alt} loading="lazy" {...size(img.src)} />
     </a>
   ))}
 </div>
