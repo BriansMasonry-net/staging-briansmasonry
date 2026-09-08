@@ -4,8 +4,10 @@ import ServiceHero from '../components/ServiceHero.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
+import { size } from '../image-sizes.js';
 
 const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const PROBLEM = `${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`;
 const RW = `${IMG}/2024/12/retaining-walls.png`;
 
 const services = [
@@ -36,8 +38,7 @@ const faqs = [
 
   <section class="sec">
     <div class="wrap grid g2 problem">
-      <img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
-           alt="Brian's Masonry - About Us Image" loading="lazy" class="problem__img" />
+      <img src={PROBLEM} alt="Brian's Masonry - About Us Image" loading="lazy" class="problem__img" {...size(PROBLEM)} />
       <div>
         <h2 class="h2">For property managers and business owners who need it done right.</h2>
         <p>Deteriorating brickwork and failing mortar joints aren&rsquo;t just aesthetic issues — they&rsquo;re

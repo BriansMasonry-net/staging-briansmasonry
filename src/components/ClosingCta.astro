@@ -1,11 +1,12 @@
 ---
 import EstimateForm from './EstimateForm.astro';
+import { size } from '../image-sizes.js';
 const { image, alt = '', heading, body } = Astro.props;
 ---
 <section class="cc" id="Contact">
   <div class="cc__in">
     <div class="cc__col">
-      {image && <img src={image} alt={alt} loading="lazy" class="cc__img" />}
+      {image && <img src={image} alt={alt} loading="lazy" class="cc__img" {...size(image)} />}
     </div>
     <div class="cc__col cc__col--txt">
       <h2 class="cc__h">{heading}</h2>

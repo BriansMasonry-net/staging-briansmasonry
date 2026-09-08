@@ -4,8 +4,10 @@ import ServiceHero from '../components/ServiceHero.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
+import { size } from '../image-sizes.js';
 
 const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const PROBLEM = `${IMG}/2026/06/Brick-Work.webp`;
 const RW = `${IMG}/2024/12/retaining-walls.png`;
 
 const services = [
@@ -32,7 +34,7 @@ const faqs = [
 
   <section class="sec">
     <div class="wrap grid g2 problem">
-      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="" loading="lazy" class="problem__img" />
+      <img src={PROBLEM} alt="" loading="lazy" class="problem__img" {...size(PROBLEM)} />
       <div>
         <h2 class="h2">Don&rsquo;t Ignore Brick Damage</h2>
         <p>Brick problems only get worse — and more expensive — when ignored. Small cracks allow water

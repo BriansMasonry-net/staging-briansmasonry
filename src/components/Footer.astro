@@ -1,14 +1,15 @@
 ---
 // Ported from post-1005.css (footer template).
+import { size } from '../image-sizes.js';
 const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const LOGO = `${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`;
 const MAP = 'https://maps.app.goo.gl/vcgKyWXjbYnauoy9A';
 const year = new Date().getFullYear();
 ---
 <footer class="ft">
   <div class="ft__in">
     <div class="ft__logo">
-      <a href="/"><img src={`${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`}
-        alt="Brian's Masonry Logo" width="320" height="112" /></a>
+      <a href="/"><img src={LOGO} alt="Brian's Masonry Logo" {...size(LOGO)} /></a>
     </div>
 
     <div class="ft__cards">

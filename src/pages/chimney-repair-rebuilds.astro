@@ -4,8 +4,10 @@ import ServiceHero from '../components/ServiceHero.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
+import { size } from '../image-sizes.js';
 
 const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const PROBLEM = `${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`;
 const CH = `${IMG}/2024/12/chimney-new.png`;
 
 const symptoms = [
@@ -40,8 +42,7 @@ const faqs = [
   <section class="sec">
     <div class="wrap">
       <div class="grid g2 problem">
-        <img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
-             alt="Brian's Masonry - About Us Image" loading="lazy" class="problem__img" />
+        <img src={PROBLEM} alt="Brian's Masonry - About Us Image" loading="lazy" class="problem__img" {...size(PROBLEM)} />
         <div>
           <h2 class="h2">A failing chimney lets in water and gets worse fast.</h2>
           <div class="grid g2 sym">

@@ -4,8 +4,11 @@ import Hero from '../components/Hero.astro';
 import Testimonials from '../components/Testimonials.astro';
 import EstimateForm from '../components/EstimateForm.astro';
 import Gallery from '../components/Gallery.astro';
+import { size } from '../image-sizes.js';
 
 const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const ABOUT = `${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`;
+const CONTACT = `${IMG}/2024/12/chimney-e1738015791924.png`;
 const MAP = 'https://maps.app.goo.gl/vcgKyWXjbYnauoy9A';
 
 const badges = [
@@ -61,11 +64,11 @@ const projects = [
           quality craftsmanship and attention to detail, we ensure durable and visually appealing results
           for all your masonry needs. Contact us today to enhance the beauty and integrity of your property!</p>
         <div class="badges">
-          {badges.map((b) => <span><img src={b.src} alt={b.alt} loading="lazy" /></span>)}
+          {badges.map((b) => <span><img src={b.src} alt={b.alt} loading="lazy" {...size(b.src)} /></span>)}
         </div>
       </div>
-      <img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
-           alt="Brian's Masonry - About Us Image" loading="lazy" class="about__img" />
+      <img src={ABOUT} alt="Brian's Masonry - About Us Image"
+           loading="lazy" class="about__img" {...size(ABOUT)} />
     </div>
   </section>
 
@@ -75,7 +78,7 @@ const projects = [
       <div class="grid g3 svc">
         {services.map((s) => (
           <article class="card">
-            <img class="ico" src={s.icon} alt={s.alt} width="90" height="90" loading="lazy" />
+            <img class="ico" src={s.icon} alt={s.alt} loading="lazy" {...size(s.icon)} />
             <h3>{s.title}</h3>
             <p>{s.body}</p>
           </article>
@@ -96,8 +99,8 @@ const projects = [
   <section class="sec sec--blue ctsec" id="Contact">
     <div class="wrap ct">
       <div class="ct__img-col">
-        <img src={`${IMG}/2024/12/chimney-e1738015791924.png`} alt="chimney"
-             loading="lazy" class="ct__img" />
+        <img src={CONTACT} alt="chimney"
+             loading="lazy" class="ct__img" {...size(CONTACT)} />
       </div>
       <div class="ct__txt-col">
         <h2 class="h2">Contact Us</h2>

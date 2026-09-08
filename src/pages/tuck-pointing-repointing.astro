@@ -4,8 +4,10 @@ import ServiceHero from '../components/ServiceHero.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
+import { size } from '../image-sizes.js';
 
 const IMG = 'https://briansmasonry.net/wp-content/uploads';
+const PROBLEM = `${IMG}/2026/06/Brick-Work.webp`;
 const RW = `${IMG}/2024/12/retaining-walls.png`;
 
 const services = [
@@ -33,7 +35,7 @@ const faqs = [
 
   <section class="sec">
     <div class="wrap grid g2 problem">
-      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="" loading="lazy" class="problem__img" />
+      <img src={PROBLEM} alt="" loading="lazy" class="problem__img" {...size(PROBLEM)} />
       <div>
         <h2 class="h2">Failing mortar lets water in, and that&rsquo;s when real damage starts.</h2>
         <p>Neglecting your mortar joints is the most expensive mistake a homeowner can make. Once the seal
