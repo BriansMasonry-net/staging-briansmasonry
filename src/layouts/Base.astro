@@ -11,6 +11,7 @@ export interface Props {
   ogImage?: string;
   ogType?: string;
   noindex?: boolean;
+  keywords?: string[] | string;
   schema?: Record<string, unknown>[];
   /** Fire the Google Ads Lead Form conversion (thank-you page only). */
   conversion?: boolean;

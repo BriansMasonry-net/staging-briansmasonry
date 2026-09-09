@@ -22,6 +22,10 @@ export interface Props {
   ogImage?: string;
   ogType?: string;
   noindex?: boolean;
+  /* Carried for the client, who audits this site in Screaming Frog and wants
+     the column populated. No search engine has used meta keywords for ranking
+     since 2009 — nothing here depends on it, and nothing breaks without it. */
+  keywords?: string[] | string;
   /** Extra JSON-LD nodes for this page, merged into the site-wide @graph. */
   schema?: Record<string, unknown>[];
 }
@@ -32,8 +36,11 @@ const {
   ogImage = site.defaultOgImage,
   ogType = 'website',
   noindex = false,
+  keywords,
   schema = [],
 } = Astro.props as Props;
+
+const keywordList = Array.isArray(keywords) ? keywords.join(', ') : keywords;
 
 const canonical = new URL(Astro.url.pathname, site.siteUrl).href;
 
@@ -79,6 +86,7 @@ const webPage = JSON.stringify({
 ---
 <title>{title}</title>
 <meta name="description" content={description} />
+{keywordList && <meta name="keywords" content={keywordList} />}
 <link rel="canonical" href={canonical} />
 
 {/* `max-image-preview:large` is carried from the old site's <head>; noindex is
