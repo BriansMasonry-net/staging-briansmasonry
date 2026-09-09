@@ -33,11 +33,21 @@ Brand tokens: #243F98 blue, #BD2031 red, #F7F7F7 page, 5px radius,
 1400px content width, Helvetica stack (Roboto loads on the live site but
 does not win the cascade).
 
+## Images
+
+Every image is served from the Backblaze B2 bucket `staging-briansmasonry-img`,
+fronted by Cloudflare at `https://img.staging.briansmasonry.net` (AD-9). Nothing
+is hotlinked to the WordPress origin any more.
+
+The host lives in one place — `src/config/images.ts`, exported as `IMG`. Object
+keys mirror the old uploads tree with the `wp-content/uploads` prefix dropped:
+
+    /wp-content/uploads/2024/12/stones.png  ->  ${IMG}/2024/12/stones.png
+
 ## Known gaps
 
-1. Images are hotlinked to briansmasonry.net and are blocked cross-origin.
-   They will not render from any other origin, including the Railway preview
-   URL. Fixed by moving them to Backblaze B2 (migration gates 4-5).
+1. `package.json` declares no dependencies — `astro` is not installed by
+   `npm install`, so the build only runs after adding it by hand.
 
 2. The four service pages and thank-you are styled by inference. Their own
    Elementor stylesheets return 404 on the live server:
