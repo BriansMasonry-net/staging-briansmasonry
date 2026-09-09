@@ -22,6 +22,16 @@ Elementor 4.1.5 site hosted on Cloudways.
     src/pages/                   index + 4 service pages + thank-you
     src/pages/api/contact.ts     the one on-demand route — posts to Resend
     wrangler.jsonc               Worker config for Cloudflare deploys
+    src/components/Seo.astro     every <head> metadata tag, one file
+    src/components/Analytics.astro   Google Ads tag, carried from the old site
+    seo.config.ts                site-wide SEO + NAP, single source of truth
+    bin/check-seo.mjs            build-time SEO lint over dist/
+    public/robots.txt            carried from the old site
+    public/_redirects            old sitemap addresses only (gate 14 owns the rest)
+    src/components/Img.astro     responsive <img> from the variant manifest
+    src/data/image-manifest.json every size WordPress generated (committed)
+    bin/build-image-manifest.mjs regenerates it from the live WP media API
+    bin/check-image-weight.mjs   per-page image budget, fails the build
 
 ## Where the design came from
 

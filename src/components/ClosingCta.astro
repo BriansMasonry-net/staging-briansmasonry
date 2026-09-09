@@ -1,11 +1,13 @@
 ---
 import EstimateForm from './EstimateForm.astro';
+import Img from './Img.astro';
 const { image, alt = '', heading, body } = Astro.props;
 ---
 <section class="cc" id="Contact">
   <div class="cc__in">
     <div class="cc__col">
-      {image && <img src={image} alt={alt} loading="lazy" class="cc__img" />}
+      {image && <Img src={image} alt={alt} class="cc__img" displayWidth={650}
+                     sizes="(max-width: 1024px) 100vw, 650px" />}
     </div>
     <div class="cc__col cc__col--txt">
       <h2 class="cc__h">{heading}</h2>

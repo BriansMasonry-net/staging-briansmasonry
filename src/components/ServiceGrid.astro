@@ -1,4 +1,5 @@
 ---
+import Img from './Img.astro';
 const { heading, items, cols = 'g3' } = Astro.props;
 ---
 <section class="sec">
@@ -7,7 +8,7 @@ const { heading, items, cols = 'g3' } = Astro.props;
     <div class:list={['grid', cols, 'sg']}>
       {items.map((it) => (
         <article class="card">
-          {it.icon && <img class="ico" src={it.icon} alt={it.alt ?? ''} loading="lazy" />}
+          {it.icon && <Img class="ico" src={it.icon} alt={it.alt ?? ''} displayWidth={120} sizes="120px" />}
           <h3>{it.title}</h3>
           <p>{it.body}</p>
           {it.ticks && <ul class="sg__ticks">{it.ticks.map((t) => <li>{t}</li>)}</ul>}

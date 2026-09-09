@@ -5,12 +5,17 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node bin/check-image-weight.mjs && node bin/check-seo.mjs",
+    "build:only": "astro build",
+    "check:seo": "node bin/check-seo.mjs",
+    "check:images": "node bin/check-image-weight.mjs",
+    "images:manifest": "node bin/build-image-manifest.mjs",
     "preview": "wrangler dev"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.0",
-    "astro": "^7.3.1",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.2",
     "resend": "^6.26.0"
   },
   "devDependencies": {

@@ -1,0 +1,105 @@
+---
+/* ---------------------------------------------------------------------------
+   Seo.astro — the whole <head> metadata surface, in one file.
+
+   Two jobs:
+
+   1. Emit the tags. On a six-page site this is the difference between one
+      file to review and six per-page audits, and it is the reason a new page
+      cannot be shipped with half the tags missing.
+
+   2. Turn red. WordPress never gave this site an SEO plugin, so nobody ever
+      had a box that complained. The `fail()` calls below are that box: a bad
+      or missing field throws during `astro build`, so the page cannot deploy
+      quietly without metadata. A build that fails loudly beats a page that
+      ships silently wrong.
+   --------------------------------------------------------------------------- */
+import site, { robotsDirective, businessNode, websiteNode, businessId } from '../../seo.config';
+
+export interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: string;
+  noindex?: boolean;
+  /** Extra JSON-LD nodes for this page, merged into the site-wide @graph. */
+  schema?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  ogImage = site.defaultOgImage,
+  ogType = 'website',
+  noindex = false,
+  schema = [],
+} = Astro.props as Props;
+
+const canonical = new URL(Astro.url.pathname, site.siteUrl).href;
+
+/* --- the red light ------------------------------------------------------- */
+const fail = (why: string): never => {
+  throw new Error(`SEO [${Astro.url.pathname}] ${why}`);
+};
+
+if (!title?.trim()) fail('title is missing.');
+/* Google truncates the SERP title around 60 characters. A 90-character title
+   is not wrong, it is invisible past 60. Ten is the floor for anything that
+   is not just a stub. */
+if (title.length < 10) fail(`title is ${title.length} chars, needs at least 10 — "${title}"`);
+if (title.length > 60) fail(`title is ${title.length} chars, Google truncates at ~60 — "${title}"`);
+
+if (!description?.trim()) fail('description is missing.');
+if (description.length < 50) fail(`description is ${description.length} chars, needs at least 50.`);
+if (description.length > 160) fail(`description is ${description.length} chars, Google truncates at ~160.`);
+
+if (!/^https?:\/\//.test(ogImage)) fail(`ogImage must be an absolute URL — got "${ogImage}"`);
+
+/* Every page gets the business and the website; page-specific nodes stack on
+   top and reference the business by @id rather than repeating it. */
+const graph = { '@context': 'https://schema.org', '@graph': [businessNode, websiteNode, ...schema] };
+
+/* Serialised with JSON.stringify, never by hand. A literal newline inside a
+   JSON string literal makes Google discard the entire block, silently, and a
+   presence check still passes on it. bin/check-seo.mjs re-parses what we emit. */
+const jsonld = JSON.stringify(graph);
+
+const webPage = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': canonical,
+  url: canonical,
+  name: title,
+  description,
+  isPartOf: { '@id': websiteNode['@id'] },
+  about: { '@id': businessId },
+  inLanguage: 'en-CA',
+  primaryImageOfPage: ogImage,
+});
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+{/* `max-image-preview:large` is carried from the old site's <head>; noindex is
+    added on top for pages that should never have been indexed. */}
+<meta name="robots" content={noindex ? `noindex,follow,${robotsDirective}` : robotsDirective} />
+
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content="Brian's Masonry" />
+<meta property="og:locale" content={site.locale} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={title} />
+
+<meta name="twitter:card" content={site.twitterCard} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{site.verification.map((v) => <meta name={v.name} content={v.content} />)}
+
+<script type="application/ld+json" is:inline set:html={jsonld} />
+<script type="application/ld+json" is:inline set:html={webPage} />

@@ -1,20 +1,50 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-const { title, description, keywords } = Astro.props;
-const keywordList = Array.isArray(keywords) ? keywords.join(', ') : keywords;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+import Seo from '../components/Seo.astro';
+import Analytics from '../components/Analytics.astro';
+import { IMAGE_HOST } from '../../seo.config';
+
+export interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown>[];
+  /** Fire the Google Ads Lead Form conversion (thank-you page only). */
+  conversion?: boolean;
+}
+
+const { conversion = false, ...seo } = Astro.props as Props;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en-CA">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{title}</title>
-  {description && <meta name="description" content={description} />}
-  {keywordList && <meta name="keywords" content={keywordList} />}
-  <link rel="canonical" href={canonical} />
-  <meta name="robots" content="max-image-preview:large" />
+  <Seo {...seo} />
+  <Analytics conversion={conversion} />
+
+  {/* No <link rel="preload"> for the hero. It used to point at the
+      full-resolution banner; now that the hero is a responsive <img>, a
+      fixed-URL preload would fetch a *second*, different file alongside the
+      one srcset picks — paying twice for the LCP image. The hero <img> is in
+      the initial HTML with fetchpriority="high", which the preload scanner
+      finds just as early. It was also being sent on the four service pages
+      and thank-you, none of which have a hero at all. */}
+  {/* Preconnect to the image host, not the old WordPress box: every image on
+      the page now comes from Backblaze via Cloudflare, and nothing is fetched
+      from briansmasonry.net at all. */}
+  <link rel="preconnect" href={IMAGE_HOST} crossorigin />
+
+  {/* Real icon files, served from this origin. A .webp logo off the image host
+      is not a favicon: Safari will not use it, and it costs a second
+      connection before the tab icon can paint. */}
+  <link rel="icon" href="/favicon-32x32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="icon" href="/icon-192.png" sizes="192x192" />
+  <meta name="theme-color" content="#243F98" />
   <style is:global>
     /* ------------------------------------------------------------------
        Ported verbatim from the live Elementor stylesheets:

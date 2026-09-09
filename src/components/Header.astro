@@ -1,6 +1,7 @@
 ---
 // Ported from post-1000.css (header template).
-import { IMG } from '../lib/images.js';
+import Img from './Img.astro';
+import { IMAGE_HOST as IMG } from '../../seo.config';
 const services = [
   { href: '/brick-repair-restoration/', label: 'Brick Repair & Restoration' },
   { href: '/chimney-repair-rebuilds/',  label: 'Chimney Repair & Rebuilds' },
@@ -21,8 +22,11 @@ const services = [
 
 <div class="logoband">
   <div class="logoband__in">
-    <a href="/"><img src={`${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`}
-        alt="Brian's Masonry Logo" width="320" height="112" /></a>
+    {/* Drawn at 320px max, was loading the 1050px original. Eager: it is
+        above the fold on every page. */}
+    <a href="/"><Img src={`${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`}
+        alt="Brian's Masonry" displayWidth={320} loading="eager"
+        sizes="(max-width: 767px) 65vw, (max-width: 1024px) 35vw, 320px" /></a>
   </div>
 </div>
 
