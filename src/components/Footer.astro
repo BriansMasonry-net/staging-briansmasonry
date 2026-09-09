@@ -4,6 +4,7 @@
 // the LocalBusiness schema in the <head> cannot say two different things —
 // NAP consistency is one of the few local-search factors fully under our
 // control, and it drifts the moment there are two copies of it.
+import Img from './Img.astro';
 import { IMAGE_HOST as IMG, business } from '../../seo.config';
 const MAP = business.mapUrl;
 const year = new Date().getFullYear();
@@ -12,8 +13,9 @@ const addressLine = `${business.street}, ${business.locality}, ${business.region
 <footer class="ft">
   <div class="ft__in">
     <div class="ft__logo">
-      <a href="/"><img src={`${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`}
-        alt="Brian's Masonry Logo" width="320" height="112" /></a>
+      <a href="/"><Img src={`${IMG}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`}
+        alt="Brian's Masonry" displayWidth={320}
+        sizes="(max-width: 767px) 85vw, 320px" /></a>
     </div>
 
     <div class="ft__cards">

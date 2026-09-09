@@ -24,6 +24,10 @@ Elementor 4.1.5 site hosted on Cloudways.
     bin/check-seo.mjs            build-time SEO lint over dist/
     public/robots.txt            carried from the old site
     public/_redirects            old sitemap addresses only (gate 14 owns the rest)
+    src/components/Img.astro     responsive <img> from the variant manifest
+    src/data/image-manifest.json every size WordPress generated (committed)
+    bin/build-image-manifest.mjs regenerates it from the live WP media API
+    bin/check-image-weight.mjs   per-page image budget, fails the build
 
 ## Where the design came from
 
@@ -166,11 +170,99 @@ Current output:
    constant to flip when gate 7 points `img.briansmasonry.net` at Backblaze
    (AD-9). Every OG image and schema image URL follows it.
 
+## Images and page weight
+
+The homepage used to weigh **8.9 MB** across 31 images: full-resolution
+originals everywhere, including a 1920x2112 award badge drawn at 115px, 512px
+service icons drawn at 72px, twelve portfolio photographs behind 343px
+thumbnails, and three hero backgrounds all fetched before anything painted.
+Nothing reported it because nothing was measuring it.
+
+**WordPress had already generated smaller versions of every one of them.** The
+old site linked the originals anyway. So this needed no new infrastructure and
+no files moved — only pointing at what was already there.
+
+    initial payload (what loads before you scroll)   8.9 MB  ->  194 KB
+    homepage total, everything lazy-loaded too       8.9 MB  ->  5.0 MB
+
+`initial` is measured at a 1440px viewport, resolving each `sizes` attribute
+the way a browser does, so it is the file `srcset` actually picks — not the
+fallback `src`, which is the one file a modern browser is guaranteed *not* to
+download.
+
+### How
+
+- **`src/data/image-manifest.json`** — every variant WordPress generated, with
+  pixel dimensions and byte sizes. Built by `npm run images:manifest` and
+  **committed**. Reading the WordPress API at build time would work today and
+  break permanently at gate 16 when the old site is switched off — and it would
+  break by silently emitting no srcset, which is the kind of failure that
+  passes. The variant files are ordinary files under `wp-content/uploads`, so
+  gate 5's whole-bucket rclone copy carries them to Backblaze with the
+  originals, and flipping `IMAGE_HOST` moves the entire srcset at once.
+- **`src/components/Img.astro`** — emits `srcset`, `sizes`, `width`, `height`
+  and `loading` from that manifest. Every `<img>` on the site goes through it.
+- **The hero is no longer a CSS background.** Three `background-image` divs
+  meant three full-size fetches before first paint. They are now real `<img>`
+  elements: the first is the LCP candidate with `fetchpriority="high"`, the
+  other two are lazy because they are not visible for 5 and 11 seconds.
+- **The `<link rel="preload">` for the hero was removed.** It pointed at one
+  fixed URL; against a responsive `srcset` that fetches a *second* file
+  alongside the one the browser picks, paying twice for the LCP image. It was
+  also being sent on all five non-homepage pages, none of which have a hero.
+
+### Two things that would have shipped broken
+
+- **WordPress's `thumbnail` size is a hard square crop, not a scale.** The hero
+  banner is 1882x1162; its 150px variant is 150x150. Putting that in a srcset
+  lets the browser pick a differently-cropped image on a narrow screen. `Img`
+  filters every candidate against the original's aspect ratio; the build
+  verifies that no srcset mixes ratios.
+- **Scoped CSS does not reach a child component's element.** `<Img class="hero__img">`
+  renders its `<img>` inside `Img.astro`, so it never received the parent's
+  `data-astro-cid-*` attribute, and *every* scoped image rule silently stopped
+  matching — the hero lost `object-fit: cover`, the logo lost its 320px cap,
+  the gallery lost its 4:3 box. `Img` now forwards the scope attribute. This
+  was caught by measuring the rendered boxes in a headless browser, not by
+  reading the CSS.
+
+### The guardrail
+
+`bin/check-image-weight.mjs` runs after every build with a per-page budget
+(200 KB initial, 1800 KB total) and fails on a regression, so the next person
+to add a hero image finds out in CI rather than from the client six months
+later. It also reports any single file over 250 KB, which is almost always a
+photograph saved as PNG.
+
+### What is left, and why it is not fixable here
+
+The homepage total is **5.0 MB against an 1800 KB budget**. That is recorded as
+a *waiver*, printed in full on every build — the budget is not quietly raised
+to whatever the page costs today. Three photographs are saved as PNG and are
+~2.6 MB of it on their own:
+
+| file | size | note |
+|---|---|---|
+| `chimney-e1738015791924.png` | 1300 KB | 747x740 |
+| `pillar-after.png` | 685 KB | 576x1024 variant |
+| `pillar-before.png` | 670 KB | 576x1024 variant |
+| `tower-before.jpg` | 144 KB | **same 750x1334 as pillar-before, as JPEG** |
+
+That last row is the whole argument: identical dimensions, 15x lighter. These
+need **re-encoding, not resizing**, and the files live on the old WordPress
+host where they cannot be rewritten from this repo. Gate 5 copies the images to
+Backblaze — that is the moment to convert them, and it should drop the homepage
+under 1 MB. Committing converted copies to `public/` instead would serve them
+off the wrong origin and violate AD-9.
+
 ## Known gaps
 
-1. Images are hotlinked to briansmasonry.net and are blocked cross-origin.
-   They will not render from any other origin, including the Railway preview
-   URL. Fixed by moving them to Backblaze B2 (migration gates 4-5).
+1. Images are hotlinked to briansmasonry.net. They are **not** blocked
+   cross-origin — this was tested on 2026-09-09 and they return 200 with a
+   foreign referer and to the Facebook scraper, cached at Cloudflare, so Open
+   Graph cards resolve today. They still belong on Backblaze per AD-9
+   (migration gates 4-5, then flip `IMAGE_HOST` in `seo.config.ts`), and gate 5
+   is where the PNG photographs above get re-encoded.
 
 2. The four service pages and thank-you are styled by inference. Their own
    Elementor stylesheets return 404 on the live server:

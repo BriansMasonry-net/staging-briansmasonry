@@ -26,11 +26,14 @@ const { conversion = false, ...seo } = Astro.props as Props;
   <Seo {...seo} />
   <Analytics conversion={conversion} />
 
-  {/* The hero background and the logo are the first two things painted; the
-      browser cannot see either in the markup until CSS parses. */}
+  {/* No <link rel="preload"> for the hero. It used to point at the
+      full-resolution banner; now that the hero is a responsive <img>, a
+      fixed-URL preload would fetch a *second*, different file alongside the
+      one srcset picks — paying twice for the LCP image. The hero <img> is in
+      the initial HTML with fetchpriority="high", which the preload scanner
+      finds just as early. It was also being sent on the four service pages
+      and thank-you, none of which have a hero at all. */}
   <link rel="preconnect" href="https://briansmasonry.net" />
-  <link rel="preload" as="image" fetchpriority="high"
-        href={`${IMAGE_HOST}/2025/01/Brians-Masonry-Home-Page-Banner.webp`} />
   <link rel="icon" href={`${IMAGE_HOST}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`} />
   <meta name="theme-color" content="#243F98" />
   <style is:global>

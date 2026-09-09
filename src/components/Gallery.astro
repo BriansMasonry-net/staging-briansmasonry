@@ -7,13 +7,18 @@
 // to image search and to anyone using a screen reader. For a trade business
 // the portfolio is the strongest visual asset on the site; describing it is
 // the cheapest image-search win available.
+import Img from './Img.astro';
 const { images } = Astro.props;
 const items = images.map((im) => (typeof im === 'string' ? { src: im, alt: '' } : im));
 ---
 <div class="gal" data-lightbox>
   {items.map((im, i) => (
     <a href={im.src} class="gal__item" data-i={i} aria-label={im.alt || `Open project image ${i + 1}`}>
-      <img src={im.src} alt={im.alt} loading="lazy" />
+      {/* Thumbnails render at 343px in a 4-up grid; the old site put the
+          full-size original behind each one (up to 1119x2000). The <a href>
+          still points at the original, so the lightbox is unchanged. */}
+      <Img src={im.src} alt={im.alt} displayWidth={343}
+           sizes="(max-width: 767px) 50vw, (max-width: 1024px) 33vw, 343px" />
     </a>
   ))}
 </div>

@@ -4,6 +4,7 @@ import Hero from '../components/Hero.astro';
 import Testimonials from '../components/Testimonials.astro';
 import EstimateForm from '../components/EstimateForm.astro';
 import Gallery from '../components/Gallery.astro';
+import Img from '../components/Img.astro';
 import { IMAGE_HOST as IMG, businessId, site } from '../../seo.config';
 
 const badges = [
@@ -106,11 +107,17 @@ const schema = [
           quality craftsmanship and attention to detail, we ensure durable and visually appealing results
           for all your masonry needs. Contact us today to enhance the beauty and integrity of your property!</p>
         <div class="badges">
-          {badges.map((b) => <span><img src={b.src} alt={b.alt} loading="lazy" /></span>)}
+          {/* Drawn at ~112px. BOA-2024.png alone was a 1920x2112 original. */}
+        {badges.map((b) => (
+          <span><Img src={b.src} alt={b.alt} displayWidth={115}
+                     sizes="(max-width: 1024px) 18vw, 115px" /></span>
+        ))}
         </div>
       </div>
-      <img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
-           alt="Brian's Masonry - About Us Image" loading="lazy" class="about__img" />
+      <Img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
+           alt="Brian's Masonry crew at work on a brick restoration"
+           class="about__img" displayWidth={690}
+           sizes="(max-width: 1024px) 100vw, 690px" />
     </div>
   </section>
 
@@ -120,7 +127,7 @@ const schema = [
       <div class="grid g3 svc">
         {services.map((s) => (
           <article class="card">
-            <img class="ico" src={s.icon} alt={s.alt} width="90" height="90" loading="lazy" />
+            <Img class="ico" src={s.icon} alt={s.alt} displayWidth={120} sizes="120px" />
             <h3>{s.title}</h3>
             <p>{s.body}</p>
           </article>
@@ -141,8 +148,9 @@ const schema = [
   <section class="sec sec--blue ctsec" id="Contact">
     <div class="wrap ct">
       <div class="ct__img-col">
-        <img src={`${IMG}/2024/12/chimney-e1738015791924.png`} alt="chimney"
-             loading="lazy" class="ct__img" />
+        <Img src={`${IMG}/2024/12/chimney-e1738015791924.png`}
+             alt="Rebuilt brick chimney" class="ct__img" displayWidth={650}
+             sizes="(max-width: 1024px) 100vw, 650px" />
       </div>
       <div class="ct__txt-col">
         <h2 class="h2">Contact Us</h2>

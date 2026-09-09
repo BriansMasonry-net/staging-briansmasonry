@@ -1,0 +1,105 @@
+---
+/* ---------------------------------------------------------------------------
+   Img.astro — emit a responsive <img> from the variants WordPress already made.
+
+   The old site linked full-resolution originals everywhere: 512px service
+   icons drawn at 90px, a 1920x2112 award badge drawn at ~115px, twelve
+   full-size portfolio photographs behind 343px thumbnails. 8.9 MB on the
+   homepage. Every one of those had smaller versions sitting beside it on
+   the same server.
+
+   Two rules this component exists to enforce:
+
+   1. **A srcset must be one aspect ratio.** WordPress's `thumbnail` size is a
+      hard square CROP, not a scale — Home-Page-Banner is 1882x1162 but its
+      150px variant is 150x150. Drop a crop into a srcset and the browser will
+      cheerfully pick it on a small screen and render a squashed, wrongly
+      cropped image. Anything off the original's ratio is filtered out.
+
+   2. **width and height are always set.** Without them the browser cannot
+      reserve space before the image arrives, and the page reflows as each one
+      lands — that is Cumulative Layout Shift, and it is a ranking signal as
+      well as being unpleasant.
+   --------------------------------------------------------------------------- */
+import manifest from '../data/image-manifest.json';
+import { IMAGE_HOST } from '../../seo.config';
+
+export interface Props {
+  /** Path under the image host ("2024/12/foo.png") or a full URL. */
+  src: string;
+  alt: string;
+  /** The `sizes` attribute — how wide this renders at each breakpoint. */
+  sizes?: string;
+  /** Largest CSS width this is ever drawn at. Caps the srcset at 2x that. */
+  displayWidth?: number;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  decoding?: 'async' | 'sync' | 'auto';
+  class?: string;
+  style?: string;
+}
+
+const {
+  src,
+  alt,
+  sizes,
+  displayWidth,
+  loading = 'lazy',
+  fetchpriority,
+  decoding = 'async',
+  class: className,
+  style,
+  ...rest
+} = Astro.props as Props & Record<string, unknown>;
+
+const key = src.replace(`${IMAGE_HOST}/`, '').replace(/^\//, '');
+const entry = (manifest as Record<string, { w: number; h: number; variants: { w: number; h: number; path: string }[] }>)[key];
+const url = (p: string) => `${IMAGE_HOST}/${p}`;
+
+/* An image with no manifest entry still renders — it just renders as it did
+   before, with no srcset. bin/check-images-weight.mjs reports these so they
+   cannot accumulate unnoticed. */
+let attrs: Record<string, unknown>;
+
+if (!entry) {
+  attrs = { src: url(key), width: undefined, height: undefined };
+} else {
+  const ratio = entry.w / entry.h;
+  const scaled = entry.variants.filter((v) => Math.abs(v.w / v.h - ratio) < 0.02);
+
+  /* No point shipping a 1920px file for something drawn at 115px. 2x covers
+     retina; the cap is lifted if it would leave nothing to choose from. */
+  const cap = displayWidth ? displayWidth * 2 : Infinity;
+  const capped = scaled.filter((v) => v.w <= cap);
+  const usable = capped.length ? capped : [scaled[0] ?? { w: entry.w, h: entry.h, path: key }];
+
+  /* Default src: the smallest that still covers the display width, so a
+     browser ignoring srcset (or a scraper) gets a sensible file, not the
+     original. */
+  const chosen = usable.find((v) => !displayWidth || v.w >= displayWidth) ?? usable[usable.length - 1];
+
+  attrs = {
+    src: url(chosen.path),
+    width: chosen.w,
+    height: chosen.h,
+    ...(usable.length > 1 && {
+      srcset: usable.map((v) => `${url(v.path)} ${v.w}w`).join(', '),
+      sizes: sizes ?? (displayWidth ? `${displayWidth}px` : '100vw'),
+    }),
+  };
+}
+---
+{/* `rest` carries Astro's `data-astro-cid-*` scoping attribute down onto the
+    real <img>. Without it every scoped rule a parent writes for its image —
+    .hero__img, .gal__item img, .logoband img — silently fails to match,
+    because the <img> is rendered here, not in the parent's template. */}
+<img
+  {...attrs}
+  {...rest}
+  alt={alt}
+  loading={loading}
+  decoding={decoding}
+  fetchpriority={fetchpriority}
+  class={className}
+  style={style}
+/>

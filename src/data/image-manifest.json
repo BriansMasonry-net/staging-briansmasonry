@@ -1,0 +1,1376 @@
+{
+ "2026/06/Brick-Work.webp": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 9066,
+    "path": "2026/06/Brick-Work-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 30148,
+    "path": "2026/06/Brick-Work-300x300.webp"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 61224,
+    "path": "2026/06/Brick-Work.webp"
+   }
+  ]
+ },
+ "2024/12/chimney-e1738015791924.png": {
+  "w": 747,
+  "h": 740,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 48380,
+    "path": "2024/12/chimney-e1738015791924-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 297,
+    "b": 173875,
+    "path": "2024/12/chimney-e1738015791924-300x297.png"
+   },
+   {
+    "w": 576,
+    "h": 1024,
+    "b": 720646,
+    "path": "2024/12/chimney-576x1024.png"
+   },
+   {
+    "w": 747,
+    "h": 740,
+    "b": 1331631,
+    "path": "2024/12/chimney-e1738015791924.png"
+   }
+  ]
+ },
+ "2025/01/tower-before.jpg": {
+  "w": 750,
+  "h": 1334,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 4462,
+    "path": "2025/01/tower-before-150x150.jpg"
+   },
+   {
+    "w": 169,
+    "h": 300,
+    "b": 7402,
+    "path": "2025/01/tower-before-169x300.jpg"
+   },
+   {
+    "w": 576,
+    "h": 1024,
+    "b": 56702,
+    "path": "2025/01/tower-before-576x1024.jpg"
+   },
+   {
+    "w": 750,
+    "h": 1334,
+    "b": 147928,
+    "path": "2025/01/tower-before.jpg"
+   }
+  ]
+ },
+ "2025/01/tower-after.jpg": {
+  "w": 1119,
+  "h": 2000,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 5555,
+    "path": "2025/01/tower-after-150x150.jpg"
+   },
+   {
+    "w": 168,
+    "h": 300,
+    "b": 10418,
+    "path": "2025/01/tower-after-168x300.jpg"
+   },
+   {
+    "w": 573,
+    "h": 1024,
+    "b": 102930,
+    "path": "2025/01/tower-after-573x1024.jpg"
+   },
+   {
+    "w": 768,
+    "h": 1373,
+    "b": 174743,
+    "path": "2025/01/tower-after-768x1373.jpg"
+   },
+   {
+    "w": 859,
+    "h": 1536,
+    "b": 212264,
+    "path": "2025/01/tower-after-859x1536.jpg"
+   },
+   {
+    "w": 1119,
+    "h": 2000,
+    "b": 508233,
+    "path": "2025/01/tower-after.jpg"
+   }
+  ]
+ },
+ "2025/01/pillar-before.png": {
+  "w": 750,
+  "h": 1334,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 44799,
+    "path": "2025/01/pillar-before-150x150.png"
+   },
+   {
+    "w": 169,
+    "h": 300,
+    "b": 72974,
+    "path": "2025/01/pillar-before-169x300.png"
+   },
+   {
+    "w": 576,
+    "h": 1024,
+    "b": 686565,
+    "path": "2025/01/pillar-before-576x1024.png"
+   },
+   {
+    "w": 750,
+    "h": 1334,
+    "b": 2213396,
+    "path": "2025/01/pillar-before.png"
+   }
+  ]
+ },
+ "2025/01/pillar-after.png": {
+  "w": 750,
+  "h": 1334,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 46369,
+    "path": "2025/01/pillar-after-150x150.png"
+   },
+   {
+    "w": 169,
+    "h": 300,
+    "b": 77186,
+    "path": "2025/01/pillar-after-169x300.png"
+   },
+   {
+    "w": 576,
+    "h": 1024,
+    "b": 701468,
+    "path": "2025/01/pillar-after-576x1024.png"
+   },
+   {
+    "w": 750,
+    "h": 1334,
+    "b": 2116867,
+    "path": "2025/01/pillar-after.png"
+   }
+  ]
+ },
+ "2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp": {
+  "w": 1050,
+  "h": 368,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 23732,
+    "path": "2024/12/Brians-Masonry-Logo-Only0-e1737996026967-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 105,
+    "b": 26742,
+    "path": "2024/12/Brians-Masonry-Logo-Only0-e1737996026967-300x105.webp"
+   },
+   {
+    "w": 768,
+    "h": 269,
+    "b": 44080,
+    "path": "2024/12/Brians-Masonry-Logo-Only0-e1737996026967-768x269.webp"
+   },
+   {
+    "w": 1024,
+    "h": 359,
+    "b": 50840,
+    "path": "2024/12/Brians-Masonry-Logo-Only0-e1737996026967-1024x359.webp"
+   },
+   {
+    "w": 1050,
+    "h": 368,
+    "b": 38078,
+    "path": "2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp"
+   }
+  ]
+ },
+ "2024/12/homestars-BOA-2023.webp": {
+  "w": 931,
+  "h": 1024,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 5088,
+    "path": "2024/12/homestars-BOA-2023-150x150.webp"
+   },
+   {
+    "w": 273,
+    "h": 300,
+    "b": 10182,
+    "path": "2024/12/homestars-BOA-2023-273x300.webp"
+   },
+   {
+    "w": 768,
+    "h": 845,
+    "b": 27550,
+    "path": "2024/12/homestars-BOA-2023-768x845.webp"
+   },
+   {
+    "w": 931,
+    "h": 1024,
+    "b": 34866,
+    "path": "2024/12/homestars-BOA-2023.webp"
+   }
+  ]
+ },
+ "2024/12/homestars-boa-2022-black.webp": {
+  "w": 1113,
+  "h": 1224,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 4998,
+    "path": "2024/12/homestars-boa-2022-black-150x150.webp"
+   },
+   {
+    "w": 273,
+    "h": 300,
+    "b": 9598,
+    "path": "2024/12/homestars-boa-2022-black-273x300.webp"
+   },
+   {
+    "w": 768,
+    "h": 845,
+    "b": 25992,
+    "path": "2024/12/homestars-boa-2022-black-768x845.webp"
+   },
+   {
+    "w": 931,
+    "h": 1024,
+    "b": 31588,
+    "path": "2024/12/homestars-boa-2022-black-931x1024.webp"
+   },
+   {
+    "w": 1113,
+    "h": 1224,
+    "b": 44722,
+    "path": "2024/12/homestars-boa-2022-black.webp"
+   }
+  ]
+ },
+ "2024/12/Brians-Masonry-Contact-Us-Section-Man-Building-Chimney.webp": {
+  "w": 1200,
+  "h": 800,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 7440,
+    "path": "2024/12/Brians-Masonry-Contact-Us-Section-Man-Building-Chimney-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 200,
+    "b": 15664,
+    "path": "2024/12/Brians-Masonry-Contact-Us-Section-Man-Building-Chimney-300x200.webp"
+   },
+   {
+    "w": 768,
+    "h": 512,
+    "b": 54206,
+    "path": "2024/12/Brians-Masonry-Contact-Us-Section-Man-Building-Chimney-768x512.webp"
+   },
+   {
+    "w": 1024,
+    "h": 683,
+    "b": 79718,
+    "path": "2024/12/Brians-Masonry-Contact-Us-Section-Man-Building-Chimney-1024x683.webp"
+   },
+   {
+    "w": 1200,
+    "h": 800,
+    "b": 75852,
+    "path": "2024/12/Brians-Masonry-Contact-Us-Section-Man-Building-Chimney.webp"
+   }
+  ]
+ },
+ "2024/12/Brians-Masonry-About-Us-Image.webp": {
+  "w": 1200,
+  "h": 1200,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 5620,
+    "path": "2024/12/Brians-Masonry-About-Us-Image-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 14214,
+    "path": "2024/12/Brians-Masonry-About-Us-Image-300x300.webp"
+   },
+   {
+    "w": 768,
+    "h": 768,
+    "b": 56168,
+    "path": "2024/12/Brians-Masonry-About-Us-Image-768x768.webp"
+   },
+   {
+    "w": 1024,
+    "h": 1024,
+    "b": 86358,
+    "path": "2024/12/Brians-Masonry-About-Us-Image-1024x1024.webp"
+   },
+   {
+    "w": 1200,
+    "h": 1200,
+    "b": 89402,
+    "path": "2024/12/Brians-Masonry-About-Us-Image.webp"
+   }
+  ]
+ },
+ "2025/01/Brians-Masonry-Banner-Image-3.webp": {
+  "w": 1500,
+  "h": 1005,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 8410,
+    "path": "2025/01/Brians-Masonry-Banner-Image-3-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 201,
+    "b": 18300,
+    "path": "2025/01/Brians-Masonry-Banner-Image-3-300x201.webp"
+   },
+   {
+    "w": 768,
+    "h": 515,
+    "b": 101676,
+    "path": "2025/01/Brians-Masonry-Banner-Image-3-768x515.webp"
+   },
+   {
+    "w": 1024,
+    "h": 686,
+    "b": 171588,
+    "path": "2025/01/Brians-Masonry-Banner-Image-3-1024x686.webp"
+   },
+   {
+    "w": 1500,
+    "h": 1005,
+    "b": 273864,
+    "path": "2025/01/Brians-Masonry-Banner-Image-3.webp"
+   }
+  ]
+ },
+ "2025/01/Brians-Masonry-Banner-Image-2.webp": {
+  "w": 1800,
+  "h": 1200,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 7544,
+    "path": "2025/01/Brians-Masonry-Banner-Image-2-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 200,
+    "b": 17048,
+    "path": "2025/01/Brians-Masonry-Banner-Image-2-300x200.webp"
+   },
+   {
+    "w": 768,
+    "h": 512,
+    "b": 84712,
+    "path": "2025/01/Brians-Masonry-Banner-Image-2-768x512.webp"
+   },
+   {
+    "w": 1024,
+    "h": 683,
+    "b": 133056,
+    "path": "2025/01/Brians-Masonry-Banner-Image-2-1024x683.webp"
+   },
+   {
+    "w": 1536,
+    "h": 1024,
+    "b": 240440,
+    "path": "2025/01/Brians-Masonry-Banner-Image-2-1536x1024.webp"
+   },
+   {
+    "w": 1800,
+    "h": 1200,
+    "b": 227648,
+    "path": "2025/01/Brians-Masonry-Banner-Image-2.webp"
+   }
+  ]
+ },
+ "2025/01/Brians-Masonry-Home-Page-Banner.webp": {
+  "w": 1882,
+  "h": 1162,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 7012,
+    "path": "2025/01/Brians-Masonry-Home-Page-Banner-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 185,
+    "b": 14444,
+    "path": "2025/01/Brians-Masonry-Home-Page-Banner-300x185.webp"
+   },
+   {
+    "w": 768,
+    "h": 474,
+    "b": 65910,
+    "path": "2025/01/Brians-Masonry-Home-Page-Banner-768x474.webp"
+   },
+   {
+    "w": 1024,
+    "h": 632,
+    "b": 101274,
+    "path": "2025/01/Brians-Masonry-Home-Page-Banner-1024x632.webp"
+   },
+   {
+    "w": 1536,
+    "h": 948,
+    "b": 171438,
+    "path": "2025/01/Brians-Masonry-Home-Page-Banner-1536x948.webp"
+   },
+   {
+    "w": 1882,
+    "h": 1162,
+    "b": 186822,
+    "path": "2025/01/Brians-Masonry-Home-Page-Banner.webp"
+   }
+  ]
+ },
+ "2024/12/Brians-Masonry-Contact-Us.webp": {
+  "w": 1200,
+  "h": 800,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 4456,
+    "path": "2024/12/Brians-Masonry-Contact-Us-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 200,
+    "b": 9124,
+    "path": "2024/12/Brians-Masonry-Contact-Us-300x200.webp"
+   },
+   {
+    "w": 768,
+    "h": 512,
+    "b": 31102,
+    "path": "2024/12/Brians-Masonry-Contact-Us-768x512.webp"
+   },
+   {
+    "w": 1024,
+    "h": 683,
+    "b": 44032,
+    "path": "2024/12/Brians-Masonry-Contact-Us-1024x683.webp"
+   },
+   {
+    "w": 1200,
+    "h": 800,
+    "b": 50194,
+    "path": "2024/12/Brians-Masonry-Contact-Us.webp"
+   }
+  ]
+ },
+ "2024/12/bm-about-us-1.webp": {
+  "w": 1200,
+  "h": 1200,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 8266,
+    "path": "2024/12/bm-about-us-1-150x150.webp"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 20994,
+    "path": "2024/12/bm-about-us-1-300x300.webp"
+   },
+   {
+    "w": 768,
+    "h": 768,
+    "b": 66824,
+    "path": "2024/12/bm-about-us-1-768x768.webp"
+   },
+   {
+    "w": 1024,
+    "h": 1024,
+    "b": 93470,
+    "path": "2024/12/bm-about-us-1-1024x1024.webp"
+   },
+   {
+    "w": 1200,
+    "h": 1200,
+    "b": 98358,
+    "path": "2024/12/bm-about-us-1.webp"
+   }
+  ]
+ },
+ "2025/01/cropped-Brians-Masonry-Icon.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 32,
+    "h": 32,
+    "b": 1651,
+    "path": "2025/01/cropped-Brians-Masonry-Icon-32x32.png"
+   },
+   {
+    "w": 150,
+    "h": 150,
+    "b": 10999,
+    "path": "2025/01/cropped-Brians-Masonry-Icon-150x150.png"
+   },
+   {
+    "w": 180,
+    "h": 180,
+    "b": 13890,
+    "path": "2025/01/cropped-Brians-Masonry-Icon-180x180.png"
+   },
+   {
+    "w": 192,
+    "h": 192,
+    "b": 15145,
+    "path": "2025/01/cropped-Brians-Masonry-Icon-192x192.png"
+   },
+   {
+    "w": 270,
+    "h": 270,
+    "b": 23254,
+    "path": "2025/01/cropped-Brians-Masonry-Icon-270x270.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 26615,
+    "path": "2025/01/cropped-Brians-Masonry-Icon-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 47204,
+    "path": "2025/01/cropped-Brians-Masonry-Icon.png"
+   }
+  ]
+ },
+ "2025/01/Brians-Masonry-Icon.png": {
+  "w": 200,
+  "h": 200,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 9342,
+    "path": "2025/01/Brians-Masonry-Icon-150x150.png"
+   },
+   {
+    "w": 200,
+    "h": 200,
+    "b": 5155,
+    "path": "2025/01/Brians-Masonry-Icon.png"
+   }
+  ]
+ },
+ "2024/12/placeholder-31.png": {
+  "w": 1200,
+  "h": 800,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 1207,
+    "path": "2024/12/placeholder-31-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 200,
+    "b": 2008,
+    "path": "2024/12/placeholder-31-300x200.png"
+   },
+   {
+    "w": 768,
+    "h": 512,
+    "b": 5345,
+    "path": "2024/12/placeholder-31-768x512.png"
+   },
+   {
+    "w": 1024,
+    "h": 683,
+    "b": 7510,
+    "path": "2024/12/placeholder-31-1024x683.png"
+   },
+   {
+    "w": 1200,
+    "h": 800,
+    "b": 4425,
+    "path": "2024/12/placeholder-31.png"
+   }
+  ]
+ },
+ "2024/12/Footer-CTA-1.jpg": {
+  "w": 960,
+  "h": 416,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 6331,
+    "path": "2024/12/Footer-CTA-1-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 130,
+    "b": 10859,
+    "path": "2024/12/Footer-CTA-1-300x130.jpg"
+   },
+   {
+    "w": 768,
+    "h": 333,
+    "b": 48861,
+    "path": "2024/12/Footer-CTA-1-768x333.jpg"
+   },
+   {
+    "w": 960,
+    "h": 416,
+    "b": 72300,
+    "path": "2024/12/Footer-CTA-1.jpg"
+   }
+  ]
+ },
+ "2024/12/busy-woman-doing-many-things-same-time.jpg": {
+  "w": 2000,
+  "h": 1333,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 4746,
+    "path": "2024/12/busy-woman-doing-many-things-same-time-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 200,
+    "b": 9522,
+    "path": "2024/12/busy-woman-doing-many-things-same-time-300x200.jpg"
+   },
+   {
+    "w": 768,
+    "h": 512,
+    "b": 35716,
+    "path": "2024/12/busy-woman-doing-many-things-same-time-768x512.jpg"
+   },
+   {
+    "w": 1024,
+    "h": 682,
+    "b": 54554,
+    "path": "2024/12/busy-woman-doing-many-things-same-time-1024x682.jpg"
+   },
+   {
+    "w": 1536,
+    "h": 1024,
+    "b": 97426,
+    "path": "2024/12/busy-woman-doing-many-things-same-time-1536x1024.jpg"
+   },
+   {
+    "w": 2000,
+    "h": 1333,
+    "b": 364532,
+    "path": "2024/12/busy-woman-doing-many-things-same-time.jpg"
+   }
+  ]
+ },
+ "2024/12/b10.jpg": {
+  "w": 640,
+  "h": 480,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 6759,
+    "path": "2024/12/b10-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 225,
+    "b": 18966,
+    "path": "2024/12/b10-300x225.jpg"
+   },
+   {
+    "w": 640,
+    "h": 480,
+    "b": 159373,
+    "path": "2024/12/b10.jpg"
+   }
+  ]
+ },
+ "2024/12/b9.jpg": {
+  "w": 480,
+  "h": 640,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 7281,
+    "path": "2024/12/b9-150x150.jpg"
+   },
+   {
+    "w": 225,
+    "h": 300,
+    "b": 18696,
+    "path": "2024/12/b9-225x300.jpg"
+   },
+   {
+    "w": 480,
+    "h": 640,
+    "b": 161205,
+    "path": "2024/12/b9.jpg"
+   }
+  ]
+ },
+ "2024/12/b8.jpg": {
+  "w": 640,
+  "h": 480,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 6690,
+    "path": "2024/12/b8-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 225,
+    "b": 17376,
+    "path": "2024/12/b8-300x225.jpg"
+   },
+   {
+    "w": 640,
+    "h": 480,
+    "b": 156483,
+    "path": "2024/12/b8.jpg"
+   }
+  ]
+ },
+ "2024/12/b7.jpg": {
+  "w": 480,
+  "h": 640,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 5822,
+    "path": "2024/12/b7-150x150.jpg"
+   },
+   {
+    "w": 225,
+    "h": 300,
+    "b": 13883,
+    "path": "2024/12/b7-225x300.jpg"
+   },
+   {
+    "w": 480,
+    "h": 640,
+    "b": 107017,
+    "path": "2024/12/b7.jpg"
+   }
+  ]
+ },
+ "2024/12/b6.jpg": {
+  "w": 480,
+  "h": 640,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 6592,
+    "path": "2024/12/b6-150x150.jpg"
+   },
+   {
+    "w": 225,
+    "h": 300,
+    "b": 16395,
+    "path": "2024/12/b6-225x300.jpg"
+   },
+   {
+    "w": 480,
+    "h": 640,
+    "b": 135046,
+    "path": "2024/12/b6.jpg"
+   }
+  ]
+ },
+ "2024/12/b5.jpg": {
+  "w": 480,
+  "h": 640,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 6314,
+    "path": "2024/12/b5-150x150.jpg"
+   },
+   {
+    "w": 225,
+    "h": 300,
+    "b": 17163,
+    "path": "2024/12/b5-225x300.jpg"
+   },
+   {
+    "w": 480,
+    "h": 640,
+    "b": 165097,
+    "path": "2024/12/b5.jpg"
+   }
+  ]
+ },
+ "2024/12/b4.jpg": {
+  "w": 640,
+  "h": 480,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 6943,
+    "path": "2024/12/b4-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 225,
+    "b": 18695,
+    "path": "2024/12/b4-300x225.jpg"
+   },
+   {
+    "w": 640,
+    "h": 480,
+    "b": 175830,
+    "path": "2024/12/b4.jpg"
+   }
+  ]
+ },
+ "2024/12/b3.jpg": {
+  "w": 640,
+  "h": 480,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 7217,
+    "path": "2024/12/b3-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 225,
+    "b": 19652,
+    "path": "2024/12/b3-300x225.jpg"
+   },
+   {
+    "w": 640,
+    "h": 480,
+    "b": 183889,
+    "path": "2024/12/b3.jpg"
+   }
+  ]
+ },
+ "2024/12/b2.jpg": {
+  "w": 480,
+  "h": 640,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 7558,
+    "path": "2024/12/b2-150x150.jpg"
+   },
+   {
+    "w": 225,
+    "h": 300,
+    "b": 19535,
+    "path": "2024/12/b2-225x300.jpg"
+   },
+   {
+    "w": 480,
+    "h": 640,
+    "b": 183760,
+    "path": "2024/12/b2.jpg"
+   }
+  ]
+ },
+ "2024/12/b1.jpg": {
+  "w": 480,
+  "h": 640,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 5911,
+    "path": "2024/12/b1-150x150.jpg"
+   },
+   {
+    "w": 225,
+    "h": 300,
+    "b": 14971,
+    "path": "2024/12/b1-225x300.jpg"
+   },
+   {
+    "w": 480,
+    "h": 640,
+    "b": 125531,
+    "path": "2024/12/b1.jpg"
+   }
+  ]
+ },
+ "2024/12/trowel-1.png": {
+  "w": 225,
+  "h": 225,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 4392,
+    "path": "2024/12/trowel-1-150x150.png"
+   },
+   {
+    "w": 225,
+    "h": 225,
+    "b": 2938,
+    "path": "2024/12/trowel-1.png"
+   }
+  ]
+ },
+ "2024/12/window-sills.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 1559,
+    "path": "2024/12/window-sills-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 2973,
+    "path": "2024/12/window-sills-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 6358,
+    "path": "2024/12/window-sills.png"
+   }
+  ]
+ },
+ "2024/12/retaining-walls.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 1030,
+    "path": "2024/12/retaining-walls-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 2109,
+    "path": "2024/12/retaining-walls-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 6307,
+    "path": "2024/12/retaining-walls.png"
+   }
+  ]
+ },
+ "2024/12/road.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 3174,
+    "path": "2024/12/road-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 7096,
+    "path": "2024/12/road-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 12448,
+    "path": "2024/12/road.png"
+   }
+  ]
+ },
+ "2024/12/deck.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 1674,
+    "path": "2024/12/deck-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 2629,
+    "path": "2024/12/deck-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 4220,
+    "path": "2024/12/deck.png"
+   }
+  ]
+ },
+ "2024/12/brickwall.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 3199,
+    "path": "2024/12/brickwall-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 6389,
+    "path": "2024/12/brickwall-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 9821,
+    "path": "2024/12/brickwall.png"
+   }
+  ]
+ },
+ "2024/12/historic-site-new.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 3910,
+    "path": "2024/12/historic-site-new-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 7409,
+    "path": "2024/12/historic-site-new-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 11172,
+    "path": "2024/12/historic-site-new.png"
+   }
+  ]
+ },
+ "2024/12/chimney-new.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 3862,
+    "path": "2024/12/chimney-new-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 7748,
+    "path": "2024/12/chimney-new-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 13417,
+    "path": "2024/12/chimney-new.png"
+   }
+  ]
+ },
+ "2024/12/stones.png": {
+  "w": 512,
+  "h": 512,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 4167,
+    "path": "2024/12/stones-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 8713,
+    "path": "2024/12/stones-300x300.png"
+   },
+   {
+    "w": 512,
+    "h": 512,
+    "b": 13511,
+    "path": "2024/12/stones.png"
+   }
+  ]
+ },
+ "2024/12/Brians-Masonry-Logo-e1734382691329.webp": {
+  "w": 1245,
+  "h": 735,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 6990,
+    "path": "2024/12/Brians-Masonry-Logo-e1734382691329-150x150.webp"
+   },
+   {
+    "w": 152,
+    "h": 90,
+    "b": 4360,
+    "path": "2024/12/Brians-Masonry-Logo-e1734382691329-152x90.webp"
+   },
+   {
+    "w": 300,
+    "h": 177,
+    "b": 10430,
+    "path": "2024/12/Brians-Masonry-Logo-e1734382691329-300x177.webp"
+   },
+   {
+    "w": 768,
+    "h": 453,
+    "b": 26758,
+    "path": "2024/12/Brians-Masonry-Logo-e1734382691329-768x453.webp"
+   },
+   {
+    "w": 1024,
+    "h": 605,
+    "b": 35198,
+    "path": "2024/12/Brians-Masonry-Logo-e1734382691329-1024x605.webp"
+   },
+   {
+    "w": 1245,
+    "h": 735,
+    "b": 40292,
+    "path": "2024/12/Brians-Masonry-Logo-e1734382691329.webp"
+   }
+  ]
+ },
+ "2024/12/bm-about-us.jpg": {
+  "w": 2000,
+  "h": 2000,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 10368,
+    "path": "2024/12/bm-about-us-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 300,
+    "b": 29611,
+    "path": "2024/12/bm-about-us-300x300.jpg"
+   },
+   {
+    "w": 768,
+    "h": 768,
+    "b": 118829,
+    "path": "2024/12/bm-about-us-768x768.jpg"
+   },
+   {
+    "w": 1024,
+    "h": 1024,
+    "b": 181257,
+    "path": "2024/12/bm-about-us-1024x1024.jpg"
+   },
+   {
+    "w": 1536,
+    "h": 1536,
+    "b": 324760,
+    "path": "2024/12/bm-about-us-1536x1536.jpg"
+   },
+   {
+    "w": 2000,
+    "h": 2000,
+    "b": 2455124,
+    "path": "2024/12/bm-about-us.jpg"
+   }
+  ]
+ },
+ "2024/12/verified-badge.png": {
+  "w": 324,
+  "h": 312,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 20240,
+    "path": "2024/12/verified-badge-150x150.png"
+   },
+   {
+    "w": 300,
+    "h": 289,
+    "b": 51160,
+    "path": "2024/12/verified-badge-300x289.png"
+   },
+   {
+    "w": 324,
+    "h": 312,
+    "b": 66258,
+    "path": "2024/12/verified-badge.png"
+   }
+  ]
+ },
+ "2024/12/BOA-2024.png": {
+  "w": 1920,
+  "h": 2112,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 15843,
+    "path": "2024/12/BOA-2024-150x150.png"
+   },
+   {
+    "w": 273,
+    "h": 300,
+    "b": 31607,
+    "path": "2024/12/BOA-2024-273x300.png"
+   },
+   {
+    "w": 768,
+    "h": 845,
+    "b": 101462,
+    "path": "2024/12/BOA-2024-768x845.png"
+   },
+   {
+    "w": 931,
+    "h": 1024,
+    "b": 129744,
+    "path": "2024/12/BOA-2024-931x1024.png"
+   },
+   {
+    "w": 1396,
+    "h": 1536,
+    "b": 235884,
+    "path": "2024/12/BOA-2024-1396x1536.png"
+   },
+   {
+    "w": 1862,
+    "h": 2048,
+    "b": 382412,
+    "path": "2024/12/BOA-2024-1862x2048.png"
+   },
+   {
+    "w": 1920,
+    "h": 2112,
+    "b": 442047,
+    "path": "2024/12/BOA-2024.png"
+   }
+  ]
+ },
+ "2024/12/bm-header.jpg": {
+  "w": 2000,
+  "h": 1333,
+  "variants": [
+   {
+    "w": 150,
+    "h": 150,
+    "b": 9297,
+    "path": "2024/12/bm-header-150x150.jpg"
+   },
+   {
+    "w": 300,
+    "h": 200,
+    "b": 21963,
+    "path": "2024/12/bm-header-300x200.jpg"
+   },
+   {
+    "w": 768,
+    "h": 512,
+    "b": 117323,
+    "path": "2024/12/bm-header-768x512.jpg"
+   },
+   {
+    "w": 1024,
+    "h": 682,
+    "b": 203559,
+    "path": "2024/12/bm-header-1024x682.jpg"
+   },
+   {
+    "w": 1536,
+    "h": 1024,
+    "b": 438851,
+    "path": "2024/12/bm-header-1536x1024.jpg"
+   },
+   {
+    "w": 2000,
+    "h": 1333,
+    "b": 3530955,
+    "path": "2024/12/bm-header.jpg"
+   }
+  ]
+ }
+}

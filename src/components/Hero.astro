@@ -1,8 +1,9 @@
 ---
 import EstimateForm from './EstimateForm.astro';
+import Img from './Img.astro';
 // #97e7705 — min-height 85vh (500px <=1024), overlay #000000D4 @ .5,
 // justify center, align flex-start, background slideshow cover/center.
-const IMG = 'https://briansmasonry.net/wp-content/uploads';
+import { IMAGE_HOST as IMG } from '../../seo.config';
 const slides = [
   `${IMG}/2025/01/Brians-Masonry-Home-Page-Banner.webp`,
   `${IMG}/2025/01/Brians-Masonry-Banner-Image-2.webp`,
@@ -15,8 +16,17 @@ const { h1, sub } = Astro.props;
 ---
 <section class="hero">
   <div class="hero__bg" aria-hidden="true">
+    {/* Was three background-image divs, all three fetched at full resolution
+        before anything painted — 688 KB of hero before the headline. Now real
+        <img> elements: the first is the LCP candidate and gets priority, the
+        other two are lazy because they are not visible for 5 and 11 seconds. */}
     {slides.map((s, i) => (
-      <div class="hero__slide" style={`background-image:url(${s});animation-delay:${i * 5.5}s`}></div>
+      <div class="hero__slide" style={`animation-delay:${i * 5.5}s`}>
+        <Img src={s} alt="" sizes="100vw" displayWidth={1600} class="hero__img"
+             loading={i === 0 ? 'eager' : 'lazy'}
+             fetchpriority={i === 0 ? 'high' : 'low'}
+             decoding={i === 0 ? 'sync' : 'async'} />
+      </div>
     ))}
   </div>
   <div class="hero__ov" aria-hidden="true"></div>
@@ -34,9 +44,12 @@ const { h1, sub } = Astro.props;
   .hero { position: relative; min-height: 85vh; display: flex; align-items: center; overflow: hidden; }
   .hero__bg { position: absolute; inset: 0; background: #111; }
   .hero__slide {
-    position: absolute; inset: 0; background-size: cover; background-position: center center;
+    position: absolute; inset: 0;
     opacity: 0; animation: kb 16.5s infinite; /* 3 slides x 5.5s (5000ms hold + 500ms fade) */
   }
+  /* replaces background-size:cover / background-position:center on the div.
+     `height` overrides the global `img { height: auto }`. */
+  .hero__img { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
   /* measured: delay 5000ms, speed 500ms, loop -> 5.5s per slide, 500ms crossfade */
   @keyframes kb {
     0%     { opacity: 0; transform: scale(1); }

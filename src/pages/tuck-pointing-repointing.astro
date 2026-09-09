@@ -4,6 +4,7 @@ import ServiceHero from '../components/ServiceHero.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
+import Img from '../components/Img.astro';
 
 import { IMAGE_HOST as IMG, service, faqPage, breadcrumbs } from '../../seo.config';
 
@@ -51,7 +52,8 @@ const schema = [
 
   <section class="sec">
     <div class="wrap grid g2 problem">
-      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="Brick wall with freshly repointed mortar joints" loading="lazy" class="problem__img" />
+      <Img src={`${IMG}/2026/06/Brick-Work.webp`} alt="Brick wall with freshly repointed mortar joints" class="problem__img"
+           displayWidth={690} sizes="(max-width: 1024px) 100vw, 690px" />
       <div>
         <h2 class="h2">Failing mortar lets water in, and that&rsquo;s when real damage starts.</h2>
         <p>Neglecting your mortar joints is the most expensive mistake a homeowner can make. Once the seal

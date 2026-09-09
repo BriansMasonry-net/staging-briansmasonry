@@ -4,6 +4,7 @@ import ServiceHero from '../components/ServiceHero.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
+import Img from '../components/Img.astro';
 
 import { IMAGE_HOST as IMG, service, faqPage, breadcrumbs } from '../../seo.config';
 
@@ -64,8 +65,9 @@ const schema = [
   <section class="sec">
     <div class="wrap">
       <div class="grid g2 problem">
-        <img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
-             alt="Brian's Masonry - About Us Image" loading="lazy" class="problem__img" />
+        <Img src={`${IMG}/2024/12/Brians-Masonry-About-Us-Image.webp`}
+             alt="Brian's Masonry crew repairing a brick chimney" class="problem__img" displayWidth={690}
+             sizes="(max-width: 1024px) 100vw, 690px" />
         <div>
           <h2 class="h2">A failing chimney lets in water and gets worse fast.</h2>
           <div class="grid g2 sym">
@@ -80,7 +82,7 @@ const schema = [
 
   <ServiceGrid heading="What we do for chimneys" items={services} />
   <Faq items={faqs} />
-  <ClosingCta image={`${IMG}/2024/12/chimney-e1738015791924.png`} alt="chimney"
+  <ClosingCta image={`${IMG}/2024/12/chimney-e1738015791924.png`} alt="Rebuilt brick chimney"
     heading="Don't wait for the next storm."
     body="Get a professional assessment and a fixed quote for your chimney repair today. We serve Toronto, Etobicoke, Mississauga, and the entire GTA." />
 </Base>
