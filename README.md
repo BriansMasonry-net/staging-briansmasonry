@@ -37,66 +37,52 @@ does not win the cascade).
 
 Every image is served from the Backblaze B2 bucket `staging-briansmasonry-img`,
 fronted by Cloudflare at `https://img.staging.briansmasonry.net` (AD-9). Nothing
-is hotlinked to the WordPress origin any more.
+is hotlinked to the WordPress origin.
 
-The host lives in one place — `src/config/images.ts`, exported as `IMG`. Object
-keys mirror the old uploads tree with the `wp-content/uploads` prefix dropped:
+The host is defined once, in `src/lib/images.js`, exported as `IMG`. Object keys
+mirror the old uploads tree with the `wp-content/uploads` prefix dropped, which
+keeps the gate 18 redirects one-to-one:
 
     /wp-content/uploads/2024/12/stones.png  ->  ${IMG}/2024/12/stones.png
 
-## Deploying — READ THIS FIRST
+That hostname is permanent, not staging-only. The conventional
+`img.briansmasonry.net` belongs to the gallery project, which has its own bucket
+and transform rule on the same zone.
 
-**Do not run `wrangler deploy` from this repo. It would take the staging site
-backwards.**
+## Deploying
 
-staging.briansmasonry.net is the Worker `staging-briansmasonry`, deployed by
-hand with wrangler (ash@brandingcentres.com, 2026-09-05). There is no Workers
-Builds connection and no CI — pushing to `main` deploys nothing.
+staging.briansmasonry.net is the Worker `staging-briansmasonry`, deployed with
+`npx wrangler deploy`. There is no Workers Builds connection and no CI, so
+**pushing to `main` deploys nothing** — a deploy is always someone running that
+command against a checkout.
 
-**The deployed Worker was built from a source tree that is ahead of this repo.**
-It serves things that exist in no commit here:
+That makes it worth knowing which branch a deploy came from, because the work on
+this site lives in unmerged branches and `main` is still the first commit. Before
+deploying, check what the Worker is actually running (the version API reports its
+compatibility date, assets config and bindings) against the branch in hand.
 
-| Live on the Worker | In this repo |
-|---|---|
-| `/api/contact` — validates, returns JSON, backed by a `RESEND_API_KEY` secret | nothing |
-| Form fields `robots` (honeypot), `form_ref`, `source` | absent — the form has 5 fields, the live one has 8 |
-| `public/_headers` — staging noindex + immutable `/_astro/*` caching | absent |
-| `wrangler.jsonc`, `@astrojs/cloudflare`, a 404 page | absent |
-| Bindings `ASSETS`, `IMAGES`, `SESSION` (KV `a1314bcb…`) | n/a |
-| compatibility_date 2026-09-03, flags `nodejs_compat` | n/a |
+`wrangler.jsonc` sets `workers_dev: false` and `preview_urls: false` — without
+them every deploy publishes the client's unfinished site on a public
+`*.workers.dev` URL.
 
-A deploy from this repo therefore 404s the contact form and drops the noindex
-header. **That second one has already happened once on this site** — the comment
-in the deployed `_headers` records a redeploy silently dropping a noindex that
-lived only in build output and not in git. That is what this section exists to
-stop repeating.
+`public/_headers` carries the staging noindex. It is scoped to the staging
+hostname on purpose: the client's real domain is attached to this same Worker at
+cutover, and an unscoped `/*` rule would carry noindex onto the production site
+and deindex the business. It lives in `public/` so it survives every deploy — an
+earlier build served that header from a file that existed only in build output,
+and the first redeploy silently dropped it.
 
-Recovering Ash's tree into git is the open task. The deployed `_headers` is
-recoverable verbatim from the Worker version API and reads:
-
-    /_astro/*
-      Cache-Control: public, max-age=31536000, immutable
-
-    https://staging.briansmasonry.net/*
-      X-Robots-Tag: noindex, nofollow
-
-The noindex is scoped to the staging hostname deliberately: the client's real
-domain is attached to this same Worker at cutover, and an unscoped `/*` rule
-would carry noindex onto the production site and deindex the business.
+Runtime secrets (`RESEND_API_KEY`) are Worker secrets, not build variables, and
+persist across deploys. `wrangler deploy` does not touch them.
 
 ## Known gaps
 
-1. The deployed Worker's source is not in this repo — see **Deploying** above.
-   Until it is, this repo cannot reproduce what is live.
+1. `main` is one commit behind everything. The site's real work — the contact
+   endpoint, the image host, SEO, image optimisation — sits in unmerged
+   `claude/*` branches. Anyone starting fresh from `main` will rebuild what
+   already exists; that has happened at least once.
 
-2. `package.json` declares no dependencies — `astro` is not installed by
-   `npm install`, so the build only runs after adding it by hand.
-
-3. The four service pages and thank-you are styled by inference. Their own
+2. The four service pages and thank-you are styled by inference. Their own
    Elementor stylesheets return 404 on the live server:
    post-1097, post-1101, post-1109, post-1115, post-1078.
    Regenerating them in Elementor would allow an exact port.
-
-4. ~~The contact form posts to /api/contact, which does not exist yet.~~
-   Stale — the endpoint is live on the deployed Worker (gate 11 appears done).
-   Its source is part of the tree missing from this repo.
