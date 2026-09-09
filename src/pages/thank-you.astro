@@ -1,8 +1,21 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
+{/*
+  The old wp-sitemap listed /thank-you/ and the page was indexable. It should
+  not be either. It cannot rank, and an organic visitor landing on it straight
+  from a search result would fire the Google Ads Lead Form conversion without
+  ever having submitted the form — poisoning the conversion data the client
+  optimises their ad spend on. So: noindex,follow (the links still pass), and
+  filtered out of the sitemap in astro.config.mjs.
+
+  `conversion` carries the event snippet that was on this page and only this
+  page on the old site.
+*/}
 <Base title="Thank You – Brian's Masonry"
-      description="Thanks for getting in touch with Brian's Masonry. We'll be back to you shortly.">
+      description="Thanks for getting in touch with Brian's Masonry. We have your details and we'll be back to you shortly to arrange your free estimate."
+      noindex={true}
+      conversion={true}>
   <section class="sec ty">
     <div class="wrap">
       <h1 class="h2 h2--c">Thank You</h1>

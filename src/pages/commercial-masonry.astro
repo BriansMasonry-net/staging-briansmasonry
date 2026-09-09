@@ -5,16 +5,18 @@ import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
 
-const IMG = 'https://briansmasonry.net/wp-content/uploads';
+import { IMAGE_HOST as IMG, service, faqPage, breadcrumbs } from '../../seo.config';
+
+const PATH = '/commercial-masonry/';
 const RW = `${IMG}/2024/12/retaining-walls.png`;
 
 const services = [
-  { icon: RW, alt: 'retaining walls', title: 'Commercial Brick & Block Repair', body: 'Structural repairs for warehouses, storefronts, and multi-unit complexes. We handle load-bearing blockwork and exterior brick skins.' },
-  { icon: RW, alt: 'retaining walls', title: 'Façade Restoration',              body: 'Comprehensive exterior rejuvenation. We match historic bricks and mortars to maintain the heritage value of GTA properties.' },
-  { icon: RW, alt: 'retaining walls', title: 'Mortar Joint Repointing',         body: 'Professional tuckpointing and repointing to seal buildings against water damage and extend the life of the masonry.' },
-  { icon: RW, alt: 'retaining walls', title: 'Chimney / Parapet Repair',        body: 'Safe repair of high-altitude masonry features. We specialize in rooftop parapet rebuilds and industrial chimney maintenance.' },
-  { icon: RW, alt: 'retaining walls', title: 'Retaining & Block Walls',         body: 'High-durability block walls for parking lots, property borders, and structural landscaping requirements.' },
-  { icon: RW, alt: 'retaining walls', title: 'Stone Repair',                    body: 'Repair and matching for natural and architectural stone features on commercial building entrances and monuments.' },
+  { icon: RW, alt: 'Commercial brick and block repair', title: 'Commercial Brick & Block Repair', body: 'Structural repairs for warehouses, storefronts, and multi-unit complexes. We handle load-bearing blockwork and exterior brick skins.' },
+  { icon: RW, alt: 'Building façade restoration', title: 'Façade Restoration',              body: 'Comprehensive exterior rejuvenation. We match historic bricks and mortars to maintain the heritage value of GTA properties.' },
+  { icon: RW, alt: 'Mortar joint repointing', title: 'Mortar Joint Repointing',         body: 'Professional tuckpointing and repointing to seal buildings against water damage and extend the life of the masonry.' },
+  { icon: RW, alt: 'Rooftop parapet repair', title: 'Chimney / Parapet Repair',        body: 'Safe repair of high-altitude masonry features. We specialize in rooftop parapet rebuilds and industrial chimney maintenance.' },
+  { icon: RW, alt: 'Commercial block wall', title: 'Retaining & Block Walls',         body: 'High-durability block walls for parking lots, property borders, and structural landscaping requirements.' },
+  { icon: RW, alt: 'Architectural stone repair', title: 'Stone Repair',                    body: 'Repair and matching for natural and architectural stone features on commercial building entrances and monuments.' },
 ];
 
 const faqs = [
@@ -25,9 +27,25 @@ const faqs = [
   { q: 'What specific commercial services do you provide?', a: 'Our core services include structural blockwork, brick veneer repair, tuckpointing/repointing, facade cleaning, parapet restoration, and chimney rebuilds for commercial and industrial assets.' },
   { q: 'How do I get started with a commercial project?', a: 'Simply fill out the form at the top of this page or call our office. We will schedule a site visit to assess the masonry condition and discuss your specific requirements before providing a formal quote.' },
 ];
+
+const schema = [
+  service({
+    name: 'Commercial Masonry',
+    path: PATH,
+    serviceType: 'Commercial masonry',
+    description:
+      'Brick, block and stone repair, façade restoration, repointing and parapet work for commercial, ' +
+      'industrial and multi-unit properties across the Greater Toronto Area. Fully insured and WSIB covered.',
+    offers: ['Commercial brick and block repair', 'Façade restoration', 'Mortar joint repointing', 'Parapet repair', 'Retaining and block walls', 'Architectural stone repair'],
+  }),
+  faqPage(PATH, faqs),
+  breadcrumbs([{ name: 'Commercial Masonry', path: PATH }]),
+];
 ---
+{/* Title carried verbatim from the old page. */}
 <Base title="Commercial Masonry – Brian's Masonry"
-      description="Brian's Masonry handles brick, block, and stone repair and restoration for commercial and multi-unit properties across the GTA.">
+      description="Brian's Masonry handles brick, block, and stone repair and restoration for commercial and multi-unit properties across the GTA. Fully insured, WSIB covered."
+      schema={schema}>
 
   <ServiceHero
     h1="Commercial Masonry, Done on Schedule."
@@ -53,7 +71,7 @@ const faqs = [
 
   <ServiceGrid heading="Our Commercial Services" items={services} />
   <Faq items={faqs} />
-  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="bm-about us"
+  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="Brian's Masonry crew on a commercial masonry site"
     heading="A masonry partner you can schedule with confidence."
     body="Clear scope, proper coverage, clean sites — 20+ years of it. We take the stress out of commercial property maintenance." />
 </Base>

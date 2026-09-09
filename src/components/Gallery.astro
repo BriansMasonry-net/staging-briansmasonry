@@ -1,12 +1,19 @@
 ---
 // Measured from live: 4 columns of 342.5px, gap 10px, item 343x257 (4:3),
 // border-radius 5px, hover overlay rgba(0,0,0,.5), 12 lightbox links.
+//
+// `images` takes { src, alt }. On the old site all twelve of these carried
+// alt="" — twelve photographs of the company's actual finished work, invisible
+// to image search and to anyone using a screen reader. For a trade business
+// the portfolio is the strongest visual asset on the site; describing it is
+// the cheapest image-search win available.
 const { images } = Astro.props;
+const items = images.map((im) => (typeof im === 'string' ? { src: im, alt: '' } : im));
 ---
 <div class="gal" data-lightbox>
-  {images.map((src, i) => (
-    <a href={src} class="gal__item" data-i={i} aria-label={`Open project image ${i + 1}`}>
-      <img src={src} alt="" loading="lazy" />
+  {items.map((im, i) => (
+    <a href={im.src} class="gal__item" data-i={i} aria-label={im.alt || `Open project image ${i + 1}`}>
+      <img src={im.src} alt={im.alt} loading="lazy" />
     </a>
   ))}
 </div>
@@ -62,6 +69,7 @@ const { images } = Astro.props;
     const show = (n) => {
       i = (n + links.length) % links.length;
       img.src = links[i].getAttribute('href');
+      img.alt = links[i].querySelector('img')?.getAttribute('alt') || '';
       count.textContent = `${i + 1} / ${links.length}`;
     };
     const open = (n) => {
@@ -71,7 +79,7 @@ const { images } = Astro.props;
       lb.querySelector('[data-lb-close]').focus();
     };
     const close = () => {
-      lb.hidden = true; img.src = '';
+      lb.hidden = true; img.src = ''; img.alt = '';
       document.body.style.overflow = '';
       if (lastFocus) lastFocus.focus();
     };

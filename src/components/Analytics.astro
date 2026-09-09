@@ -1,0 +1,43 @@
+---
+/* ---------------------------------------------------------------------------
+   Analytics.astro — the Google Ads tag, carried verbatim off the old site.
+
+   Not SEO, but it lives in the same <head> that is being replaced, so it is
+   lost at cutover unless it moves with everything else — and the client would
+   find out from a flat Ads dashboard weeks later, not from an error.
+
+   Read off the live pages on 2026-09-09:
+     - gtag.js for AW-17780632377, on every page
+     - a phone_conversion_number config, sitewide (call tracking on the
+       displayed number)
+     - a `conversion` event on /thank-you/ only, for the Lead Form action
+   --------------------------------------------------------------------------- */
+import { ads } from '../../seo.config';
+
+export interface Props {
+  /** Fire the Lead Form conversion. True on /thank-you/ only, as on the old site. */
+  conversion?: boolean;
+}
+const { conversion = false } = Astro.props as Props;
+---
+<script async src={`https://www.googletagmanager.com/gtag/js?id=${ads.id}`}></script>
+<script
+  is:inline
+  define:vars={{
+    id: ads.id,
+    phoneLabel: ads.phoneConversionLabel,
+    phoneNumber: ads.phoneConversionNumber,
+    leadSendTo: conversion ? ads.leadConversionSendTo : null,
+  }}
+>
+  /* `define:vars` wraps this block in an IIFE, so `gtag` must be put on
+     window explicitly — on the old site it was a global, and anything the
+     client adds later (an onclick conversion, a form handler) will expect to
+     find it there. */
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function gtag() { window.dataLayer.push(arguments); };
+  gtag('js', new Date());
+  gtag('config', id);
+  gtag('config', phoneLabel, { phone_conversion_number: phoneNumber });
+  if (leadSendTo) gtag('event', 'conversion', { send_to: leadSendTo });
+</script>

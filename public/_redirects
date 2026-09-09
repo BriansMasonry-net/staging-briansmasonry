@@ -1,0 +1,14 @@
+# Cloudflare Workers static-asset redirects.
+#
+# Scope: ONLY the addresses this SEO change moved. The full old-address map
+# (every URL captured at gate 0.4) belongs to gate 14,
+# wp-18-keep-old-links-working, and is published at the edge there. Do not
+# grow this file into that map — two redirect sources is how they diverge.
+#
+# The old site advertised its sitemap at /wp-sitemap.xml in robots.txt, and
+# Search Console has that address on file. Astro emits /sitemap-index.xml.
+# Without these three lines the client's submitted sitemap 404s at cutover.
+
+/wp-sitemap.xml               /sitemap-index.xml   301
+/wp-sitemap-posts-page-1.xml  /sitemap-0.xml       301
+/wp-sitemap-index.xsl         /sitemap-index.xml   301

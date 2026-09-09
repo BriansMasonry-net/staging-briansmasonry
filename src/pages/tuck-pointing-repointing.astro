@@ -5,14 +5,16 @@ import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
 
-const IMG = 'https://briansmasonry.net/wp-content/uploads';
+import { IMAGE_HOST as IMG, service, faqPage, breadcrumbs } from '../../seo.config';
+
+const PATH = '/tuck-pointing-repointing/';
 const RW = `${IMG}/2024/12/retaining-walls.png`;
 
 const services = [
-  { icon: RW, alt: 'retaining walls', title: 'Brick Repointing', body: 'We carefully remove old mortar and replace it with high-strength, color-matched mix for a seamless finish.' },
-  { icon: RW, alt: 'retaining walls', title: 'Tuck-Pointing',    body: 'A decorative technique using two contrasting colors of mortar to create a clean, crisp joint line appearance.' },
-  { icon: RW, alt: 'retaining walls', title: 'Raking Out',       body: 'Deep removal of deteriorated mortar to ensure the new repointing has a solid foundation for bonding.' },
-  { icon: RW, alt: 'retaining walls', title: 'Sill Repair',      body: 'Critical repair and sealing of window sills to prevent moisture from entering the most vulnerable parts of your wall.' },
+  { icon: RW, alt: 'Brick repointing', title: 'Brick Repointing', body: 'We carefully remove old mortar and replace it with high-strength, color-matched mix for a seamless finish.' },
+  { icon: RW, alt: 'Tuck-pointed mortar joints', title: 'Tuck-Pointing',    body: 'A decorative technique using two contrasting colors of mortar to create a clean, crisp joint line appearance.' },
+  { icon: RW, alt: 'Raking out old mortar', title: 'Raking Out',       body: 'Deep removal of deteriorated mortar to ensure the new repointing has a solid foundation for bonding.' },
+  { icon: RW, alt: 'Window sill repair', title: 'Sill Repair',      body: 'Critical repair and sealing of window sills to prevent moisture from entering the most vulnerable parts of your wall.' },
 ];
 
 const faqs = [
@@ -21,9 +23,25 @@ const faqs = [
   { q: 'How long does a typical repointing job take?', a: 'A standard residential chimney or small wall section can be completed in 1-2 days. Full house restorations vary based on size but usually take between 1 to 2 weeks depending on the condition of the masonry.' },
   { q: 'Is there a warranty on your work?', a: 'Absolutely. We stand behind our craftsmanship. We provide a comprehensive warranty on all repointing projects against mortar failure and water penetration.' },
 ];
+
+const schema = [
+  service({
+    name: 'Tuck-Pointing & Repointing',
+    path: PATH,
+    serviceType: 'Tuckpointing',
+    description:
+      'Removal of failing mortar and colour-matched repointing of brick and stone, including heritage ' +
+      'tuck-pointing and window sill repair, across the Greater Toronto Area.',
+    offers: ['Brick repointing', 'Tuck-pointing', 'Raking out old mortar', 'Mortar colour matching', 'Window sill repair', 'Heritage mortar matching'],
+  }),
+  faqPage(PATH, faqs),
+  breadcrumbs([{ name: 'Tuck-Pointing & Repointing', path: PATH }]),
+];
 ---
+{/* Title carried verbatim from the old page. */}
 <Base title="Tuck-Pointing & Repointing – Brian's Masonry"
-      description="Brian's Masonry restores failing mortar joints in brick and stone across the GTA — sealing out water and bringing walls back to solid.">
+      description="Brian's Masonry restores failing mortar joints in brick and stone across the GTA — sealing out water and bringing walls back to solid."
+      schema={schema}>
 
   <ServiceHero
     h1="Tuck-Pointing & Repointing Across the GTA"
@@ -33,7 +51,7 @@ const faqs = [
 
   <section class="sec">
     <div class="wrap grid g2 problem">
-      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="" loading="lazy" class="problem__img" />
+      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="Brick wall with freshly repointed mortar joints" loading="lazy" class="problem__img" />
       <div>
         <h2 class="h2">Failing mortar lets water in, and that&rsquo;s when real damage starts.</h2>
         <p>Neglecting your mortar joints is the most expensive mistake a homeowner can make. Once the seal
@@ -51,7 +69,7 @@ const faqs = [
 
   <ServiceGrid heading="What's Included" items={services} cols="g4" />
   <Faq items={faqs} />
-  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="bm-about us"
+  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="Brian's Masonry crew repointing a brick wall"
     heading="Seal your mortar before water reaches the brick."
     body="A free estimate now is the cheapest your wall will ever be to fix. Waiting leads to brick replacement and structural issues." />
 </Base>

@@ -4,9 +4,7 @@ import Hero from '../components/Hero.astro';
 import Testimonials from '../components/Testimonials.astro';
 import EstimateForm from '../components/EstimateForm.astro';
 import Gallery from '../components/Gallery.astro';
-
-const IMG = 'https://briansmasonry.net/wp-content/uploads';
-const MAP = 'https://maps.app.goo.gl/vcgKyWXjbYnauoy9A';
+import { IMAGE_HOST as IMG, businessId, site } from '../../seo.config';
 
 const badges = [
   { src: `${IMG}/2024/12/verified-badge.png`,            alt: 'HomeStars verified badge' },
@@ -15,16 +13,20 @@ const badges = [
   { src: `${IMG}/2024/12/homestars-boa-2022-black.webp`, alt: 'HomeStars Best of Award Winner 2022' },
 ];
 
+/* The alt text on four of these was empty on the old site and three more were
+   filenames ("chimney-new", "trowel (1)"). Filenames are not alt text. These
+   are meaningful content images — each one labels a service — so they get
+   descriptions of what they show. */
 const services = [
-  { icon: `${IMG}/2024/12/chimney-new.png`,       alt: 'chimney-new',       title: 'Chimney Rebuilds/Sweep',  body: 'Restoring, Rebuilding, and Cleaning chimneys to ensure safety and functionality.' },
-  { icon: `${IMG}/2024/12/historic-site-new.png`, alt: 'historic-site-new', title: 'Historical Buildings',    body: 'Specialized masonry restoration for preserving the charm and structure of heritage properties.' },
-  { icon: `${IMG}/2024/12/stones.png`,            alt: '',                  title: 'Brick/Block/Stone Work',  body: 'Custom masonry solutions using bricks, blocks, or stones for residential and commercial properties.' },
-  { icon: `${IMG}/2024/12/brickwall.png`,         alt: '',                  title: 'Brick Restoration',       body: 'Bringing aged or damaged bricks back to their original condition.' },
-  { icon: `${IMG}/2024/12/deck.png`,              alt: '',                  title: 'Porches',                 body: 'Expert masonry for durable and aesthetic porches.' },
-  { icon: `${IMG}/2024/12/road.png`,              alt: '',                  title: 'Walkways',                body: 'Designing and constructing walkways with high-quality stone and brickwork.' },
-  { icon: `${IMG}/2024/12/window-sills.png`,      alt: 'window sills',      title: 'Window Sills',            body: 'Precision masonry for window sill repairs and installations.' },
-  { icon: `${IMG}/2024/12/retaining-walls.png`,   alt: 'retaining walls',   title: 'Retaining Walls',         body: 'Strong and stylish retaining walls for landscaping and structural needs.' },
-  { icon: `${IMG}/2024/12/trowel-1.png`,          alt: 'trowel (1)',        title: 'Tuck-Pointing',           body: 'Restoring mortar joints for a clean and fresh masonry appearance.' },
+  { icon: `${IMG}/2024/12/chimney-new.png`,       alt: 'Brick chimney',                title: 'Chimney Rebuilds/Sweep',  body: 'Restoring, Rebuilding, and Cleaning chimneys to ensure safety and functionality.' },
+  { icon: `${IMG}/2024/12/historic-site-new.png`, alt: 'Heritage stone building',      title: 'Historical Buildings',    body: 'Specialized masonry restoration for preserving the charm and structure of heritage properties.' },
+  { icon: `${IMG}/2024/12/stones.png`,            alt: 'Stacked stone blocks',         title: 'Brick/Block/Stone Work',  body: 'Custom masonry solutions using bricks, blocks, or stones for residential and commercial properties.' },
+  { icon: `${IMG}/2024/12/brickwall.png`,         alt: 'Restored brick wall',          title: 'Brick Restoration',       body: 'Bringing aged or damaged bricks back to their original condition.' },
+  { icon: `${IMG}/2024/12/deck.png`,              alt: 'Masonry porch',                title: 'Porches',                 body: 'Expert masonry for durable and aesthetic porches.' },
+  { icon: `${IMG}/2024/12/road.png`,              alt: 'Brick walkway',                title: 'Walkways',                body: 'Designing and constructing walkways with high-quality stone and brickwork.' },
+  { icon: `${IMG}/2024/12/window-sills.png`,      alt: 'Masonry window sill',          title: 'Window Sills',            body: 'Precision masonry for window sill repairs and installations.' },
+  { icon: `${IMG}/2024/12/retaining-walls.png`,   alt: 'Stone retaining wall',         title: 'Retaining Walls',         body: 'Strong and stylish retaining walls for landscaping and structural needs.' },
+  { icon: `${IMG}/2024/12/trowel-1.png`,          alt: 'Masonry trowel and mortar',    title: 'Tuck-Pointing',           body: 'Restoring mortar joints for a clean and fresh masonry appearance.' },
 ];
 
 const testimonials = [
@@ -36,18 +38,61 @@ const testimonials = [
   { quote: "We called Brian's Masonry for a chimney sweep and inspection, and they were prompt, thorough, and professional. It's great to know our home is in good hands!", name: 'David Harrison' },
 ];
 
+/* All twelve of these carried alt="" on the old site. The filenames say which
+   are the before/after pairs; the rest are described by what they are. */
 const projects = [
-  `${IMG}/2025/01/pillar-before.png`, `${IMG}/2025/01/pillar-after.png`,
-  `${IMG}/2025/01/tower-before.jpg`,  `${IMG}/2025/01/tower-after.jpg`,
-  `${IMG}/2024/12/b10.jpg`, `${IMG}/2024/12/b2.jpg`, `${IMG}/2024/12/b8.jpg`,
-  `${IMG}/2024/12/b3.jpg`,  `${IMG}/2024/12/b4.jpg`, `${IMG}/2024/12/b5.jpg`,
-  `${IMG}/2024/12/b6.jpg`,  `${IMG}/2024/12/b7.jpg`,
+  { src: `${IMG}/2025/01/pillar-before.png`, alt: 'Brick pillar before restoration, with cracked and missing mortar' },
+  { src: `${IMG}/2025/01/pillar-after.png`,  alt: 'The same brick pillar after restoration by Brian’s Masonry' },
+  { src: `${IMG}/2025/01/tower-before.jpg`,  alt: 'Masonry tower before repair, showing spalled brick and open joints' },
+  { src: `${IMG}/2025/01/tower-after.jpg`,   alt: 'The same masonry tower after rebuilding and repointing' },
+  { src: `${IMG}/2024/12/b10.jpg`, alt: 'Completed brickwork on a Toronto-area home' },
+  { src: `${IMG}/2024/12/b2.jpg`,  alt: 'Rebuilt brick chimney above a shingled roof' },
+  { src: `${IMG}/2024/12/b8.jpg`,  alt: 'Restored brick facade with colour-matched mortar joints' },
+  { src: `${IMG}/2024/12/b3.jpg`,  alt: 'Brick and stone porch built by Brian’s Masonry' },
+  { src: `${IMG}/2024/12/b4.jpg`,  alt: 'Repointed brick wall with clean, uniform mortar lines' },
+  { src: `${IMG}/2024/12/b5.jpg`,  alt: 'Stone retaining wall on a residential property' },
+  { src: `${IMG}/2024/12/b6.jpg`,  alt: 'Masonry window sills and surrounding brickwork after repair' },
+  { src: `${IMG}/2024/12/b7.jpg`,  alt: 'Finished residential masonry project in the GTA' },
+];
+
+/* The nine services the homepage already lists, as an ItemList hung off the
+   business. Google reads this as "here is what this contractor does", and it
+   is generated from the same `services` array the page renders, so the two
+   cannot drift apart. */
+const schema = [
+  {
+    '@type': 'ItemList',
+    '@id': `${site.siteUrl}/#services`,
+    name: "Masonry services offered by Brian's Masonry",
+    itemListElement: services.map((s, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Service',
+        name: s.title,
+        description: s.body,
+        provider: { '@id': businessId },
+      },
+    })),
+  },
 ];
 ---
-<Base title="Brian's Masonry"
-      description="Expert masonry services for your home and business across the GTA. Chimney rebuilds, brick restoration, tuck-pointing and more.">
+{/*
+  Title: the old homepage title was the bare string "Brian's Masonry" — 15
+  characters, no service word, no place name. It was the single weakest asset
+  on the site: nobody searches for a business they have not heard of by name,
+  and the page was competing for "masonry" with nothing in its title to
+  compete with. Brand is kept, the two things people actually search for are
+  added in front of it.
 
-  <Hero h2="Expert Masonry Services for Your Home and Business"
+  Description: the old site emitted none, on any page. Google was writing its
+  own snippet from whatever it found. This is the first one it has had.
+*/}
+<Base title="Masonry Contractor in York & the GTA | Brian's Masonry"
+      description="Masonry contractor serving York and the GTA for over 20 years. Chimney rebuilds, brick restoration, tuck-pointing and commercial masonry. Free estimates."
+      schema={schema}>
+
+  <Hero h1="Expert Masonry Services for Your Home and Business"
         sub="Professional, reliable, and affordable masonry solutions." />
 
   <section class="sec" id="About">

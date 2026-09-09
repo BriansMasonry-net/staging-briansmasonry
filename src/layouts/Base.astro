@@ -1,18 +1,38 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-const { title, description } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+import Seo from '../components/Seo.astro';
+import Analytics from '../components/Analytics.astro';
+import { IMAGE_HOST } from '../../seo.config';
+
+export interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown>[];
+  /** Fire the Google Ads Lead Form conversion (thank-you page only). */
+  conversion?: boolean;
+}
+
+const { conversion = false, ...seo } = Astro.props as Props;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en-CA">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{title}</title>
-  {description && <meta name="description" content={description} />}
-  <link rel="canonical" href={canonical} />
-  <meta name="robots" content="max-image-preview:large" />
+  <Seo {...seo} />
+  <Analytics conversion={conversion} />
+
+  {/* The hero background and the logo are the first two things painted; the
+      browser cannot see either in the markup until CSS parses. */}
+  <link rel="preconnect" href="https://briansmasonry.net" />
+  <link rel="preload" as="image" fetchpriority="high"
+        href={`${IMAGE_HOST}/2025/01/Brians-Masonry-Home-Page-Banner.webp`} />
+  <link rel="icon" href={`${IMAGE_HOST}/2024/12/Brians-Masonry-Logo-Only0-e1737996026967.webp`} />
+  <meta name="theme-color" content="#243F98" />
   <style is:global>
     /* ------------------------------------------------------------------
        Ported verbatim from the live Elementor stylesheets:

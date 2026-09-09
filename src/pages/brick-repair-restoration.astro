@@ -5,13 +5,15 @@ import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
 
-const IMG = 'https://briansmasonry.net/wp-content/uploads';
+import { IMAGE_HOST as IMG, service, faqPage, breadcrumbs } from '../../seo.config';
+
+const PATH = '/brick-repair-restoration/';
 const RW = `${IMG}/2024/12/retaining-walls.png`;
 
 const services = [
-  { icon: RW, alt: 'retaining walls', title: 'Brick Replacement', body: 'Removing damaged, spalled, or loose bricks and replacing them with structurally sound units that match your original masonry.', ticks: ['Spalled brick repair', 'Colour matching'] },
-  { icon: RW, alt: 'retaining walls', title: 'Crack Repair / Tuckpointing', body: 'Identifying root causes of wall cracking and performing deep-fill repairs that restore both integrity and appearance.', ticks: ['Structural stabilization', 'Mortar blending'] },
-  { icon: RW, alt: 'retaining walls', title: 'Full Restoration', body: 'Comprehensive rebuilding of damaged sections, including chimneys, porches, and full wall facades using expert masonry.', ticks: ['Chimney repair', 'Wall rebuilding'] },
+  { icon: RW, alt: 'Brick replacement', title: 'Brick Replacement', body: 'Removing damaged, spalled, or loose bricks and replacing them with structurally sound units that match your original masonry.', ticks: ['Spalled brick repair', 'Colour matching'] },
+  { icon: RW, alt: 'Mortar crack repair', title: 'Crack Repair / Tuckpointing', body: 'Identifying root causes of wall cracking and performing deep-fill repairs that restore both integrity and appearance.', ticks: ['Structural stabilization', 'Mortar blending'] },
+  { icon: RW, alt: 'Full masonry restoration', title: 'Full Restoration', body: 'Comprehensive rebuilding of damaged sections, including chimneys, porches, and full wall facades using expert masonry.', ticks: ['Chimney repair', 'Wall rebuilding'] },
 ];
 
 const faqs = [
@@ -20,9 +22,25 @@ const faqs = [
   { q: 'Are cracks in my brick wall serious?', a: 'Horizontal and vertical cracks should always be inspected. "Step cracks" often indicate structural movement that needs professional attention.' },
   { q: 'What is your cleanup process?', a: 'We pride ourselves on leaving every job site spotless. We perform a thorough cleanup of all masonry dust and debris before we leave.' },
 ];
+
+const schema = [
+  service({
+    name: 'Brick Repair & Restoration',
+    path: PATH,
+    serviceType: 'Brick repair',
+    description:
+      'Replacement of spalled and loose brick, deep-fill crack repair, and full restoration of ' +
+      'damaged walls, chimneys and porches on homes across the Greater Toronto Area.',
+    offers: ['Brick replacement', 'Spalled brick repair', 'Crack repair', 'Colour matching', 'Wall rebuilding', 'Heritage brick restoration'],
+  }),
+  faqPage(PATH, faqs),
+  breadcrumbs([{ name: 'Brick Repair & Restoration', path: PATH }]),
+];
 ---
+{/* Title carried verbatim from the old page. */}
 <Base title="Brick Repair & Restoration – Brian's Masonry"
-      description="Brian's Masonry repairs and restores brick and stone on homes across the GTA — matched, solid, and built to last. Multiple HomeStars award winner.">
+      description="Brian's Masonry repairs and restores brick and stone on homes across the GTA — matched, solid, and built to last. Multiple HomeStars award winner."
+      schema={schema}>
 
   <ServiceHero
     h1="Cracked or Crumbling Brick?"
@@ -32,7 +50,7 @@ const faqs = [
 
   <section class="sec">
     <div class="wrap grid g2 problem">
-      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="" loading="lazy" class="problem__img" />
+      <img src={`${IMG}/2026/06/Brick-Work.webp`} alt="Repaired brick wall showing replaced brick and fresh mortar joints" loading="lazy" class="problem__img" />
       <div>
         <h2 class="h2">Don&rsquo;t Ignore Brick Damage</h2>
         <p>Brick problems only get worse — and more expensive — when ignored. Small cracks allow water
@@ -52,7 +70,7 @@ const faqs = [
 
   <ServiceGrid heading="Our Professional Services" items={services} />
   <Faq items={faqs} />
-  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="bm-about us"
+  <ClosingCta image={`${IMG}/2024/12/bm-about-us.jpg`} alt="Brian's Masonry crew on a brick restoration job"
     heading="Stop the damage before it spreads."
     body="Clear scope, proper coverage, clean sites — 20+ years of it." />
 </Base>

@@ -5,7 +5,9 @@ import ServiceGrid from '../components/ServiceGrid.astro';
 import Faq from '../components/Faq.astro';
 import ClosingCta from '../components/ClosingCta.astro';
 
-const IMG = 'https://briansmasonry.net/wp-content/uploads';
+import { IMAGE_HOST as IMG, service, faqPage, breadcrumbs } from '../../seo.config';
+
+const PATH = '/chimney-repair-rebuilds/';
 const CH = `${IMG}/2024/12/chimney-new.png`;
 
 const symptoms = [
@@ -27,9 +29,31 @@ const faqs = [
   { q: 'How long does a typical chimney job take?', a: 'Repointing typically takes 1-2 days. A full rebuild usually takes 2-4 days depending on the height and access requirements. We include setup and a spotless cleanup in that timeframe.' },
   { q: 'What causes chimney leaks?', a: 'The most common causes are cracked masonry crowns (the concrete top), failing flashing where the chimney meets the roof, or porous, spalling bricks that absorb water.' },
 ];
+
+/* FAQPage is generated from the same `faqs` array the page renders below, so
+   the schema and the visible answers cannot drift. This is the block that
+   earns the expandable Q&A rows under the result in Google — the old site had
+   the questions on the page but no schema, so it never qualified. */
+const schema = [
+  service({
+    name: 'Chimney Repair & Rebuilds',
+    path: PATH,
+    serviceType: 'Chimney repair',
+    description:
+      'Chimney repointing, partial and full rebuilds from the roofline, and masonry crown and cap ' +
+      'sealing for brick chimneys across the Greater Toronto Area.',
+    offers: ['Chimney repointing', 'Partial chimney rebuild', 'Full chimney rebuild', 'Masonry crown repair', 'Chimney sealing and caps', 'Chimney sweep'],
+  }),
+  faqPage(PATH, faqs),
+  breadcrumbs([{ name: 'Chimney Repair & Rebuilds', path: PATH }]),
+];
 ---
+{/* Title carried verbatim from the old page. It is 43 characters, leads with
+    the service, and there is nothing to gain by changing an address's title
+    when it already works. */}
 <Base title="Chimney Repair & Rebuilds – Brian's Masonry"
-      description="Chimney leaking or crumbling? From repointing to full rebuilds, Brian's Masonry fixes brick chimneys across the GTA — sealed, solid, and safe.">
+      description="Chimney leaking or crumbling? From repointing to full rebuilds, Brian's Masonry fixes brick chimneys across the GTA — sealed, solid, and safe."
+      schema={schema}>
 
   <ServiceHero
     h1="Chimney Repair & Rebuilds Across the GTA"
