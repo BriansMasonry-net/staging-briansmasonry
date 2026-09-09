@@ -14,7 +14,11 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 <div class:list={['efw', card && 'efw--card', invert && 'efw--inv', `efw--${layout}`]}>
   {heading && <h2 class="ef__h">{heading}</h2>}
   <p class="ef__err" id={`${id}-err`} role="alert" hidden></p>
-  <form class="ef" id={id} method="post" action="/api/contact">
+  {/* Trailing slash matters here. astro.config sets trailingSlash: 'always',
+      so /api/contact answers with a 308 to /api/contact/. A 308 does preserve
+      the POST body, so the form still works — but it puts a redirect hop on
+      every single lead. Post to the canonical path directly. */}
+  <form class="ef" id={id} method="post" action="/api/contact/">
     {/* Honeypot — off-screen, never announced, never focusable. A filled value
         means a bot, and /api/contact drops the submission silently. The name is
         deliberately NOT "company": browser address autofill maps that one to
