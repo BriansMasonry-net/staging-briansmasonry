@@ -1,0 +1,22 @@
+# Copy to .dev.vars for local dev. .dev.vars is git-ignored — never commit a key.
+#
+# In production these live on the Worker under
+# Settings -> Variables & Secrets, with RESEND_API_KEY added as a SECRET.
+# A key added under Build settings is present while the build runs and absent
+# when the route executes: the build passes and the form fails in production.
+
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
+
+# Optional overrides. The route falls back to these same values in code.
+# From sends as the client's own domain here (see README — a deliberate
+# exception to the stack default), and it must stay on a domain verified in
+# Resend. CONTACT_REPLY_TO overrides the default, which is the visitor.
+CONTACT_FROM="Brian's Masonry Website <forms@briansmasonry.net>"
+CONTACT_TO=briansmasonry@ymail.com
+# CONTACT_REPLY_TO=  # unset = the visitor's own address
+
+# Optional abuse protection. Set both or neither:
+#   TURNSTILE_SECRET_KEY       here / Worker secret  (server verification)
+#   PUBLIC_TURNSTILE_SITE_KEY  build variable        (renders the widget)
+# TURNSTILE_SECRET_KEY=
+# PUBLIC_TURNSTILE_SITE_KEY=

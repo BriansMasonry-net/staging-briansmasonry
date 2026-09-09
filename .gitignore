@@ -7,3 +7,7 @@ dist/
 preview/
 preview2/
 standalone/
+
+# local secrets / wrangler state
+.dev.vars
+.wrangler/

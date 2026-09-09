@@ -1,0 +1,17 @@
+# Staging must never be indexed. Every page's canonical points at
+# https://briansmasonry.net/, so an indexed copy of this preview would compete
+# with the client's live site under a second hostname.
+#
+# The rule is scoped to the staging hostname on purpose. At the domain cutover
+# the client's real domain is attached to THIS SAME Worker, and an unscoped
+# `/*` rule would carry the noindex onto the production site and quietly
+# deindex the business.
+#
+# This lives in public/ so it survives every future deploy. The previous build
+# served a noindex header from a `_headers` file that existed only inside the
+# build output and not in git, so the first redeploy silently dropped it.
+#
+# Cloudflare only applies these to STATIC asset responses — /api/contact is
+# served by the Worker script and sets its own headers.
+https://staging.briansmasonry.net/*
+  X-Robots-Tag: noindex, nofollow
