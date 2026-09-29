@@ -29,13 +29,19 @@ const { items } = Astro.props;
   .tc__item.on { display: block; }
   .tc__item blockquote { margin: 0 0 14px; color: var(--tst-txt); font-size: 16px; font-weight: 400; line-height: 24px; }
   .tc__item figcaption { color: var(--blue); font-size: 18px; font-weight: 600; }
-  .tc__dots { display: flex; justify-content: center; gap: 0; margin-top: 22px; }
-  /* measured: 6x6, radius 50%, margin 0 6px */
-  .tc__dots button {
-    width: 6px; height: 6px; border-radius: 50%; border: 0; padding: 0; margin: 0 6px;
-    background: var(--red); opacity: .2; cursor: pointer;
+  .tc__dots { display: flex; justify-content: center; align-items: center; gap: 0; margin-top: 22px; }
+  /* Dots are appended client-side via document.createElement, so they never
+     carry Astro's scope attribute — :global() is required for this rule to
+     reach them at all (pre-existing gap, confirmed present in production too).
+     Visible dot stays 6x6 (measured design), but the button's hit target is
+     grown to 24x24 via transparent padding (background-clip keeps the
+     painted circle at the original size, so there is no visual change). */
+  .tc__dots :global(button) {
+    width: 6px; height: 6px; border-radius: 50%; border: 0; margin: 0;
+    padding: 9px; background-clip: content-box; box-sizing: content-box;
+    background-color: var(--red); opacity: .2; cursor: pointer;
   }
-  .tc__dots button[aria-current="true"] { background: var(--red); opacity: 1; }
+  .tc__dots :global(button[aria-current="true"]) { background: var(--red); opacity: 1; }
   @media (max-width: 760px) { .tc__track { grid-template-columns: 1fr; } }
 </style>
 

@@ -11,6 +11,15 @@
   "workers_dev": false,
   "preview_urls": false,
 
+  // The single production-facing address for this Worker, confirmed against
+  // the Cloudflare dashboard (custom domain, not a route pattern on someone
+  // else's zone). Declaring it here keeps `wrangler deploy` from silently
+  // matching whatever the dashboard has at deploy time — see gate 9 above for
+  // why workers_dev/preview_urls stay off instead of relying on this alone.
+  "routes": [
+    { "pattern": "staging.briansmasonry.net", "custom_domain": true }
+  ],
+
   // The adapter's own entrypoint (@astrojs/cloudflare v12+; older builds in the
   // house notes point `main` at ./dist/_worker.js/index.js, which this version
   // rejects at build time). It exists for /api/contact and nothing else — every
@@ -21,5 +30,17 @@
     "binding": "ASSETS",
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
-  }
+  },
+
+  // Existing dashboard bindings, declared so a config-driven deploy does not
+  // drop them. SESSION is the KV namespace src/pages/api/contact.ts reads for
+  // the per-IP rate limit; IMAGES is the Cloudflare Images binding — nothing
+  // in this codebase calls it yet, but it exists on the live Worker and is
+  // preserved as-is rather than guessed at or removed.
+  "images": {
+    "binding": "IMAGES"
+  },
+  "kv_namespaces": [
+    { "binding": "SESSION", "id": "a1314bcbbb1246fba2c290fe1215a979" }
+  ]
 }

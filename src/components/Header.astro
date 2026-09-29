@@ -9,6 +9,7 @@ const services = [
   { href: '/tuck-pointing-repointing/', label: 'Tuck-Pointing & Repointing' },
 ];
 ---
+<a class="skip-link" href="#content">Skip to content</a>
 <div class="topbar">
   <div class="topbar__in">
     <a href="tel:4162444113">
@@ -33,7 +34,8 @@ const services = [
 <div class="navband">
   <div class="navband__in">
     <input type="checkbox" id="nt" hidden />
-    <label for="nt" class="toggle" aria-label="Menu">
+    <label for="nt" class="toggle">
+      <span class="sr-only">Menu</span>
       <svg viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M0 96h448v42H0zm0 128h448v42H0zm0 128h448v42H0z"/></svg>
     </label>
     <nav class="nav">
@@ -54,6 +56,20 @@ const services = [
 </div>
 
 <style>
+  /* Visually hidden until keyboard-focused, per WCAG 2.4.1 bypass-blocks. */
+  .skip-link {
+    position: absolute; left: 8px; top: -60px; z-index: 100;
+    background: #fff; color: var(--blue); padding: 10px 16px;
+    border-radius: var(--r); font-size: 16px; font-weight: 600;
+    text-decoration: none; transition: top .15s ease-in-out;
+  }
+  .skip-link:focus { top: 8px; }
+  /* Text kept in the DOM for the accessible name, hidden visually only. */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
   /* #4246d95 — bg #243f98, column, centered, content-width 1400 */
   .topbar { background: #243f98; }
   .topbar__in {

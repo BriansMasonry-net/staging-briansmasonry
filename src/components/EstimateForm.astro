@@ -28,11 +28,26 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       <input type="text" id={`${id}-ref`} name="form_ref" tabindex="-1" autocomplete="off" />
     </div>
     <input type="hidden" name="source" value={id} />
-    <div class="ef__grp ef__grp--name"><input type="text" name="name" placeholder="Name*" required autocomplete="name" /></div>
-    <div class="ef__grp"><input type="email" name="email" placeholder="Email*" required autocomplete="email" /></div>
-    <div class="ef__grp"><input type="tel"   name="phone" placeholder="Phone*" required autocomplete="tel" /></div>
-    {city && <div class="ef__grp ef__grp--city"><input type="text" name="city" placeholder="City*" autocomplete="address-level2" /></div>}
-    <div class="ef__grp ef__grp--full"><textarea name="message" placeholder="Message" rows="4"></textarea></div>
+    <div class="ef__grp ef__grp--name">
+      <label class="sr-only" for={`${id}-name`}>Name</label>
+      <input type="text" id={`${id}-name`} name="name" placeholder="Name*" required autocomplete="name" />
+    </div>
+    <div class="ef__grp">
+      <label class="sr-only" for={`${id}-email`}>Email</label>
+      <input type="email" id={`${id}-email`} name="email" placeholder="Email*" required autocomplete="email" />
+    </div>
+    <div class="ef__grp">
+      <label class="sr-only" for={`${id}-phone`}>Phone</label>
+      <input type="tel" id={`${id}-phone`} name="phone" placeholder="Phone*" required autocomplete="tel" />
+    </div>
+    {city && <div class="ef__grp ef__grp--city">
+      <label class="sr-only" for={`${id}-city`}>City</label>
+      <input type="text" id={`${id}-city`} name="city" placeholder="City*" autocomplete="address-level2" />
+    </div>}
+    <div class="ef__grp ef__grp--full">
+      <label class="sr-only" for={`${id}-message`}>Message</label>
+      <textarea id={`${id}-message`} name="message" placeholder="Message" rows="4"></textarea>
+    </div>
     {turnstileKey && (
       <div class="ef__grp ef__grp--full">
         <div class="cf-turnstile" data-sitekey={turnstileKey} data-theme={invert ? 'light' : 'auto'}></div>
@@ -132,6 +147,13 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   /* inverted: white button, blue label */
   .efw--inv .ef button { background: #fff; color: var(--blue); border-color: #fff; }
   .efw--inv .ef button:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* visible fields keep their placeholder text; the label is present for
+     assistive tech only, hidden the same way the honeypot text is below. */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
 
   /* honeypot — out of sight, out of the tab order, still fillable by a bot */
   .ef__pot {
