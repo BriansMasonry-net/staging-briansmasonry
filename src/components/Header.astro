@@ -10,6 +10,7 @@ const services = [
 ];
 ---
 <a class="skip-link" href="#content">Skip to content</a>
+<header>
 <div class="topbar">
   <div class="topbar__in">
     <a href="tel:4162444113">
@@ -33,7 +34,7 @@ const services = [
 
 <div class="navband">
   <div class="navband__in">
-    <input type="checkbox" id="nt" hidden />
+    <input type="checkbox" id="nt" class="nt" />
     <label for="nt" class="toggle">
       <span class="sr-only">Menu</span>
       <svg viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M0 96h448v42H0zm0 128h448v42H0zm0 128h448v42H0z"/></svg>
@@ -54,6 +55,7 @@ const services = [
     </nav>
   </div>
 </div>
+</header>
 
 <style>
   /* Visually hidden until keyboard-focused, per WCAG 2.4.1 bypass-blocks. */
@@ -109,6 +111,9 @@ const services = [
   }
   .nav > ul > li > a:hover,
   .nav > ul > li > a[aria-current="page"] { color: var(--red); fill: var(--red); }
+  /* Visually hidden but still focusable, so the CSS-only menu works from the
+     keyboard (Space toggles it). A [hidden] checkbox cannot take focus. */
+  .nt { display: none; }
   .toggle { display: none; }
 
   /* submenu — post-1000 #6865863d: bg #244097, 18px, padding 20px,
@@ -152,6 +157,8 @@ const services = [
   @media (max-width: 767px) {
     .navband__in { border-radius: 0; }
     .logoband img { width: 65%; }
+    .nt { display: block; position: absolute; width: 1px; height: 1px; margin: -1px; opacity: 0; overflow: hidden; }
+    .nt:focus-visible + .toggle { outline: 3px solid #fff; outline-offset: -3px; }
     .toggle {
       display: block; margin: 0 auto; padding: 12px; cursor: pointer;
       background: rgba(255,255,255,0); color: #fff;

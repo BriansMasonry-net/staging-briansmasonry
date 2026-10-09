@@ -21,17 +21,17 @@ const addressLine = `${business.street}, ${business.locality}, ${business.region
     <div class="ft__cards">
       <div class="ft__card">
         <span class="ft__ico"><svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M192 0C86 0 0 86 0 192c0 141 172 307 179 314a19 19 0 0 0 26 0c7-7 179-173 179-314C384 86 298 0 192 0zm0 289a97 97 0 1 1 0-194 97 97 0 0 1 0 194z"/></svg></span>
-        <h3><a href={MAP}>Address</a></h3>
+        <h2><a href={MAP}>Address</a></h2>
         <p>{addressLine}</p>
       </div>
       <div class="ft__card">
         <span class="ft__ico"><svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 0a256 256 0 1 0 0 512 256 256 0 0 0 0-512zm0 464a208 208 0 1 1 0-416 208 208 0 0 1 0 416zm24-336h-48v144l115 69 24-40-91-54V128z"/></svg></span>
-        <h3>Opening Hours</h3>
+        <h2>Opening Hours</h2>
         <p>Monday - Friday 8 AM - 10 PM</p>
       </div>
       <div class="ft__card">
         <span class="ft__ico"><svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M164 24c-9-21-32-32-54-26L60 12A62 62 0 0 0 12 74c0 236 191 427 427 427a62 62 0 0 0 62-48l14-50c6-22-5-45-26-54l-55-23a54 54 0 0 0-62 16l-23 28A339 339 0 0 1 187 224l28-23a54 54 0 0 0 16-62l-23-55z"/></svg></span>
-        <h3>Contact</h3>
+        <h2>Contact</h2>
         <p><a href={`tel:${business.phone}`}>{business.phoneDisplay}</a> or
            <a href={`mailto:${business.email}`}>{business.email}</a></p>
       </div>
@@ -60,8 +60,8 @@ const addressLine = `${business.street}, ${business.locality}, ${business.region
   /* measured 50x50, background transparent, glyph filled #ba2031 (default view, not stacked) */
   .ft__ico { display: inline-flex; width: 50px; height: 50px; color: var(--red-ico); margin-bottom: 12px; }
   .ft__ico svg { width: 50px; height: 50px; fill: var(--red-ico); }
-  .ft__card h3 { font-size: 20px; font-weight: 600; color: var(--blue-ico); margin-block-end: 10px; }
-  .ft__card h3 a { color: var(--blue-ico); text-decoration: none; }
+  .ft__card h2 { font-size: 20px; font-weight: 600; color: var(--blue-ico); margin-block-end: 10px; }
+  .ft__card h2 a { color: var(--blue-ico); text-decoration: none; }
   .ft__card p { font-weight: 400; color: var(--ico-desc); margin: 0; }
   .ft__card p a { color: var(--ico-desc); }
 
