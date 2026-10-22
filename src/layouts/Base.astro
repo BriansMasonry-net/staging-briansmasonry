@@ -110,8 +110,8 @@ const { conversion = false, ...seo } = Astro.props as Props;
     .btn small { display: block; font-size: 12px; line-height: 1.4; }
 
     .grid { display: grid; gap: 20px; }
-    .g2 { grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); }
-    .g3 { grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px),1fr)); }
+    .g3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px),1fr)); }
     .g4 { grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); }
 
     /* service card — post-943 #245fa2a */
