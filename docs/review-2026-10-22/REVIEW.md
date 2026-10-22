@@ -26,4 +26,3 @@ Verified Cloudflare Worker staging-briansmasonry serves only staging.briansmason
 
 ## Manual production release
 Review the approved PR head against the recorded SHA. Back up WordPress and existing production routing first. Deploy only through the operator's chosen production workflow; check production canonical/sitemap origin, indexing, all six routes, images, keyboard/mobile navigation, contact delivery and conversion behaviour. Retain the old production host for rollback. A future rollback restores the previous production build/routing; a code rollback does not undo external form or storage activity.
-
