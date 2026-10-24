@@ -16,9 +16,8 @@
    here rather than restating the URL — this file, Img.astro, every OG image
    and every schema image URL then follow that one definition.
 
-   Note the hostname is img.staging.briansmasonry.net, not the conventional
-   img.briansmasonry.net: that one belongs to the gallery project, which has
-   its own bucket and transform rule on the same zone. See src/lib/images.js. */
+   The hostname is img.briansmasonry.net, bucket briansmasonry-img. See
+   src/lib/images.js. */
 export { IMG as IMAGE_HOST } from './src/lib/images.js';
 import { IMG as IMAGE_HOST } from './src/lib/images.js';
 

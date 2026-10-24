@@ -49,19 +49,32 @@ does not win the cascade).
 
 ## Images
 
-Every image is served from the Backblaze B2 bucket `staging-briansmasonry-img`,
-fronted by Cloudflare at `https://img.staging.briansmasonry.net` (AD-9). Nothing
-is hotlinked to the WordPress origin.
+Every image is served from the Backblaze B2 bucket `briansmasonry-img`, fronted
+by Cloudflare at `https://img.briansmasonry.net` (AD-9). Nothing is hotlinked to
+the WordPress origin.
 
 The host is defined once, in `src/lib/images.js`, exported as `IMG`. Object keys
 mirror the old uploads tree with the `wp-content/uploads` prefix dropped, which
-keeps the gate 18 redirects one-to-one:
+keeps the gate 14 images redirect one-to-one:
 
     /wp-content/uploads/2024/12/stones.png  ->  ${IMG}/2024/12/stones.png
 
-That hostname is permanent, not staging-only. The conventional
-`img.briansmasonry.net` belongs to the gallery project, which has its own bucket
-and transform rule on the same zone.
+Moved here on 2026-10-24. All 184 objects were copied (not synced) from
+`staging-briansmasonry-img`, which still answers at `img.staging.briansmasonry.net`
+but is no longer referenced. The `img` DNS record is a proxied CNAME to
+`f005.backblazeb2.com`; the transform rule "B2 bucket path for img" adds the
+`/file/briansmasonry-img` prefix. The bucket also holds 12 `_derivatives/` files
+from the retired gallery project (now `gallery.briansmasonry.net`); they share
+no keys with this site.
+
+### The images redirect (gate 14)
+
+A zone Redirect Rule, **"Old WordPress uploads → img.briansmasonry.net"**, sends
+`https://briansmasonry.net/wp-content/uploads/*` to the same path on the image
+host with a 301. It exists but is **disabled until cutover**: while WordPress is
+still the live site, enabling it would also redirect WordPress's own Elementor
+stylesheets under `/wp-content/uploads/elementor/` and break the old site.
+Enable it in the same sitting as attaching the domain.
 
 ## Deploying
 
@@ -89,10 +102,10 @@ persist across deploys. `wrangler deploy` does not touch them.
 
 ## Known gaps
 
-1. `main` is one commit behind everything. The site's real work — the contact
-   endpoint, the image host, SEO, image optimisation — sits in unmerged
-   `claude/*` branches. Anyone starting fresh from `main` will rebuild what
-   already exists; that has happened at least once.
+1. Service page titles stay as the old site had them ("Chimney Repair &
+   Rebuilds – Brian's Masonry"). PR #3 proposed "… in the GTA | Brian's
+   Masonry"; that change was held back so the cutover does not move titles
+   and addresses on the same day. Revisit it once rankings settle.
 
 2. The four service pages and thank-you are styled by inference. Their own
    Elementor stylesheets return 404 on the live server:

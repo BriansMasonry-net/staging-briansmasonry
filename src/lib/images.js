@@ -1,17 +1,18 @@
 // Single source of truth for the image host.
 //
-// Images live in the Backblaze B2 bucket `staging-briansmasonry-img`, served
-// through Cloudflare at img.staging.briansmasonry.net. A transform rule on the
-// zone rewrites /<path> to /file/staging-briansmasonry-img/<path>, so the paths
-// used at each call site are the original wp-content/uploads paths, unchanged —
-// which is what keeps the gate 18 redirects one-to-one.
+// Images live in the Backblaze B2 bucket `briansmasonry-img`, served through
+// Cloudflare at img.briansmasonry.net. A transform rule on the zone rewrites
+// /<path> to /file/briansmasonry-img/<path>, so the paths used at each call
+// site are the original wp-content/uploads paths, unchanged — which is what
+// keeps the gate 14 images redirect one-to-one.
 //
 // Never reference *.backblazeb2.com directly: traffic has to go through
 // Cloudflare or the client is billed for every image view.
 //
-// This hostname is permanent, not staging-only. The conventional
-// img.briansmasonry.net is already taken by the gallery project — it has its
-// own bucket (briansmasonry-img) and its own transform rule on the same zone —
-// so this site keeps img.staging.briansmasonry.net through go-live. Nothing
-// here changes at gate 13.
-export const IMG = 'https://img.staging.briansmasonry.net';
+// The bucket also holds a dozen `_derivatives/` files left by the retired
+// gallery project (now gallery.briansmasonry.net, on Railway). They share no
+// keys with this site's images; leave them where they are.
+//
+// img.staging.briansmasonry.net (bucket staging-briansmasonry-img) is the
+// earlier copy of the same files and still answers, but nothing references it.
+export const IMG = 'https://img.briansmasonry.net';
