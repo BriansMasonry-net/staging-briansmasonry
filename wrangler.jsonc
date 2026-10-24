@@ -5,14 +5,15 @@
   "compatibility_flags": ["nodejs_compat"],
 
   // The Custom Domains below are the only addresses this build should answer
-  // on. Without these two, wrangler enables a public
-  // *.workers.dev URL and per-version preview URLs on every deploy, which puts
-  // the client's site on the open internet under another hostname.
+  // on. Without these two, wrangler enables a public *.workers.dev URL and
+  // per-version preview URLs on every deploy, which puts the client's site on
+  // the open internet under another hostname.
   "workers_dev": false,
   "preview_urls": false,
 
-  // This Worker's addresses, confirmed against the Cloudflare dashboard (custom domain, not a route pattern on someone
-  // else's zone). Declaring it here keeps `wrangler deploy` from silently
+  // This Worker's addresses, confirmed against the Cloudflare dashboard
+  // (custom domains, not route patterns on someone else's zone). Declaring
+  // them here keeps `wrangler deploy` from silently
   // matching whatever the dashboard has at deploy time — see gate 9 above for
   // why workers_dev/preview_urls stay off instead of relying on this alone.
   //
