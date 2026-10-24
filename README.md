@@ -157,7 +157,7 @@ account has no Zero Trust organisation and the deploy token cannot create one.
 |---|---|---|
 | `DATABASE_URL` | Worker secret | Neon pooled connection string; without it the form still emails and the admin says it isn't connected |
 | `SESSION_SECRET` | Worker secret | 32+ random characters (`openssl rand -hex 32`) |
-| `ADMIN_EMAILS` | Worker variable | comma-separated, e.g. Harjit's address |
+| `ADMIN_EMAILS` | Worker secret | comma-separated; currently harjit@brandingcentres.com. A secret rather than a plain variable so `wrangler deploy` can't wipe it |
 
 `/admin/` is excluded from the sitemap and sends `noindex` and `no-store` on
 every response.
