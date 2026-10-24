@@ -9,23 +9,23 @@ export const prerender = false;
 // ---------------------------------------------------------------------------
 // Addressing
 //
-//   From ......  forms@briansmasonry.net — the client's own domain
+//   From ......  forms@brandingcentres.com — the shared agency domain
 //   To ........  the client's inbox
 //   Reply-To ..  the visitor, so hitting reply answers the lead
 //
-// The stack's default is to send from the shared TBOX domain and never from the
-// client's. This site is a deliberate exception: briansmasonry.net publishes no
-// MX (Brian reads mail at Yahoo) and no apex SPF, so there is no existing mail
-// setup to damage, and its DMARC p=quarantine had nothing to satisfy it until
-// Resend's DKIM and SPF were added on resend._domainkey and send. — which the
-// apex records were never touched to do.
+// This used to send from briansmasonry.net itself. That domain dropped off
+// Resend (the key restricted to it began failing "domain not verified") and the
+// Resend plan is at its domain limit, so the site now follows the stack default
+// and sends from the verified shared domain. The resend._domainkey and send.
+// records on briansmasonry.net are left in place, unused, so the own-domain
+// setup can be restored by re-adding the domain on Resend.
 //
 // A visitor's address is still never put in From — receiving servers read that
 // as forgery and bin the message. Reply-To carries it instead, which is what
 // makes the notification answerable.
 // ---------------------------------------------------------------------------
 const DEFAULTS = {
-  CONTACT_FROM: "Brian's Masonry Website <forms@briansmasonry.net>",
+  CONTACT_FROM: "Brian's Masonry Website <forms@brandingcentres.com>",
   CONTACT_TO: 'briansmasonry@ymail.com',
 } as const;
 

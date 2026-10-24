@@ -112,10 +112,11 @@ persist across deploys. `wrangler deploy` does not touch them.
    post-1097, post-1101, post-1109, post-1115, post-1078.
    Regenerating them in Elementor would allow an exact port.
 
-3. The Resend send path has not been proven end to end. Every other branch of
-   /api/contact has (405, 400, honeypot, missing key, provider rejection). The
-   `RESEND_API_KEY` secret is present on the deployed Worker, so the remaining
-   step is watching one real submission arrive in the client's inbox.
+3. Delivery to the client's own inbox is proven to the Yahoo server, not to
+   the inbox. On 2026-10-24 a test lead (Resend id 01a16f4d-18e0-…) went from
+   forms@brandingcentres.com to briansmasonry@ymail.com with the visitor as
+   Reply-To, and Resend reports it delivered. Whether Yahoo filed it in the
+   inbox or in spam is only visible from Brian's side.
 
 
 ## Contact form → Resend
@@ -128,22 +129,20 @@ file and silently accepts nothing.
 
 ### Addressing
 
-    From ......  forms@briansmasonry.net — the client's own domain
+    From ......  forms@brandingcentres.com — the shared agency domain
     To ........  the client's inbox (briansmasonry@ymail.com)
     Reply-To ..  the visitor, so hitting reply answers the customer
 
-**This site sends from the client's own domain, which is a deliberate exception
-to the stack default** (wp-15 says to send from the shared TBOX domain and never
-from the client's). The rule exists to protect a client's existing mail, and
-this zone had almost none to protect: briansmasonry.net publishes no MX — Brian
-reads mail at Yahoo, on ymail.com — and no apex SPF. Setting it up added three
-records on `resend._domainkey` and a `send.` subdomain and touched nothing at
-the apex, which still has 0 MX and 0 TXT.
-
-It also fixed a latent problem rather than creating one. The domain already
-published `DMARC p=quarantine` with no SPF and no DKIM to satisfy it, so
-anything claiming to be from briansmasonry.net was destined for the spam
-folder. It now has aligned DKIM and SPF.
+**This site sends from the shared domain, the stack default (AD-3).** Until
+2026-10-24 it sent from briansmasonry.net itself, as a documented exception:
+the zone publishes no MX and no apex SPF, so there was no client mail to
+protect. That stopped working when briansmasonry.net dropped off Resend — the
+Worker's key, restricted to that domain, began failing with "The associated
+domain with your API key is not verified" — and the Resend plan is at its
+domain limit, so it could not be re-added. The DKIM and `send.` records on the
+zone are left in place, unused. To go back to the client's own domain: free a
+domain slot on Resend, re-add briansmasonry.net (its DKIM value will change),
+create a key restricted to it, and set `CONTACT_FROM`.
 
 The visitor's address is never put in From — receiving servers read that as
 forgery — it goes in Reply-To. (The gate-11 note in wp-15 says Reply-To should
@@ -161,7 +160,7 @@ production. Locally it comes from `.dev.vars` (git-ignored; see
 | Variable | Where | Default |
 |---|---|---|
 | `RESEND_API_KEY` | Worker secret | none — the route 500s without it |
-| `CONTACT_FROM` | Worker variable | `Brian's Masonry Website <forms@briansmasonry.net>` |
+| `CONTACT_FROM` | Worker variable | `Brian's Masonry Website <forms@brandingcentres.com>` |
 | `CONTACT_TO` | Worker variable | `briansmasonry@ymail.com` |
 | `CONTACT_REPLY_TO` | Worker variable | the visitor's own address |
 | `TURNSTILE_SECRET_KEY` | Worker secret, optional | unset — no challenge |
@@ -226,10 +225,12 @@ that touches mail re-proves the client's own mail survived it.
                         Ash@brandingcentres.com's, 47a8235...)
     Address ........... https://staging.briansmasonry.net — the ONLY one.
     Secret ............ RESEND_API_KEY, secret_text on the Worker
-    Resend API key .... "staging.briansmasonry.net worker — own domain",
-                        sending_access, restricted to briansmasonry.net
-    Sending domain .... briansmasonry.net, verified on Resend 2026-09-04.
-                        Records in the client's Cloudflare zone:
+    Resend API key .... "staging-briansmasonry worker — brandingcentres.com",
+                        sending_access, restricted to brandingcentres.com
+                        (created 2026-10-24; replaces the briansmasonry.net key)
+    Sending domain .... brandingcentres.com, verified on Resend.
+                        briansmasonry.net is no longer on Resend. Its old
+                        records remain in the client's zone, unused:
                           TXT resend._domainkey  (DKIM)
                           TXT send               v=spf1 include:amazonses.com ~all
                           MX  send  10           feedback-smtp.us-east-1.amazonses.com
