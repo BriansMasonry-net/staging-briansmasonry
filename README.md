@@ -65,15 +65,13 @@ and transform rule on the same zone.
 
 ## Deploying
 
-staging.briansmasonry.net is the Worker `staging-briansmasonry`, deployed with
-`npx wrangler deploy`. There is no Workers Builds connection and no CI, so
-**pushing to `main` deploys nothing** — a deploy is always someone running that
-command against a checkout.
-
-That makes it worth knowing which branch a deploy came from, because the work on
-this site lives in unmerged branches and `main` is still the first commit. Before
-deploying, check what the Worker is actually running (the version API reports its
-compatibility date, assets config and bindings) against the branch in hand.
+The isolated staging Worker is staging-briansmasonry, serving only
+staging.briansmasonry.net as verified on 22 October 2026. Workers Builds now
+has a staging-branch deploy trigger and a non-production-branch version-upload
+trigger. These supersede the original manual-only deployment setup. Never
+assume a push is inert: inspect the provider configuration before publishing.
+The review uses an exact feature-branch commit and leaves production WordPress
+unchanged. See docs/review-2026-10-22/REVIEW.md.
 
 `wrangler.jsonc` sets `workers_dev: false` and `preview_urls: false` — without
 them every deploy publishes the client's unfinished site on a public
