@@ -223,7 +223,14 @@ that touches mail re-proves the client's own mail survived it.
 
     Worker ............ staging-briansmasonry (Cloudflare account
                         Ash@brandingcentres.com's, 47a8235...)
-    Address ........... https://staging.briansmasonry.net — the ONLY one.
+    Addresses ......... https://briansmasonry.net (live since 2026-10-24)
+                        https://staging.briansmasonry.net (noindex)
+                        www, http:// and no-trailing-slash addresses 301 to
+                        the apex via zone redirect rules; Always Use HTTPS on.
+    Rollback .......... remove the briansmasonry.net Custom Domain, re-create
+                        A briansmasonry.net 134.122.42.18 (proxied), and
+                        disable the three zone redirect rules. WordPress on
+                        Cloudways is still running at that address.
     Secret ............ RESEND_API_KEY, secret_text on the Worker
     Resend API key .... "staging-briansmasonry worker — brandingcentres.com",
                         sending_access, restricted to brandingcentres.com
