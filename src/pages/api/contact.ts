@@ -92,6 +92,26 @@ function backTo(request: Request, source: string, code: string): string {
   return `${path}?error=${code}${hash}`;
 }
 
+/**
+ * The page the lead was sent from, as a full link: the same-origin Referer
+ * without its query string, or the site's home page when there is none. Only a
+ * same-origin address is trusted, so a forged Referer can't put someone
+ * else's link in the email.
+ */
+function leadPage(request: Request): string {
+  const origin = new URL(request.url).origin;
+  const referer = request.headers.get('referer');
+  if (referer) {
+    try {
+      const url = new URL(referer);
+      if (url.origin === origin) return `${origin}${url.pathname}`;
+    } catch {
+      /* ignore an unparseable referer */
+    }
+  }
+  return `${origin}/`;
+}
+
 function reply(request: Request, source: string, status: number, code: string, message: string) {
   if (wantsJson(request)) {
     return new Response(JSON.stringify({ ok: false, error: code, message }), {
@@ -225,13 +245,17 @@ export const POST: APIRoute = async ({ request }) => {
     return reply(request, source, 429, 'toomany', 'That is a lot of submissions. Please call us instead.');
   }
 
+  const page = leadPage(request);
+  const site = new URL(page).host;
+
   // Save the lead for /admin/ before emailing it. Fails OPEN like the rate
   // limit: if Neon is down the email still goes, so no lead is lost — it just
-  // won't appear in the admin list.
+  // won't appear in the admin list. The page address is what gets stored as
+  // its source, so the admin shows where the lead came from.
   let quoteId: number | undefined;
   if (databaseConfigured()) {
     try {
-      quoteId = await saveQuote({ name, email, phone, city, message, source });
+      quoteId = await saveQuote({ name, email, phone, city, message, source: page });
     } catch (e) {
       console.error('contact: saving quote to Neon failed', (e as Error)?.message);
     }
@@ -244,25 +268,28 @@ export const POST: APIRoute = async ({ request }) => {
   const replyTo = readEnv('CONTACT_REPLY_TO') ?? email;
 
   const lines = [
+    `New estimate request from ${site}`,
+    '',
+    `Website: ${page}`,
     `Name:    ${name}`,
     `Email:   ${email}`,
     `Phone:   ${phone}`,
     city ? `City:    ${city}` : null,
     '',
     message || '(no message)',
-    '',
-    `Sent from ${source || 'the estimate form'} on briansmasonry.net`,
+    adminUrl ? '' : null,
     adminUrl ? `Manage this quote: ${adminUrl}` : null,
   ].filter((line): line is string => line !== null);
 
-  const html = `<table cellpadding="4" style="font:15px/1.5 Helvetica,Arial,sans-serif">
+  const html = `<p style="font:15px/1.5 Helvetica,Arial,sans-serif">New estimate request from <a href="${escapeHtml(page)}">${escapeHtml(site)}</a></p>
+<table cellpadding="4" style="font:15px/1.5 Helvetica,Arial,sans-serif">
+  <tr><td><strong>Website</strong></td><td><a href="${escapeHtml(page)}">${escapeHtml(page)}</a></td></tr>
   <tr><td><strong>Name</strong></td><td>${escapeHtml(name)}</td></tr>
   <tr><td><strong>Email</strong></td><td><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td></tr>
   <tr><td><strong>Phone</strong></td><td><a href="tel:${escapeHtml(phone.replace(/[^\d+]/g, ''))}">${escapeHtml(phone)}</a></td></tr>
   ${city ? `<tr><td><strong>City</strong></td><td>${escapeHtml(city)}</td></tr>` : ''}
   <tr><td valign="top"><strong>Message</strong></td><td>${escapeHtml(message || '(no message)').replace(/\n/g, '<br />')}</td></tr>
 </table>
-<p style="font:13px Helvetica,Arial,sans-serif;color:#666">Sent from ${escapeHtml(source || 'the estimate form')} on briansmasonry.net</p>
 ${adminUrl ? `<p style="font:13px Helvetica,Arial,sans-serif"><a href="${escapeHtml(adminUrl)}">Manage this quote</a></p>` : ''}`;
 
   const resend = new Resend(apiKey);
@@ -276,7 +303,7 @@ ${adminUrl ? `<p style="font:13px Helvetica,Arial,sans-serif"><a href="${escapeH
           from,
           to,
           replyTo,
-          subject: `New estimate request — ${name}${city ? ` (${city})` : ''}`,
+          subject: `New estimate request from ${site} — ${name}${city ? ` (${city})` : ''}`,
           text: lines.join('\n'),
           html,
         },

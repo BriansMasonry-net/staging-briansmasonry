@@ -53,7 +53,9 @@ if (!quote && !error) return new Response('Not found', { status: 404 });
           <dt>Phone</dt><dd><a href={telHref(quote.phone)}>{quote.phone}</a></dd>
           <dt>Email</dt><dd><a href={`mailto:${quote.email}`}>{quote.email}</a></dd>
           {quote.city && <><dt>City</dt><dd>{quote.city}</dd></>}
-          {quote.source && <><dt>Form</dt><dd>{quote.source}</dd></>}
+          {quote.source && (
+            <><dt>Website</dt><dd>{/^https?:\/\//.test(quote.source) ? <a href={quote.source}>{quote.source}</a> : quote.source}</dd></>
+          )}
         </dl>
         <h2>Message</h2>
         <p class="message">{quote.message || <span class="muted">(no message)</span>}</p>
