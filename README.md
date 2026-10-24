@@ -20,7 +20,8 @@ Elementor 4.1.5 site hosted on Cloudways.
                                  Testimonials, Gallery, ServiceHero,
                                  ServiceGrid, Faq, ClosingCta
     src/pages/                   index + 4 service pages + thank-you
-    src/pages/api/contact.ts     the one on-demand route — posts to Resend
+    src/pages/api/contact.ts     saves the estimate form to Neon, posts it to Resend
+    src/pages/admin/             Harjit's quote admin (see "Quote admin")
     wrangler.jsonc               Worker config for Cloudflare deploys
     src/components/Seo.astro     every <head> metadata tag, one file
     src/components/Analytics.astro   Google Ads tag, carried from the old site
@@ -119,10 +120,53 @@ persist across deploys. `wrangler deploy` does not touch them.
    inbox or in spam is only visible from Brian's side.
 
 
+## Quote admin (/admin/)
+
+Every estimate-form submission is saved to Neon before it is emailed, and
+Harjit manages them at `/admin/`: a list filtered by status (new / contacted /
+won / lost) with search, and a page per quote for status and notes. The
+notification email links straight to the quote.
+
+    src/pages/admin/          login, list, quote detail, logout (on-demand)
+    src/middleware.ts         every /admin/ page but login needs a session
+    src/lib/admin-auth.ts     email codes + signed session cookie
+    src/lib/quotes.ts         Neon queries
+    db/schema.sql             the quotes table (already applied)
+
+**Database.** Neon project `briansmasonry` (delicate-pine-99135095, org
+Branding, aws-us-east-1), database `neondb`, table `quotes`. The Worker uses
+Neon's HTTP driver, one fetch per query. Saving fails open: if Neon is down
+the email still goes and the quote is just missing from the list. A
+double-submit within ten minutes returns the existing row instead of adding
+a second.
+
+**Login.** No passwords. The person enters their email; if it is in
+`ADMIN_EMAILS` they get a 6-digit code (from `CONTACT_FROM`, via Resend) that
+lasts ten minutes and dies after five wrong tries, five codes an hour per
+address. A correct code sets a 30-day `bm_admin` cookie (HttpOnly, Secure,
+SameSite=Lax, Path=/admin) signed with `SESSION_SECRET`. Every request
+re-checks the allowlist, so removing an address ends that access immediately;
+rotating `SESSION_SECRET` signs everyone out. The page answers the same way
+for allowed and unknown addresses. Admin POSTs also require a same-origin
+`Origin` header. Missing secret or allowlist means nobody can sign in.
+
+Cloudflare Access was the first choice for the login and is not used: the
+account has no Zero Trust organisation and the deploy token cannot create one.
+
+| Variable | Where | Notes |
+|---|---|---|
+| `DATABASE_URL` | Worker secret | Neon pooled connection string; without it the form still emails and the admin says it isn't connected |
+| `SESSION_SECRET` | Worker secret | 32+ random characters (`openssl rand -hex 32`) |
+| `ADMIN_EMAILS` | Worker variable | comma-separated, e.g. Harjit's address |
+
+`/admin/` is excluded from the sitemap and sends `noindex` and `no-store` on
+every response.
+
 ## Contact form → Resend
 
-`src/pages/api/contact.ts` takes the estimate form and sends it with Resend.
-It is the only on-demand route on the site; every content page carries
+`src/pages/api/contact.ts` takes the estimate form, saves it to Neon (see
+"Quote admin") and sends it with Resend. Apart from `/admin/` it is the only
+on-demand route on the site; every content page carries
 `export const prerender = true` and is served as a file. The route carries
 `export const prerender = false` — a prerendered API route ships as a static
 file and silently accepts nothing.
@@ -223,14 +267,19 @@ that touches mail re-proves the client's own mail survived it.
 
     Worker ............ staging-briansmasonry (Cloudflare account
                         Ash@brandingcentres.com's, 47a8235...)
-    Addresses ......... https://briansmasonry.net (live since 2026-10-24)
-                        https://staging.briansmasonry.net (noindex)
-                        www, http:// and no-trailing-slash addresses 301 to
-                        the apex via zone redirect rules; Always Use HTTPS on.
-    Rollback .......... remove the briansmasonry.net Custom Domain, re-create
-                        A briansmasonry.net 134.122.42.18 (proxied), and
-                        disable the three zone redirect rules. WordPress on
-                        Cloudways is still running at that address.
+    Addresses ......... https://staging.briansmasonry.net (noindex)
+                        briansmasonry.net was live on this Worker on
+                        2026-10-24 and ROLLED BACK the same day: it serves
+                        WordPress on Cloudways again.
+    Rollback state .... briansmasonry.net Custom Domain removed; A
+                        briansmasonry.net 134.122.42.18 (proxied) re-created;
+                        the three zone redirect rules (uploads → image host,
+                        www → apex, trailing slash) disabled, not deleted.
+                        To cut over again: delete that A record, attach the
+                        Custom Domain (add it to wrangler.jsonc routes), and
+                        re-enable the three rules. Browsers that saw the
+                        uploads 301 cache it, so after any rollback have
+                        WordPress regenerate Elementor CSS (Elementor → Tools).
     Secret ............ RESEND_API_KEY, secret_text on the Worker
     Resend API key .... "staging-briansmasonry worker — brandingcentres.com",
                         sending_access, restricted to brandingcentres.com

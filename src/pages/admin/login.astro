@@ -1,0 +1,80 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import {
+  authConfigured,
+  checkCode,
+  createSessionCookie,
+  normaliseEmail,
+  sameOrigin,
+  sendCode,
+} from '../../lib/admin-auth';
+
+export const prerender = false;
+
+if (Astro.locals.adminEmail) return Astro.redirect('/admin/', 303);
+
+const configured = authConfigured();
+let step: 'email' | 'code' = 'email';
+let email = '';
+let error = '';
+
+if (Astro.request.method === 'POST' && configured) {
+  if (!sameOrigin(Astro.request)) return new Response('Forbidden', { status: 403 });
+  const form = await Astro.request.formData();
+  email = normaliseEmail(form.get('email'));
+
+  if (form.get('step') === 'code') {
+    const code = String(form.get('code') ?? '').replace(/\s+/g, '');
+    if (await checkCode(email, code)) {
+      const secure = Astro.url.protocol === 'https:';
+      return new Response(null, {
+        status: 303,
+        headers: { location: '/admin/', 'set-cookie': await createSessionCookie(email, secure) },
+      });
+    }
+    step = 'code';
+    error = 'That code is wrong or has expired. Check the latest email, or start again for a new code.';
+  } else if (email) {
+    await sendCode(email, Astro.url.origin);
+    step = 'code';
+  } else {
+    error = 'Enter your email address.';
+  }
+}
+---
+<Admin title="Sign in">
+  <div class="card login">
+    <h1>Sign in</h1>
+    {!configured && (
+      <p class="note note-err">Sign-in isn't set up on this site yet (needs ADMIN_EMAILS and SESSION_SECRET on the Worker).</p>
+    )}
+    {error && <p class="note note-err" role="alert">{error}</p>}
+
+    {configured && step === 'email' && (
+      <form method="post">
+        <input type="hidden" name="step" value="email" />
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" required value={email} autofocus />
+        <p class="muted">We'll email you a 6-digit code. No password needed.</p>
+        <button class="btn" type="submit">Email me a code</button>
+      </form>
+    )}
+
+    {configured && step === 'code' && (
+      <form method="post">
+        <input type="hidden" name="step" value="code" />
+        <input type="hidden" name="email" value={email} />
+        <p>If <strong>{email}</strong> has access, a code is on its way. It expires in 10 minutes.</p>
+        <label for="code">6-digit code</label>
+        <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" required autofocus />
+        <p><button class="btn" type="submit">Sign in</button></p>
+        <p class="muted"><a href="/admin/login/">Use a different email or get a new code</a></p>
+      </form>
+    )}
+  </div>
+</Admin>
+
+<style>
+  .login { max-width: 420px; margin: 40px auto 0; }
+  .login form > * + * { margin-top: 12px; }
+</style>

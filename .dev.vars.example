@@ -15,6 +15,11 @@ CONTACT_FROM="Brian's Masonry Website <forms@briansmasonry.net>"
 CONTACT_TO=briansmasonry@ymail.com
 # CONTACT_REPLY_TO=  # unset = the visitor's own address
 
+# Quote admin (/admin/). Use a Neon branch, not the production database.
+# DATABASE_URL=postgresql://neondb_owner:...@ep-...-pooler.c-14.us-east-1.aws.neon.tech/neondb?sslmode=require
+# ADMIN_EMAILS=you@example.com
+# SESSION_SECRET=   # openssl rand -hex 32
+
 # Optional abuse protection. Set both or neither:
 #   TURNSTILE_SECRET_KEY       here / Worker secret  (server verification)
 #   PUBLIC_TURNSTILE_SITE_KEY  build variable        (renders the widget)

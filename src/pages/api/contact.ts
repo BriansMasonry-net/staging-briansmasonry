@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
-import { env as workerEnv } from 'cloudflare:workers';
 import { Resend } from 'resend';
+import { escapeHtml, kv, readEnv } from '../../lib/runtime';
+import { databaseConfigured, saveQuote } from '../../lib/quotes';
 
-// The one on-demand route on this site. It must NOT be prerendered — a
+// An on-demand route (as are the /admin/ pages). It must NOT be prerendered — a
 // prerendered API route ships as a static file and silently accepts nothing.
 export const prerender = false;
 
@@ -40,26 +41,6 @@ const RATE_LIMIT = { max: 5, windowSeconds: 3600 };
 /** Give up on the provider rather than hang the visitor's browser. */
 const SEND_TIMEOUT_MS = 12_000;
 
-/**
- * Read config from the Worker's runtime env (`cloudflare:workers`), which is
- * where a Worker secret and `.dev.vars` both arrive.
- *
- * There is deliberately no `import.meta.env` fallback: Vite snapshots the build
- * machine's environment into that object, so a key present at build time gets
- * inlined verbatim into the deployed bundle. Runtime only, always.
- */
-function readEnv(key: string): string | undefined {
-  const runtime = workerEnv as unknown as Record<string, unknown>;
-  const value = runtime?.[key];
-  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
-}
-
-/** The KV namespace Astro's session support already binds. Used here for the rate limit. */
-function kv(): KVNamespace | undefined {
-  const binding = (workerEnv as unknown as Record<string, unknown>)?.SESSION;
-  return binding && typeof (binding as KVNamespace).get === 'function' ? (binding as KVNamespace) : undefined;
-}
-
 function clean(value: unknown, limit: number, keepNewlines = false): string {
   if (typeof value !== 'string') return '';
   // Strip control characters so nothing can smuggle a header through a field.
@@ -70,14 +51,6 @@ function clean(value: unknown, limit: number, keepNewlines = false): string {
 
 function isEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@,;]+\.[^\s@,;]{2,}$/.test(value);
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 type Fields = Record<string, string>;
@@ -252,6 +225,19 @@ export const POST: APIRoute = async ({ request }) => {
     return reply(request, source, 429, 'toomany', 'That is a lot of submissions. Please call us instead.');
   }
 
+  // Save the lead for /admin/ before emailing it. Fails OPEN like the rate
+  // limit: if Neon is down the email still goes, so no lead is lost — it just
+  // won't appear in the admin list.
+  let quoteId: number | undefined;
+  if (databaseConfigured()) {
+    try {
+      quoteId = await saveQuote({ name, email, phone, city, message, source });
+    } catch (e) {
+      console.error('contact: saving quote to Neon failed', (e as Error)?.message);
+    }
+  }
+  const adminUrl = quoteId ? `${new URL(request.url).origin}/admin/quotes/${quoteId}/` : undefined;
+
   const from = readEnv('CONTACT_FROM') ?? DEFAULTS.CONTACT_FROM;
   const to = readEnv('CONTACT_TO') ?? DEFAULTS.CONTACT_TO;
   // Reply-To is the visitor unless overridden, so Brian can just hit reply.
@@ -266,6 +252,7 @@ export const POST: APIRoute = async ({ request }) => {
     message || '(no message)',
     '',
     `Sent from ${source || 'the estimate form'} on briansmasonry.net`,
+    adminUrl ? `Manage this quote: ${adminUrl}` : null,
   ].filter((line): line is string => line !== null);
 
   const html = `<table cellpadding="4" style="font:15px/1.5 Helvetica,Arial,sans-serif">
@@ -275,7 +262,8 @@ export const POST: APIRoute = async ({ request }) => {
   ${city ? `<tr><td><strong>City</strong></td><td>${escapeHtml(city)}</td></tr>` : ''}
   <tr><td valign="top"><strong>Message</strong></td><td>${escapeHtml(message || '(no message)').replace(/\n/g, '<br />')}</td></tr>
 </table>
-<p style="font:13px Helvetica,Arial,sans-serif;color:#666">Sent from ${escapeHtml(source || 'the estimate form')} on briansmasonry.net</p>`;
+<p style="font:13px Helvetica,Arial,sans-serif;color:#666">Sent from ${escapeHtml(source || 'the estimate form')} on briansmasonry.net</p>
+${adminUrl ? `<p style="font:13px Helvetica,Arial,sans-serif"><a href="${escapeHtml(adminUrl)}">Manage this quote</a></p>` : ''}`;
 
   const resend = new Resend(apiKey);
   const key = await idempotencyKey([to, email, phone, name, city, message]);

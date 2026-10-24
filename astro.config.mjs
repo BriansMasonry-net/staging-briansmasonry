@@ -3,8 +3,9 @@ import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 
 // Every content page is prerendered (`export const prerender = true`).
-// The adapter is here for one on-demand route: src/pages/api/contact.ts,
-// which posts the estimate form to Resend.
+// The adapter is here for the on-demand routes: src/pages/api/contact.ts,
+// which saves the estimate form to Neon and posts it to Resend, and the
+// private quote admin under src/pages/admin/.
 export default defineConfig({
   site: 'https://briansmasonry.net',
 
@@ -27,7 +28,8 @@ export default defineConfig({
          fires the Ads Lead Form conversion — so an organic visitor arriving
          on it would log a false conversion. It is noindexed in the page, and
          a noindexed address must not be advertised in the sitemap. */
-      filter: (page) => !page.endsWith('/thank-you/'),
+      // /admin/ is Harjit's private quote list, served on demand behind a login.
+      filter: (page) => !page.endsWith('/thank-you/') && !new URL(page).pathname.startsWith('/admin/'),
       serialize(item) {
         item.lastmod = new Date().toISOString();
         if (item.url === 'https://briansmasonry.net/') {
