@@ -267,19 +267,22 @@ that touches mail re-proves the client's own mail survived it.
 
     Worker ............ staging-briansmasonry (Cloudflare account
                         Ash@brandingcentres.com's, 47a8235...)
-    Addresses ......... https://staging.briansmasonry.net (noindex)
-                        briansmasonry.net was live on this Worker on
-                        2026-10-24 and ROLLED BACK the same day: it serves
-                        WordPress on Cloudways again.
-    Rollback state .... briansmasonry.net Custom Domain removed; A
-                        briansmasonry.net 134.122.42.18 (proxied) re-created;
-                        the three zone redirect rules (uploads → image host,
-                        www → apex, trailing slash) disabled, not deleted.
-                        To cut over again: delete that A record, attach the
-                        Custom Domain (add it to wrangler.jsonc routes), and
-                        re-enable the three rules. Browsers that saw the
-                        uploads 301 cache it, so after any rollback have
-                        WordPress regenerate Elementor CSS (Elementor → Tools).
+    Addresses ......... https://briansmasonry.net (live; cut over 2026-10-24,
+                        rolled back to WordPress the same day, live again
+                        since 2026-10-27)
+                        https://staging.briansmasonry.net (noindex)
+                        www, http:// and no-trailing-slash addresses 301 to
+                        the apex via zone redirect rules; Always Use HTTPS on.
+    Quote admin ....... https://briansmasonry.net/admin/ (see "Quote admin")
+    Rollback .......... remove the briansmasonry.net Custom Domain (and take
+                        it out of wrangler.jsonc routes), re-create
+                        A briansmasonry.net 134.122.42.18 (proxied), and
+                        disable the three zone redirect rules (uploads →
+                        image host, www → apex, trailing slash). WordPress on
+                        Cloudways is still running at that address. Browsers
+                        that saw the uploads 301 cache it, so after a rollback
+                        have WordPress regenerate Elementor CSS (Elementor →
+                        Tools → Regenerate Files & Data).
     Secret ............ RESEND_API_KEY, secret_text on the Worker
     Resend API key .... "staging-briansmasonry worker — brandingcentres.com",
                         sending_access, restricted to brandingcentres.com
