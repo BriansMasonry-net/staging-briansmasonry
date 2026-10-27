@@ -1,0 +1,110 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import { databaseConfigured, isStatus, listQuotes, statusCounts, STATUSES, type Quote } from '../../lib/quotes';
+import { formatWhen, telHref } from '../../lib/format';
+
+export const prerender = false;
+
+const statusParam = Astro.url.searchParams.get('status');
+const status = isStatus(statusParam) ? statusParam : undefined;
+const search = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 100);
+
+let quotes: Quote[] = [];
+let counts = { new: 0, contacted: 0, won: 0, lost: 0 };
+let error = '';
+
+if (!databaseConfigured()) {
+  error = "The quotes database isn't connected (DATABASE_URL is missing on the Worker).";
+} else {
+  try {
+    [quotes, counts] = await Promise.all([listQuotes({ status, search }), statusCounts()]);
+  } catch (e) {
+    console.error('admin: listing quotes failed', (e as Error)?.message);
+    error = "Couldn't load quotes just now. Refresh to try again.";
+  }
+}
+
+const total = STATUSES.reduce((sum, s) => sum + counts[s], 0);
+
+function tabHref(s?: string) {
+  const params = new URLSearchParams();
+  if (s) params.set('status', s);
+  if (search) params.set('q', search);
+  const qs = params.toString();
+  return `/admin/${qs ? `?${qs}` : ''}`;
+}
+---
+<Admin title="Quotes">
+  <h1>Quotes</h1>
+  {error && <p class="note note-err" role="alert">{error}</p>}
+
+  <nav class="tabs" aria-label="Filter by status">
+    <a href={tabHref()} aria-current={!status ? 'page' : undefined}>All <span>{total}</span></a>
+    {STATUSES.map((s) => (
+      <a href={tabHref(s)} aria-current={status === s ? 'page' : undefined}>
+        <span class="cap">{s}</span> <span>{counts[s]}</span>
+      </a>
+    ))}
+  </nav>
+
+  <form class="search" method="get" role="search">
+    {status && <input type="hidden" name="status" value={status} />}
+    <label class="sr" for="q">Search quotes</label>
+    <input id="q" name="q" type="search" placeholder="Search name, email, phone, city, message or notes" value={search} />
+    <button class="btn" type="submit">Search</button>
+  </form>
+
+  {!error && quotes.length === 0 && (
+    <div class="card muted">{search || status ? 'No quotes match.' : 'No quotes yet. New estimate requests from the website will show up here.'}</div>
+  )}
+
+  {quotes.length > 0 && (
+    <ul class="list">
+      {quotes.map((q) => (
+        <li class="card row">
+          <a class="who" href={`/admin/quotes/${q.id}/`}>
+            <strong>{q.name}</strong>
+            {q.city && <span class="muted"> · {q.city}</span>}
+          </a>
+          <span class={`pill pill-${q.status}`}>{q.status}</span>
+          <span class="muted when">{formatWhen(q.created_at)}</span>
+          <span class="contact">
+            <a href={telHref(q.phone)}>{q.phone}</a>
+            <a href={`mailto:${q.email}`}>{q.email}</a>
+          </span>
+          {q.message && <p class="msg">{q.message}</p>}
+          {q.notes && <p class="msg notes"><strong>Notes:</strong> {q.notes}</p>}
+        </li>
+      ))}
+    </ul>
+  )}
+  {quotes.length === 200 && <p class="muted">Showing the 200 most recent. Use search or a status filter to narrow it down.</p>}
+</Admin>
+
+<style>
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .tabs a {
+    padding: 8px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--line);
+    text-decoration: none; color: #222; font-size: 15px;
+  }
+  .tabs a span:last-child { color: var(--muted); margin-left: 2px; }
+  .tabs a[aria-current='page'] { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .tabs a[aria-current='page'] span:last-child { color: #DDE3F7; }
+  .cap { text-transform: capitalize; }
+  .search { display: flex; gap: 8px; margin: 0 0 20px; }
+  .search input { flex: 1; min-width: 0; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .row {
+    display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 14px 16px;
+  }
+  .who { text-decoration: none; color: inherit; font-size: 17px; overflow-wrap: anywhere; }
+  .who strong { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+  .when { grid-column: 1; font-size: 14px; }
+  .contact { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 15px; overflow-wrap: anywhere; }
+  .msg {
+    grid-column: 1 / -1; margin: 4px 0 0; font-size: 15px; color: #444;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .notes { color: #5A4A00; }
+</style>

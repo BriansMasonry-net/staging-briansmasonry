@@ -20,7 +20,8 @@ Elementor 4.1.5 site hosted on Cloudways.
                                  Testimonials, Gallery, ServiceHero,
                                  ServiceGrid, Faq, ClosingCta
     src/pages/                   index + 4 service pages + thank-you
-    src/pages/api/contact.ts     the one on-demand route — posts to Resend
+    src/pages/api/contact.ts     saves the estimate form to Neon, posts it to Resend
+    src/pages/admin/             Harjit's quote admin (see "Quote admin")
     wrangler.jsonc               Worker config for Cloudflare deploys
     src/components/Seo.astro     every <head> metadata tag, one file
     src/components/Analytics.astro   Google Ads tag, carried from the old site
@@ -49,31 +50,42 @@ does not win the cascade).
 
 ## Images
 
-Every image is served from the Backblaze B2 bucket `staging-briansmasonry-img`,
-fronted by Cloudflare at `https://img.staging.briansmasonry.net` (AD-9). Nothing
-is hotlinked to the WordPress origin.
+Every image is served from the Backblaze B2 bucket `briansmasonry-img`, fronted
+by Cloudflare at `https://img.briansmasonry.net` (AD-9). Nothing is hotlinked to
+the WordPress origin.
 
 The host is defined once, in `src/lib/images.js`, exported as `IMG`. Object keys
 mirror the old uploads tree with the `wp-content/uploads` prefix dropped, which
-keeps the gate 18 redirects one-to-one:
+keeps the gate 14 images redirect one-to-one:
 
     /wp-content/uploads/2024/12/stones.png  ->  ${IMG}/2024/12/stones.png
 
-That hostname is permanent, not staging-only. The conventional
-`img.briansmasonry.net` belongs to the gallery project, which has its own bucket
-and transform rule on the same zone.
+Moved here on 2026-10-24. All 184 objects were copied (not synced) from
+`staging-briansmasonry-img`, which still answers at `img.staging.briansmasonry.net`
+but is no longer referenced. The `img` DNS record is a proxied CNAME to
+`f005.backblazeb2.com`; the transform rule "B2 bucket path for img" adds the
+`/file/briansmasonry-img` prefix. The bucket also holds 12 `_derivatives/` files
+from the retired gallery project (now `gallery.briansmasonry.net`); they share
+no keys with this site.
+
+### The images redirect (gate 14)
+
+A zone Redirect Rule, **"Old WordPress uploads → img.briansmasonry.net"**, sends
+`https://briansmasonry.net/wp-content/uploads/*` to the same path on the image
+host with a 301. It exists but is **disabled until cutover**: while WordPress is
+still the live site, enabling it would also redirect WordPress's own Elementor
+stylesheets under `/wp-content/uploads/elementor/` and break the old site.
+Enable it in the same sitting as attaching the domain.
 
 ## Deploying
 
-staging.briansmasonry.net is the Worker `staging-briansmasonry`, deployed with
-`npx wrangler deploy`. There is no Workers Builds connection and no CI, so
-**pushing to `main` deploys nothing** — a deploy is always someone running that
-command against a checkout.
-
-That makes it worth knowing which branch a deploy came from, because the work on
-this site lives in unmerged branches and `main` is still the first commit. Before
-deploying, check what the Worker is actually running (the version API reports its
-compatibility date, assets config and bindings) against the branch in hand.
+The isolated staging Worker is staging-briansmasonry, serving only
+staging.briansmasonry.net as verified on 22 October 2026. Workers Builds now
+has a staging-branch deploy trigger and a non-production-branch version-upload
+trigger. These supersede the original manual-only deployment setup. Never
+assume a push is inert: inspect the provider configuration before publishing.
+The review uses an exact feature-branch commit and leaves production WordPress
+unchanged. See docs/review-2026-10-22/REVIEW.md.
 
 `wrangler.jsonc` sets `workers_dev: false` and `preview_urls: false` — without
 them every deploy publishes the client's unfinished site on a public
@@ -91,48 +103,90 @@ persist across deploys. `wrangler deploy` does not touch them.
 
 ## Known gaps
 
-1. `main` is one commit behind everything. The site's real work — the contact
-   endpoint, the image host, SEO, image optimisation — sits in unmerged
-   `claude/*` branches. Anyone starting fresh from `main` will rebuild what
-   already exists; that has happened at least once.
+1. Service page titles stay as the old site had them ("Chimney Repair &
+   Rebuilds – Brian's Masonry"). PR #3 proposed "… in the GTA | Brian's
+   Masonry"; that change was held back so the cutover does not move titles
+   and addresses on the same day. Revisit it once rankings settle.
 
 2. The four service pages and thank-you are styled by inference. Their own
    Elementor stylesheets return 404 on the live server:
    post-1097, post-1101, post-1109, post-1115, post-1078.
    Regenerating them in Elementor would allow an exact port.
 
-3. The Resend send path has not been proven end to end. Every other branch of
-   /api/contact has (405, 400, honeypot, missing key, provider rejection). The
-   `RESEND_API_KEY` secret is present on the deployed Worker, so the remaining
-   step is watching one real submission arrive in the client's inbox.
+3. Delivery to the client's own inbox is proven to the Yahoo server, not to
+   the inbox. On 2026-10-24 a test lead (Resend id 01a16f4d-18e0-…) went from
+   forms@brandingcentres.com to briansmasonry@ymail.com with the visitor as
+   Reply-To, and Resend reports it delivered. Whether Yahoo filed it in the
+   inbox or in spam is only visible from Brian's side.
 
+
+## Quote admin (/admin/)
+
+Every estimate-form submission is saved to Neon before it is emailed, and
+Harjit manages them at `/admin/`: a list filtered by status (new / contacted /
+won / lost) with search, and a page per quote for status and notes. The
+notification email links straight to the quote.
+
+    src/pages/admin/          login, list, quote detail, logout (on-demand)
+    src/middleware.ts         every /admin/ page but login needs a session
+    src/lib/admin-auth.ts     email codes + signed session cookie
+    src/lib/quotes.ts         Neon queries
+    db/schema.sql             the quotes table (already applied)
+
+**Database.** Neon project `briansmasonry` (delicate-pine-99135095, org
+Branding, aws-us-east-1), database `neondb`, table `quotes`. The Worker uses
+Neon's HTTP driver, one fetch per query. Saving fails open: if Neon is down
+the email still goes and the quote is just missing from the list. A
+double-submit within ten minutes returns the existing row instead of adding
+a second.
+
+**Login.** No passwords. The person enters their email; if it is in
+`ADMIN_EMAILS` they get a 6-digit code (from `CONTACT_FROM`, via Resend) that
+lasts ten minutes and dies after five wrong tries, five codes an hour per
+address. A correct code sets a 30-day `bm_admin` cookie (HttpOnly, Secure,
+SameSite=Lax, Path=/admin) signed with `SESSION_SECRET`. Every request
+re-checks the allowlist, so removing an address ends that access immediately;
+rotating `SESSION_SECRET` signs everyone out. The page answers the same way
+for allowed and unknown addresses. Admin POSTs also require a same-origin
+`Origin` header. Missing secret or allowlist means nobody can sign in.
+
+Cloudflare Access was the first choice for the login and is not used: the
+account has no Zero Trust organisation and the deploy token cannot create one.
+
+| Variable | Where | Notes |
+|---|---|---|
+| `DATABASE_URL` | Worker secret | Neon pooled connection string; without it the form still emails and the admin says it isn't connected |
+| `SESSION_SECRET` | Worker secret | 32+ random characters (`openssl rand -hex 32`) |
+| `ADMIN_EMAILS` | Worker secret | comma-separated; currently harjit@brandingcentres.com. A secret rather than a plain variable so `wrangler deploy` can't wipe it |
+
+`/admin/` is excluded from the sitemap and sends `noindex` and `no-store` on
+every response.
 
 ## Contact form → Resend
 
-`src/pages/api/contact.ts` takes the estimate form and sends it with Resend.
-It is the only on-demand route on the site; every content page carries
+`src/pages/api/contact.ts` takes the estimate form, saves it to Neon (see
+"Quote admin") and sends it with Resend. Apart from `/admin/` it is the only
+on-demand route on the site; every content page carries
 `export const prerender = true` and is served as a file. The route carries
 `export const prerender = false` — a prerendered API route ships as a static
 file and silently accepts nothing.
 
 ### Addressing
 
-    From ......  forms@briansmasonry.net — the client's own domain
+    From ......  forms@brandingcentres.com — the shared agency domain
     To ........  the client's inbox (briansmasonry@ymail.com)
     Reply-To ..  the visitor, so hitting reply answers the customer
 
-**This site sends from the client's own domain, which is a deliberate exception
-to the stack default** (wp-15 says to send from the shared TBOX domain and never
-from the client's). The rule exists to protect a client's existing mail, and
-this zone had almost none to protect: briansmasonry.net publishes no MX — Brian
-reads mail at Yahoo, on ymail.com — and no apex SPF. Setting it up added three
-records on `resend._domainkey` and a `send.` subdomain and touched nothing at
-the apex, which still has 0 MX and 0 TXT.
-
-It also fixed a latent problem rather than creating one. The domain already
-published `DMARC p=quarantine` with no SPF and no DKIM to satisfy it, so
-anything claiming to be from briansmasonry.net was destined for the spam
-folder. It now has aligned DKIM and SPF.
+**This site sends from the shared domain, the stack default (AD-3).** Until
+2026-10-24 it sent from briansmasonry.net itself, as a documented exception:
+the zone publishes no MX and no apex SPF, so there was no client mail to
+protect. That stopped working when briansmasonry.net dropped off Resend — the
+Worker's key, restricted to that domain, began failing with "The associated
+domain with your API key is not verified" — and the Resend plan is at its
+domain limit, so it could not be re-added. The DKIM and `send.` records on the
+zone are left in place, unused. To go back to the client's own domain: free a
+domain slot on Resend, re-add briansmasonry.net (its DKIM value will change),
+create a key restricted to it, and set `CONTACT_FROM`.
 
 The visitor's address is never put in From — receiving servers read that as
 forgery — it goes in Reply-To. (The gate-11 note in wp-15 says Reply-To should
@@ -150,7 +204,7 @@ production. Locally it comes from `.dev.vars` (git-ignored; see
 | Variable | Where | Default |
 |---|---|---|
 | `RESEND_API_KEY` | Worker secret | none — the route 500s without it |
-| `CONTACT_FROM` | Worker variable | `Brian's Masonry Website <forms@briansmasonry.net>` |
+| `CONTACT_FROM` | Worker variable | `Brian's Masonry Website <forms@brandingcentres.com>` |
 | `CONTACT_TO` | Worker variable | `briansmasonry@ymail.com` |
 | `CONTACT_REPLY_TO` | Worker variable | the visitor's own address |
 | `TURNSTILE_SECRET_KEY` | Worker secret, optional | unset — no challenge |
@@ -213,12 +267,29 @@ that touches mail re-proves the client's own mail survived it.
 
     Worker ............ staging-briansmasonry (Cloudflare account
                         Ash@brandingcentres.com's, 47a8235...)
-    Address ........... https://staging.briansmasonry.net — the ONLY one.
+    Addresses ......... https://briansmasonry.net (live; cut over 2026-10-24,
+                        rolled back to WordPress the same day, live again
+                        since 2026-10-27)
+                        https://staging.briansmasonry.net (noindex)
+                        www, http:// and no-trailing-slash addresses 301 to
+                        the apex via zone redirect rules; Always Use HTTPS on.
+    Quote admin ....... https://briansmasonry.net/admin/ (see "Quote admin")
+    Rollback .......... remove the briansmasonry.net Custom Domain (and take
+                        it out of wrangler.jsonc routes), re-create
+                        A briansmasonry.net 134.122.42.18 (proxied), and
+                        disable the three zone redirect rules (uploads →
+                        image host, www → apex, trailing slash). WordPress on
+                        Cloudways is still running at that address. Browsers
+                        that saw the uploads 301 cache it, so after a rollback
+                        have WordPress regenerate Elementor CSS (Elementor →
+                        Tools → Regenerate Files & Data).
     Secret ............ RESEND_API_KEY, secret_text on the Worker
-    Resend API key .... "staging.briansmasonry.net worker — own domain",
-                        sending_access, restricted to briansmasonry.net
-    Sending domain .... briansmasonry.net, verified on Resend 2026-09-04.
-                        Records in the client's Cloudflare zone:
+    Resend API key .... "staging-briansmasonry worker — brandingcentres.com",
+                        sending_access, restricted to brandingcentres.com
+                        (created 2026-10-24; replaces the briansmasonry.net key)
+    Sending domain .... brandingcentres.com, verified on Resend.
+                        briansmasonry.net is no longer on Resend. Its old
+                        records remain in the client's zone, unused:
                           TXT resend._domainkey  (DKIM)
                           TXT send               v=spf1 include:amazonses.com ~all
                           MX  send  10           feedback-smtp.us-east-1.amazonses.com

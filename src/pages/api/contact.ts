@@ -1,31 +1,32 @@
 import type { APIRoute } from 'astro';
-import { env as workerEnv } from 'cloudflare:workers';
 import { Resend } from 'resend';
+import { escapeHtml, kv, readEnv } from '../../lib/runtime';
+import { databaseConfigured, saveQuote } from '../../lib/quotes';
 
-// The one on-demand route on this site. It must NOT be prerendered — a
+// An on-demand route (as are the /admin/ pages). It must NOT be prerendered — a
 // prerendered API route ships as a static file and silently accepts nothing.
 export const prerender = false;
 
 // ---------------------------------------------------------------------------
 // Addressing
 //
-//   From ......  forms@briansmasonry.net — the client's own domain
+//   From ......  forms@brandingcentres.com — the shared agency domain
 //   To ........  the client's inbox
 //   Reply-To ..  the visitor, so hitting reply answers the lead
 //
-// The stack's default is to send from the shared TBOX domain and never from the
-// client's. This site is a deliberate exception: briansmasonry.net publishes no
-// MX (Brian reads mail at Yahoo) and no apex SPF, so there is no existing mail
-// setup to damage, and its DMARC p=quarantine had nothing to satisfy it until
-// Resend's DKIM and SPF were added on resend._domainkey and send. — which the
-// apex records were never touched to do.
+// This used to send from briansmasonry.net itself. That domain dropped off
+// Resend (the key restricted to it began failing "domain not verified") and the
+// Resend plan is at its domain limit, so the site now follows the stack default
+// and sends from the verified shared domain. The resend._domainkey and send.
+// records on briansmasonry.net are left in place, unused, so the own-domain
+// setup can be restored by re-adding the domain on Resend.
 //
 // A visitor's address is still never put in From — receiving servers read that
 // as forgery and bin the message. Reply-To carries it instead, which is what
 // makes the notification answerable.
 // ---------------------------------------------------------------------------
 const DEFAULTS = {
-  CONTACT_FROM: "Brian's Masonry Website <forms@briansmasonry.net>",
+  CONTACT_FROM: "Brian's Masonry Website <forms@brandingcentres.com>",
   CONTACT_TO: 'briansmasonry@ymail.com',
 } as const;
 
@@ -40,26 +41,6 @@ const RATE_LIMIT = { max: 5, windowSeconds: 3600 };
 /** Give up on the provider rather than hang the visitor's browser. */
 const SEND_TIMEOUT_MS = 12_000;
 
-/**
- * Read config from the Worker's runtime env (`cloudflare:workers`), which is
- * where a Worker secret and `.dev.vars` both arrive.
- *
- * There is deliberately no `import.meta.env` fallback: Vite snapshots the build
- * machine's environment into that object, so a key present at build time gets
- * inlined verbatim into the deployed bundle. Runtime only, always.
- */
-function readEnv(key: string): string | undefined {
-  const runtime = workerEnv as unknown as Record<string, unknown>;
-  const value = runtime?.[key];
-  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
-}
-
-/** The KV namespace Astro's session support already binds. Used here for the rate limit. */
-function kv(): KVNamespace | undefined {
-  const binding = (workerEnv as unknown as Record<string, unknown>)?.SESSION;
-  return binding && typeof (binding as KVNamespace).get === 'function' ? (binding as KVNamespace) : undefined;
-}
-
 function clean(value: unknown, limit: number, keepNewlines = false): string {
   if (typeof value !== 'string') return '';
   // Strip control characters so nothing can smuggle a header through a field.
@@ -70,14 +51,6 @@ function clean(value: unknown, limit: number, keepNewlines = false): string {
 
 function isEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@,;]+\.[^\s@,;]{2,}$/.test(value);
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 type Fields = Record<string, string>;
@@ -117,6 +90,26 @@ function backTo(request: Request, source: string, code: string): string {
   }
   const hash = /^[a-z0-9_-]+$/i.test(source) ? `#${source}` : '';
   return `${path}?error=${code}${hash}`;
+}
+
+/**
+ * The page the lead was sent from, as a full link: the same-origin Referer
+ * without its query string, or the site's home page when there is none. Only a
+ * same-origin address is trusted, so a forged Referer can't put someone
+ * else's link in the email.
+ */
+function leadPage(request: Request): string {
+  const origin = new URL(request.url).origin;
+  const referer = request.headers.get('referer');
+  if (referer) {
+    try {
+      const url = new URL(referer);
+      if (url.origin === origin) return `${origin}${url.pathname}`;
+    } catch {
+      /* ignore an unparseable referer */
+    }
+  }
+  return `${origin}/`;
 }
 
 function reply(request: Request, source: string, status: number, code: string, message: string) {
@@ -252,30 +245,52 @@ export const POST: APIRoute = async ({ request }) => {
     return reply(request, source, 429, 'toomany', 'That is a lot of submissions. Please call us instead.');
   }
 
+  const page = leadPage(request);
+  const site = new URL(page).host;
+
+  // Save the lead for /admin/ before emailing it. Fails OPEN like the rate
+  // limit: if Neon is down the email still goes, so no lead is lost — it just
+  // won't appear in the admin list. The page address is what gets stored as
+  // its source, so the admin shows where the lead came from.
+  let quoteId: number | undefined;
+  if (databaseConfigured()) {
+    try {
+      quoteId = await saveQuote({ name, email, phone, city, message, source: page });
+    } catch (e) {
+      console.error('contact: saving quote to Neon failed', (e as Error)?.message);
+    }
+  }
+  const adminUrl = quoteId ? `${new URL(request.url).origin}/admin/quotes/${quoteId}/` : undefined;
+
   const from = readEnv('CONTACT_FROM') ?? DEFAULTS.CONTACT_FROM;
   const to = readEnv('CONTACT_TO') ?? DEFAULTS.CONTACT_TO;
   // Reply-To is the visitor unless overridden, so Brian can just hit reply.
   const replyTo = readEnv('CONTACT_REPLY_TO') ?? email;
 
   const lines = [
+    `New estimate request from ${site}`,
+    '',
+    `Website: ${page}`,
     `Name:    ${name}`,
     `Email:   ${email}`,
     `Phone:   ${phone}`,
     city ? `City:    ${city}` : null,
     '',
     message || '(no message)',
-    '',
-    `Sent from ${source || 'the estimate form'} on briansmasonry.net`,
+    adminUrl ? '' : null,
+    adminUrl ? `Manage this quote: ${adminUrl}` : null,
   ].filter((line): line is string => line !== null);
 
-  const html = `<table cellpadding="4" style="font:15px/1.5 Helvetica,Arial,sans-serif">
+  const html = `<p style="font:15px/1.5 Helvetica,Arial,sans-serif">New estimate request from <a href="${escapeHtml(page)}">${escapeHtml(site)}</a></p>
+<table cellpadding="4" style="font:15px/1.5 Helvetica,Arial,sans-serif">
+  <tr><td><strong>Website</strong></td><td><a href="${escapeHtml(page)}">${escapeHtml(page)}</a></td></tr>
   <tr><td><strong>Name</strong></td><td>${escapeHtml(name)}</td></tr>
   <tr><td><strong>Email</strong></td><td><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td></tr>
   <tr><td><strong>Phone</strong></td><td><a href="tel:${escapeHtml(phone.replace(/[^\d+]/g, ''))}">${escapeHtml(phone)}</a></td></tr>
   ${city ? `<tr><td><strong>City</strong></td><td>${escapeHtml(city)}</td></tr>` : ''}
   <tr><td valign="top"><strong>Message</strong></td><td>${escapeHtml(message || '(no message)').replace(/\n/g, '<br />')}</td></tr>
 </table>
-<p style="font:13px Helvetica,Arial,sans-serif;color:#666">Sent from ${escapeHtml(source || 'the estimate form')} on briansmasonry.net</p>`;
+${adminUrl ? `<p style="font:13px Helvetica,Arial,sans-serif"><a href="${escapeHtml(adminUrl)}">Manage this quote</a></p>` : ''}`;
 
   const resend = new Resend(apiKey);
   const key = await idempotencyKey([to, email, phone, name, city, message]);
@@ -288,7 +303,7 @@ export const POST: APIRoute = async ({ request }) => {
           from,
           to,
           replyTo,
-          subject: `New estimate request — ${name}${city ? ` (${city})` : ''}`,
+          subject: `New estimate request from ${site} — ${name}${city ? ` (${city})` : ''}`,
           text: lines.join('\n'),
           html,
         },

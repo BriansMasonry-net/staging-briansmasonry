@@ -1,0 +1,89 @@
+---
+import Admin from '../../../layouts/Admin.astro';
+import { sameOrigin } from '../../../lib/admin-auth';
+import { getQuote, isStatus, STATUSES, updateQuote, type Quote } from '../../../lib/quotes';
+import { formatWhen, telHref } from '../../../lib/format';
+
+export const prerender = false;
+
+const id = Number(Astro.params.id);
+if (!Number.isSafeInteger(id) || id < 1) return new Response('Not found', { status: 404 });
+
+let error = '';
+const saved = Astro.url.searchParams.has('saved');
+
+if (Astro.request.method === 'POST') {
+  if (!sameOrigin(Astro.request)) return new Response('Forbidden', { status: 403 });
+  const form = await Astro.request.formData();
+  const status = form.get('status');
+  const notes = String(form.get('notes') ?? '').slice(0, 10_000);
+  if (!isStatus(status)) {
+    error = 'Pick a status.';
+  } else {
+    try {
+      if (await updateQuote(id, status, notes)) return Astro.redirect(`/admin/quotes/${id}/?saved`, 303);
+      return new Response('Not found', { status: 404 });
+    } catch (e) {
+      console.error('admin: saving quote failed', (e as Error)?.message);
+      error = "Couldn't save just now. Your changes weren't kept — try again.";
+    }
+  }
+}
+
+let quote: Quote | undefined;
+try {
+  quote = await getQuote(id);
+} catch (e) {
+  console.error('admin: loading quote failed', (e as Error)?.message);
+  error ||= "Couldn't load this quote just now. Refresh to try again.";
+}
+if (!quote && !error) return new Response('Not found', { status: 404 });
+---
+<Admin title={quote ? quote.name : 'Quote'}>
+  <p><a href="/admin/">← All quotes</a></p>
+  {saved && !error && <p class="note note-ok" role="status">Saved.</p>}
+  {error && <p class="note note-err" role="alert">{error}</p>}
+
+  {quote && (
+    <div class="grid">
+      <section class="card">
+        <h1>{quote.name}</h1>
+        <dl>
+          <dt>Received</dt><dd>{formatWhen(quote.created_at)}</dd>
+          <dt>Phone</dt><dd><a href={telHref(quote.phone)}>{quote.phone}</a></dd>
+          <dt>Email</dt><dd><a href={`mailto:${quote.email}`}>{quote.email}</a></dd>
+          {quote.city && <><dt>City</dt><dd>{quote.city}</dd></>}
+          {quote.source && (
+            <><dt>Website</dt><dd>{/^https?:\/\//.test(quote.source) ? <a href={quote.source}>{quote.source}</a> : quote.source}</dd></>
+          )}
+        </dl>
+        <h2>Message</h2>
+        <p class="message">{quote.message || <span class="muted">(no message)</span>}</p>
+      </section>
+
+      <form class="card" method="post">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          {STATUSES.map((s) => <option value={s} selected={quote!.status === s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
+        </select>
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" placeholder="Called back, site visit booked, quoted $…">{quote.notes}</textarea>
+        <button class="btn" type="submit">Save</button>
+        {new Date(quote.updated_at).getTime() !== new Date(quote.created_at).getTime() &&<p class="muted small">Last updated {formatWhen(quote.updated_at)}</p>}
+      </form>
+    </div>
+  )}
+</Admin>
+
+<style>
+  .grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+  @media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  h2 { font-size: 16px; margin: 20px 0 6px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+  dt { color: var(--muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  .message { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+  form > * + * { margin-top: 12px; }
+  form label + * { margin-top: 0; }
+  .small { font-size: 13px; }
+</style>

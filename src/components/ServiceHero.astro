@@ -10,7 +10,7 @@ const { h1, sub, lede, ticks } = Astro.props;
       <h1 class="shero__h">{h1}</h1>
       {sub  && <h2 class="shero__sub">{sub}</h2>}
       {lede && <p class="shero__lede">{lede}</p>}
-      <a class="btn" href="#Contact"><small>Get a Quote</small>(416) 244-4113</a>
+      <a class="btn shero__btn" href="#Contact"><small>Get a Quote</small>(416) 244-4113</a>
       {ticks && <ul class="ticks shero__ticks">{ticks.map((t) => <li>{t}</li>)}</ul>}
     </div>
     <EstimateForm id="top-estimate" />
@@ -24,6 +24,8 @@ const { h1, sub, lede, ticks } = Astro.props;
   .shero__sub { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: .5em; }
   .shero__lede { font-size: 18px; color: #e7eaf6; max-width: 62ch; margin-bottom: 1.2em; }
   .shero__btn { background: #fff; color: var(--blue); }
+  .shero__btn:hover { background: var(--red); color: #fff; }
+  .shero__btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
   .shero__ticks { margin-top: 22px; color: #fff; }
   @media (max-width: 980px) {
     .shero__in { grid-template-columns: 1fr; gap: 30px; }
