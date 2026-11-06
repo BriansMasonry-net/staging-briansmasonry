@@ -9,10 +9,14 @@ import { kv, readEnv } from './runtime';
 //                      next request, session or not.
 //   SESSION_SECRET ..  Worker secret. Signs session cookies and salts the stored
 //                      code hashes. Rotating it signs everyone out.
+//   ADMIN_PASSWORDS .  Worker secret, optional. Comma-separated `email:hash`
+//                      entries for people who sign in with a password instead
+//                      of a code (`node bin/admin-password.mjs` makes a hash).
+//                      Only PBKDF2 hashes are stored, never the password.
 //
-// No passwords exist anywhere. Codes live in KV (SESSION binding) for ten
-// minutes, hashed, and die after five wrong guesses. Everything fails closed:
-// no secret or no allowlist means nobody gets in.
+// Codes live in KV (SESSION binding) for ten minutes, hashed, and die after
+// five wrong guesses. Password guesses are capped per address and hour.
+// Everything fails closed: no secret or no allowlist means nobody gets in.
 // ---------------------------------------------------------------------------
 
 export const COOKIE = 'bm_admin';
@@ -21,6 +25,10 @@ const CODE_TTL_SECONDS = 600;
 const MAX_ATTEMPTS = 5;
 /** Codes one address may request per hour. Stops the form being used to spam an inbox. */
 const MAX_CODES_PER_HOUR = 5;
+/** Wrong passwords one address may try per hour before it is locked out for the rest of it. */
+const MAX_PASSWORD_FAILS_PER_HOUR = 10;
+/** The most Workers' Web Crypto allows for PBKDF2; also what bin/admin-password.mjs uses. */
+export const PBKDF2_ITERATIONS = 100_000;
 
 const enc = new TextEncoder();
 
@@ -148,6 +156,79 @@ export async function checkCode(email: string, code: string): Promise<boolean> {
   if (stored.attempts >= MAX_ATTEMPTS) await store.delete(storeKey);
   // KV refuses an expiry under 60s away; the exp check above still enforces the real one.
   else await store.put(storeKey, JSON.stringify(stored), { expiration: Math.max(stored.exp, now + 60) });
+  return false;
+}
+
+// --- Passwords ------------------------------------------------------------
+
+interface StoredPassword {
+  iterations: number;
+  salt: Uint8Array;
+  hash: string;
+}
+
+/**
+ * `ADMIN_PASSWORDS` is `email:pbkdf2$<iterations>$<salt b64url>$<hash b64url>`
+ * entries separated by commas. A malformed entry is skipped, so one bad line
+ * cannot lock everyone else out.
+ */
+function passwordFor(email: string): StoredPassword | undefined {
+  for (const entry of (readEnv('ADMIN_PASSWORDS') ?? '').split(',')) {
+    const at = entry.indexOf(':');
+    if (at < 0 || normaliseEmail(entry.slice(0, at)) !== email) continue;
+    const [scheme, iterations, salt, hash] = entry.slice(at + 1).trim().split('$');
+    const n = Number(iterations);
+    if (scheme !== 'pbkdf2' || !Number.isInteger(n) || n < 1 || n > PBKDF2_ITERATIONS || !salt || !hash) continue;
+    try {
+      return { iterations: n, salt: fromB64url(salt), hash };
+    } catch {
+      continue;
+    }
+  }
+  return undefined;
+}
+
+/** True when this address has a password set, so the login page can say so. */
+export function hasPassword(email: string): boolean {
+  return isAllowed(email) && passwordFor(email) !== undefined;
+}
+
+export async function derivePassword(password: string, salt: Uint8Array, iterations: number): Promise<string> {
+  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations }, key, 256);
+  return b64url(new Uint8Array(bits));
+}
+
+/** Format a new password for `ADMIN_PASSWORDS`. Used by bin/admin-password.mjs; never at request time. */
+export async function hashPassword(password: string): Promise<string> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return `pbkdf2$${PBKDF2_ITERATIONS}$${b64url(salt)}$${await derivePassword(password, salt, PBKDF2_ITERATIONS)}`;
+}
+
+/**
+ * True for the right password. Wrong guesses are counted per address in KV
+ * and the address is locked out for the hour after the tenth one. Fails
+ * closed without KV, like the codes do.
+ */
+export async function checkPassword(email: string, password: string): Promise<boolean> {
+  const store = kv();
+  if (!secret() || !store || !isAllowed(email) || password === '' || password.length > 200) return false;
+
+  const failKey = `admin-pw-fails:${email}`;
+  const fails = Number((await store.get(failKey)) ?? '0') || 0;
+  if (fails >= MAX_PASSWORD_FAILS_PER_HOUR) {
+    console.warn('admin: password attempt limit hit');
+    return false;
+  }
+
+  const stored = passwordFor(email);
+  // Derive even when nothing is stored, so timing does not say who has a password.
+  const derived = await derivePassword(password, stored?.salt ?? new Uint8Array(16), stored?.iterations ?? PBKDF2_ITERATIONS);
+  if (stored && sameString(stored.hash, derived)) {
+    await store.delete(failKey);
+    return true;
+  }
+  await store.put(failKey, String(fails + 1), { expirationTtl: 3600 });
   return false;
 }
 

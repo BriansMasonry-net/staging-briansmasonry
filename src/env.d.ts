@@ -18,6 +18,8 @@ interface Env {
   ADMIN_EMAILS?: string;
   /** 32+ random characters; signs admin session cookies. */
   SESSION_SECRET?: string;
+  /** Optional `email:pbkdf2$…` entries for password sign-in; see bin/admin-password.mjs. */
+  ADMIN_PASSWORDS?: string;
 }
 
 declare namespace App {
