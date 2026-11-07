@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { escapeHtml, kv, readEnv } from '../../lib/runtime';
 import { databaseConfigured, saveQuote } from '../../lib/quotes';
+import { isGoogleAdsUrl, leadSource, REMEMBER_DAYS } from '../../lib/attribution';
 
 // An on-demand route (as are the /admin/ pages). It must NOT be prerendered — a
 // prerendered API route ships as a static file and silently accepts nothing.
@@ -30,7 +31,7 @@ const DEFAULTS = {
   CONTACT_TO: 'briansmasonry@ymail.com',
 } as const;
 
-const MAX = { name: 100, email: 254, phone: 40, city: 100, message: 5000, source: 200 };
+const MAX = { name: 100, email: 254, phone: 40, city: 100, message: 5000, source: 200, url: 2000 };
 
 /** Reject a body larger than this outright — a lead is never this big. */
 const MAX_BODY_BYTES = 64 * 1024;
@@ -92,6 +93,18 @@ function backTo(request: Request, source: string, code: string): string {
   return `${path}?error=${code}${hash}`;
 }
 
+/** The Referer, when it is a page on this site. */
+function sameOriginReferer(request: Request): URL | undefined {
+  const referer = request.headers.get('referer');
+  if (!referer) return undefined;
+  try {
+    const url = new URL(referer);
+    return url.origin === new URL(request.url).origin ? url : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * The page the lead was sent from, as a full link: the same-origin Referer
  * without its query string, or the site's home page when there is none. Only a
@@ -100,16 +113,55 @@ function backTo(request: Request, source: string, code: string): string {
  */
 function leadPage(request: Request): string {
   const origin = new URL(request.url).origin;
-  const referer = request.headers.get('referer');
-  if (referer) {
+  const url = sameOriginReferer(request);
+  return url ? `${origin}${url.pathname}` : `${origin}/`;
+}
+
+/**
+ * Where the visitor came from, as the form posted it (LeadSourceCapture.astro
+ * records it, EstimateForm.astro sends it): the exact address they landed on,
+ * the outside page that sent them, and their latest Google Ads click.
+ *
+ * Landing and ad-click addresses must be on this site, so a forged field
+ * can't put a foreign link in the admin or the email. The referrer is an
+ * outside page by definition and is only ever shown as text.
+ *
+ * Without JavaScript none of this is posted, and the page the form was sent
+ * from stands in for the landing page — with its query string this time, since
+ * an ad click that lands on a page with a form carries its gclid right there.
+ */
+function leadOrigin(request: Request, fields: Fields) {
+  const origin = new URL(request.url).origin;
+  const link = (value: unknown, onSite: boolean): string => {
+    const text = clean(value, MAX.url);
+    if (!text) return '';
     try {
-      const url = new URL(referer);
-      if (url.origin === origin) return `${origin}${url.pathname}`;
+      const url = new URL(text);
+      if (onSite ? url.origin !== origin : !/^(https?|android-app):$/.test(url.protocol)) return '';
+      return url.href;
     } catch {
-      /* ignore an unparseable referer */
+      return '';
+    }
+  };
+
+  let landingUrl = link(fields.landing_url, true);
+  const referrer = landingUrl ? link(fields.landing_ref, false) : '';
+  if (!landingUrl) {
+    const page = sameOriginReferer(request);
+    if (page) {
+      page.searchParams.delete('error'); // a bounced submission's own marker
+      page.hash = '';
+      landingUrl = page.href;
     }
   }
-  return `${origin}/`;
+
+  let adClickUrl = link(fields.ad_click_url, true);
+  const at = Number(clean(fields.ad_click_at, 20));
+  const now = Date.now();
+  const recent = Number.isFinite(at) && at <= now + 86_400_000 && at > now - (REMEMBER_DAYS + 1) * 86_400_000;
+  if (!adClickUrl || !recent || !isGoogleAdsUrl(adClickUrl)) adClickUrl = '';
+
+  return { landingUrl, referrer, adClickUrl, adClickAt: adClickUrl ? new Date(at) : null };
 }
 
 function reply(request: Request, source: string, status: number, code: string, message: string) {
@@ -247,15 +299,30 @@ export const POST: APIRoute = async ({ request }) => {
 
   const page = leadPage(request);
   const site = new URL(page).host;
+  const arrival = leadOrigin(request, fields);
+  const channel = leadSource({ landing_url: arrival.landingUrl, referrer: arrival.referrer });
+  // An ad click that isn't the visit this lead came from: worth a line of its own.
+  const earlierAd = arrival.adClickUrl && channel.channel !== 'google-ads' ? arrival.adClickUrl : '';
 
   // Save the lead for /admin/ before emailing it. Fails OPEN like the rate
   // limit: if Neon is down the email still goes, so no lead is lost — it just
-  // won't appear in the admin list. The page address is what gets stored as
-  // its source, so the admin shows where the lead came from.
+  // won't appear in the admin list. `source` is the page the form was sent
+  // from; landing_url and referrer are where the visitor arrived from.
   let quoteId: number | undefined;
   if (databaseConfigured()) {
     try {
-      quoteId = await saveQuote({ name, email, phone, city, message, source: page });
+      quoteId = await saveQuote({
+        name,
+        email,
+        phone,
+        city,
+        message,
+        source: page,
+        landing_url: arrival.landingUrl,
+        referrer: arrival.referrer,
+        ad_click_url: arrival.adClickUrl,
+        ad_click_at: arrival.adClickAt,
+      });
     } catch (e) {
       console.error('contact: saving quote to Neon failed', (e as Error)?.message);
     }
@@ -271,6 +338,10 @@ export const POST: APIRoute = async ({ request }) => {
     `New estimate request from ${site}`,
     '',
     `Website: ${page}`,
+    `Source:  ${channel.label}`,
+    arrival.landingUrl ? `Landed:  ${arrival.landingUrl}` : null,
+    arrival.referrer ? `From:    ${arrival.referrer}` : null,
+    earlierAd ? `Earlier Google Ads click: ${earlierAd}` : null,
     `Name:    ${name}`,
     `Email:   ${email}`,
     `Phone:   ${phone}`,
@@ -284,6 +355,10 @@ export const POST: APIRoute = async ({ request }) => {
   const html = `<p style="font:15px/1.5 Helvetica,Arial,sans-serif">New estimate request from <a href="${escapeHtml(page)}">${escapeHtml(site)}</a></p>
 <table cellpadding="4" style="font:15px/1.5 Helvetica,Arial,sans-serif">
   <tr><td><strong>Website</strong></td><td><a href="${escapeHtml(page)}">${escapeHtml(page)}</a></td></tr>
+  <tr><td><strong>Source</strong></td><td>${escapeHtml(channel.label)}</td></tr>
+  ${arrival.landingUrl ? `<tr><td><strong>Landed</strong></td><td style="word-break:break-all"><a href="${escapeHtml(arrival.landingUrl)}">${escapeHtml(arrival.landingUrl)}</a></td></tr>` : ''}
+  ${arrival.referrer ? `<tr><td><strong>From</strong></td><td style="word-break:break-all">${escapeHtml(arrival.referrer)}</td></tr>` : ''}
+  ${earlierAd ? `<tr><td><strong>Earlier ad click</strong></td><td style="word-break:break-all"><a href="${escapeHtml(earlierAd)}">${escapeHtml(earlierAd)}</a></td></tr>` : ''}
   <tr><td><strong>Name</strong></td><td>${escapeHtml(name)}</td></tr>
   <tr><td><strong>Email</strong></td><td><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td></tr>
   <tr><td><strong>Phone</strong></td><td><a href="tel:${escapeHtml(phone.replace(/[^\d+]/g, ''))}">${escapeHtml(phone)}</a></td></tr>

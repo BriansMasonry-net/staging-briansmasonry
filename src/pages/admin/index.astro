@@ -1,6 +1,7 @@
 ---
 import Admin from '../../layouts/Admin.astro';
 import { databaseConfigured, isStatus, listQuotes, statusCounts, STATUSES, type Quote } from '../../lib/quotes';
+import { leadSource } from '../../lib/attribution';
 import { formatWhen, telHref } from '../../lib/format';
 
 export const prerender = false;
@@ -50,7 +51,7 @@ function tabHref(s?: string) {
   <form class="search" method="get" role="search">
     {status && <input type="hidden" name="status" value={status} />}
     <label class="sr" for="q">Search quotes</label>
-    <input id="q" name="q" type="search" placeholder="Search name, email, phone, city, message or notes" value={search} />
+    <input id="q" name="q" type="search" placeholder="Search name, email, phone, #id, message, notes or landing page" value={search} />
     <button class="btn" type="submit">Search</button>
   </form>
 
@@ -60,14 +61,20 @@ function tabHref(s?: string) {
 
   {quotes.length > 0 && (
     <ul class="list">
-      {quotes.map((q) => (
+      {quotes.map((q) => {
+        const src = leadSource(q);
+        return (
         <li class="card row">
           <a class="who" href={`/admin/quotes/${q.id}/`}>
+            <span class="muted id">#{q.id}</span>{' '}
             <strong>{q.name}</strong>
             {q.city && <span class="muted"> · {q.city}</span>}
           </a>
           <span class={`pill pill-${q.status}`}>{q.status}</span>
-          <span class="muted when">{formatWhen(q.created_at)}</span>
+          <span class="meta">
+            <span class={`src src-${src.channel}`} title={q.landing_url || undefined}>{src.label}</span>
+            <span class="muted when">{formatWhen(q.created_at)}</span>
+          </span>
           <span class="contact">
             <a href={telHref(q.phone)}>{q.phone}</a>
             <a href={`mailto:${q.email}`}>{q.email}</a>
@@ -75,7 +82,8 @@ function tabHref(s?: string) {
           {q.message && <p class="msg">{q.message}</p>}
           {q.notes && <p class="msg notes"><strong>Notes:</strong> {q.notes}</p>}
         </li>
-      ))}
+        );
+      })}
     </ul>
   )}
   {quotes.length === 200 && <p class="muted">Showing the 200 most recent. Use search or a status filter to narrow it down.</p>}
@@ -100,7 +108,9 @@ function tabHref(s?: string) {
   }
   .who { text-decoration: none; color: inherit; font-size: 17px; overflow-wrap: anywhere; }
   .who strong { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
-  .when { grid-column: 1; font-size: 14px; }
+  .id { font-size: 15px; }
+  .meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+  .when { font-size: 14px; }
   .contact { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 15px; overflow-wrap: anywhere; }
   .msg {
     grid-column: 1 / -1; margin: 4px 0 0; font-size: 15px; color: #444;

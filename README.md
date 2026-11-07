@@ -131,7 +131,9 @@ notification email links straight to the quote.
     src/middleware.ts         every /admin/ page but login needs a session
     src/lib/admin-auth.ts     email codes + signed session cookie
     src/lib/quotes.ts         Neon queries
-    db/schema.sql             the quotes table (already applied)
+    src/lib/attribution.ts    lead source: Google Ads / organic / direct …
+    src/components/LeadSourceCapture.astro   records where each visitor arrived
+    db/schema.sql             the quotes table (lead-source columns: see below)
 
 **Database.** Neon project `briansmasonry` (delicate-pine-99135095, org
 Branding, aws-us-east-1), database `neondb`, table `quotes`. The Worker uses
@@ -152,6 +154,39 @@ for allowed and unknown addresses. Admin POSTs also require a same-origin
 
 Cloudflare Access was the first choice for the login and is not used: the
 account has no Zero Trust organisation and the deploy token cannot create one.
+
+**Lead source.** Each quote shows whether it came from Google Ads, an organic
+search (and which engine), social, another site, or direct, plus the exact
+address the visitor landed on — query string and `gclid` included — and the
+outside page that sent them. The list shows it as a badge next to each `#id`;
+the notification email carries it too. Search takes `#12` for one quote, or
+any piece of a landing address (`gclid`, a campaign ID).
+
+How it is captured: `LeadSourceCapture.astro` runs on every public page and
+keeps, in the visitor's localStorage for 90 days, the latest visit that came
+from somewhere (an ad click, a tagged link, another site) and, separately, the
+latest Google Ads click. Moving between pages never replaces it, nor does a
+later direct visit. The estimate form posts both; `/api/contact` keeps only
+addresses on this site. Without JavaScript the page the form was sent from
+(with its query string) stands in. The channel is worked out at display time
+in `src/lib/attribution.ts`, so a rule change re-labels old quotes too.
+
+Google Ads is recognised by `gclid` / `gbraid` / `wbraid` / `gad_source`, or
+`utm_source=google` with a paid `utm_medium`. That depends on auto-tagging
+being on in the Ads account (the default): an untagged ad click looks exactly
+like an organic Google search. When a visitor clicked an ad and later came back
+another way, the quote shows the earlier ad click as well — Google Ads will
+count that lead even though the last visit was organic.
+
+Quotes saved before 2026-11-07 show "Not recorded"; the old `source` column
+held only the form page with its query string stripped, so the gclid is gone.
+
+The lead-source columns (`landing_url`, `referrer`, `ad_click_url`,
+`ad_click_at`) are at the end of `db/schema.sql`. **Apply them to the
+production database before deploying this code** — the insert names them, and
+until they exist every save fails (open: the email still goes, the quote is
+missing from the list). They are additive with defaults, so the code already
+running is unaffected by them.
 
 | Variable | Where | Notes |
 |---|---|---|
