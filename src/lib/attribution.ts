@@ -43,7 +43,9 @@ export interface LeadSource {
 }
 
 const GOOGLE_CLICK_IDS = ['gclid', 'gbraid', 'wbraid'] as const;
-const PAID_MEDIUMS = new Set(['cpc', 'ppc', 'paid', 'paidsearch', 'paid_search', 'paid-search', 'sem', 'ads']);
+/** utm_medium values that mean a paid click. Also read by LeadSourceCapture.astro. */
+export const PAID_MEDIUM_LIST = ['cpc', 'ppc', 'paid', 'paidsearch', 'paid_search', 'paid-search', 'sem', 'ads'];
+const PAID_MEDIUMS = new Set(PAID_MEDIUM_LIST);
 
 /**
  * Hostname pattern → engine name. Checked against the referrer, www. stripped.
@@ -111,7 +113,7 @@ export function isGoogleAdsUrl(value: string): boolean {
   if (!url) return false;
   if (googleClickId(url) || url.searchParams.has('gad_source')) return true;
   const source = (url.searchParams.get('utm_source') ?? '').toLowerCase();
-  const medium = (url.searchParams.get('utm_medium') ?? '').toLowerCase();
+  const medium = (url.searchParams.get('utm_medium') ?? '').trim().toLowerCase();
   return source.includes('google') && PAID_MEDIUMS.has(medium);
 }
 

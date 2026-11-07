@@ -16,20 +16,24 @@
              return still counts as the ad. A direct visit is recorded only
              when nothing better is on file.
      ad .... the latest Google Ads click, kept separately so the admin can
-             show it even when the lead's last visit came another way.
+             show it even when the lead's last visit came another way. Same
+             test as isGoogleAdsUrl() in src/lib/attribution.ts: a click ID,
+             gad_source, or utm_source=google with a paid utm_medium.
 
    Wrapped in try/catch throughout: with storage blocked the form falls back to
    the page it was sent from (see EstimateForm.astro and /api/contact).
    --------------------------------------------------------------------------- */
-import { REMEMBER_DAYS, STORAGE_KEY } from '../lib/attribution';
+import { PAID_MEDIUM_LIST, REMEMBER_DAYS, STORAGE_KEY } from '../lib/attribution';
 ---
-<script is:inline define:vars={{ key: STORAGE_KEY, days: REMEMBER_DAYS }}>
+<script is:inline define:vars={{ key: STORAGE_KEY, days: REMEMBER_DAYS, paid: PAID_MEDIUM_LIST }}>
   try {
     var now = Date.now(), keep = days * 864e5;
     var q = new URLSearchParams(location.search);
     var ref = document.referrer, external = false;
     try { external = !!ref && new URL(ref).host !== location.host; } catch (e) {}
-    var ad = q.has('gclid') || q.has('gbraid') || q.has('wbraid') || q.has('gad_source');
+    var ad = q.has('gclid') || q.has('gbraid') || q.has('wbraid') || q.has('gad_source') ||
+      ((q.get('utm_source') || '').toLowerCase().indexOf('google') !== -1 &&
+       paid.indexOf((q.get('utm_medium') || '').trim().toLowerCase()) !== -1);
     var tagged = ad || q.has('msclkid') || q.has('fbclid') || /(^|&)utm_[a-z]+=/i.test(location.search.slice(1));
     // First page of this browsing session? Lets a fresh direct visit replace a stale direct one.
     var fresh = false;
