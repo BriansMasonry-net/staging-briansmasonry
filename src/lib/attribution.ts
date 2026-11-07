@@ -26,6 +26,8 @@ export type Channel =
   | 'google-ads'
   | 'paid'
   | 'organic'
+  /** A search engine sent them, but whether by an ad or organically wasn't recorded. */
+  | 'search'
   | 'social'
   | 'referral'
   | 'campaign'
@@ -117,9 +119,17 @@ export function isGoogleAdsUrl(value: string): boolean {
   return source.includes('google') && PAID_MEDIUMS.has(medium);
 }
 
-export function leadSource(q: { landing_url?: string | null; referrer?: string | null }): LeadSource {
+export function leadSource(q: {
+  landing_url?: string | null;
+  referrer?: string | null;
+  source_note?: string | null;
+}): LeadSource {
   const landing = parse(q.landing_url ?? '');
   if (!landing) return { channel: 'unknown', label: 'Not recorded' };
+  // A quote from before tracking, filled in afterwards from logs that keep the
+  // page and referring site but not the query string (source_note says how).
+  // Without the query, a Google Ads click ID can't be ruled out.
+  const queryUnknown = Boolean(q.source_note?.trim()) && !landing.search;
 
   const params = landing.searchParams;
   const campaign = params.get('gad_campaignid') || params.get('utm_campaign') || undefined;
@@ -141,6 +151,7 @@ export function leadSource(q: { landing_url?: string | null; referrer?: string |
     if (medium === 'organic') return { channel: 'organic', label: `Organic · ${source}`, campaign };
     return { channel: 'campaign', label: `Campaign · ${[source, medium].filter(Boolean).join(' / ')}`, campaign };
   }
+  if (engine && queryUnknown) return { channel: 'search', label: `${engine} · ad or organic unknown` };
   if (engine) return { channel: 'organic', label: `Organic search · ${engine}` };
 
   // fbclid rides on every Facebook outbound link, ads or not, so it means

@@ -67,9 +67,10 @@ const earlierAd = quote?.ad_click_url && quote.ad_click_url !== quote.landing_ur
         <h2>Lead source</h2>
         <dl>
           <dt>Source</dt><dd><span class={`src src-${src!.channel}`}>{src!.label}</span></dd>
+          {quote.source_note && <><dt>Reconstructed</dt><dd>{quote.source_note}</dd></>}
           {quote.landing_url ? (
             <><dt>Landed on</dt><dd class="url"><a href={quote.landing_url}>{quote.landing_url}</a></dd></>
-          ) : (
+          ) : !quote.source_note && (
             <><dt>Landed on</dt><dd class="muted">Not recorded — this quote came in before lead sources were tracked.</dd></>
           )}
           {quote.landing_url && (

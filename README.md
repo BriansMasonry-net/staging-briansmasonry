@@ -190,8 +190,15 @@ like an organic Google search. When a visitor clicked an ad and later came back
 another way, the quote shows the earlier ad click as well — Google Ads will
 count that lead even though the last visit was organic.
 
-Quotes saved before 2026-11-07 show "Not recorded"; the old `source` column
-held only the form page with its query string stripped, so the gclid is gone.
+Quotes saved before 2026-11-07 had no source: the old `source` column held
+only the form page with its query string stripped, so the gclid is gone.
+Quotes 1–10 were filled in afterwards from Cloudflare's logs: the zone's HTTP
+request log (visitor IP, pages, times) and Web Analytics (referring site, for
+a sample of page views). Neither keeps query strings on this plan, so a visit
+from Google shows as "Google · ad or organic unknown", never as organic. How
+each one was worked out is in its `source_note`, shown on the quote page. A
+quote with a `source_note` is never classed as organic search unless its
+landing URL carries a query string.
 
 The lead-source columns (`landing_url`, `referrer`, `ad_click_url`,
 `ad_click_at`) are at the end of `db/schema.sql`. **Apply them to the

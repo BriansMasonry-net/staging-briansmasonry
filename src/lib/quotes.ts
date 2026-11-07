@@ -29,6 +29,8 @@ export interface Quote {
   /** Their latest Google Ads click within 90 days, '' / null for none. */
   ad_click_url: string;
   ad_click_at: Date | null;
+  /** How the lead source was reconstructed for a quote from before tracking; '' otherwise. */
+  source_note: string;
 }
 
 export function isStatus(value: unknown): value is Status {

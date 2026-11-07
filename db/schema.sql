@@ -33,3 +33,9 @@ ALTER TABLE quotes ADD COLUMN IF NOT EXISTS landing_url  text NOT NULL DEFAULT '
 ALTER TABLE quotes ADD COLUMN IF NOT EXISTS referrer     text NOT NULL DEFAULT '';
 ALTER TABLE quotes ADD COLUMN IF NOT EXISTS ad_click_url text NOT NULL DEFAULT '';
 ALTER TABLE quotes ADD COLUMN IF NOT EXISTS ad_click_at  timestamptz;
+
+-- How a quote's lead source was worked out after the fact (added 2026-11-07),
+-- for quotes from before tracking, filled in from Cloudflare's logs. '' for
+-- quotes tracked as they came in. When set, a search-engine visit whose query
+-- string wasn't kept shows as "ad or organic unknown", never as organic.
+ALTER TABLE quotes ADD COLUMN IF NOT EXISTS source_note text NOT NULL DEFAULT '';
