@@ -1,4 +1,5 @@
 ---
+import { STORAGE_KEY } from '../lib/attribution';
 // Ported from post-943.css: card #0f5a8ce, heading #4e9e23a, form #463d396.
 // Inverted variant (#284ac6a) is used inside the blue contact block.
 const { heading = 'Get a Free Estimate', city = true, submit = 'Submit',
@@ -28,6 +29,13 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       <input type="text" id={`${id}-ref`} name="form_ref" tabindex="-1" autocomplete="off" />
     </div>
     <input type="hidden" name="source" value={id} />
+    {/* Lead source, filled in on submit from what LeadSourceCapture.astro
+        recorded: where the visitor landed and from where. Empty without JS;
+        /api/contact then uses the page the form was sent from. */}
+    <input type="hidden" name="landing_url" value="" />
+    <input type="hidden" name="landing_ref" value="" />
+    <input type="hidden" name="ad_click_url" value="" />
+    <input type="hidden" name="ad_click_at" value="" />
     <div class="ef__grp ef__grp--name">
       <label class="sr-only" for={`${id}-name`}>Name</label>
       <input type="text" id={`${id}-name`} name="name" placeholder="Name*" required autocomplete="name" />
@@ -62,11 +70,27 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 {/* The form posts without JavaScript. This only stops a double-click sending
     the lead twice, and surfaces the reason when /api/contact bounces one back
     with ?error=. */}
-<script is:inline define:vars={{ id }}>
+<script is:inline define:vars={{ id, key: STORAGE_KEY }}>
   (function () {
     var form = document.getElementById(id);
     if (form) {
       form.addEventListener('submit', function () {
+        // Lead source. With nothing on file (storage blocked), this page's own
+        // arrival stands in: the hero form is often on the landing page.
+        var s = null;
+        try { s = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+        var here = { url: location.href, ref: '' };
+        try { if (document.referrer && new URL(document.referrer).host !== location.host) here.ref = document.referrer; } catch (e) {}
+        var last = (s && s.last) || here, ad = (s && s.ad) || {};
+        var put = function (name, value) {
+          var field = form.elements.namedItem(name);
+          if (field) field.value = value == null ? '' : String(value);
+        };
+        put('landing_url', last.url);
+        put('landing_ref', last.ref);
+        put('ad_click_url', ad.url);
+        put('ad_click_at', ad.at);
+
         var btn = form.querySelector('button[type="submit"]');
         if (!btn || btn.disabled) return;
         // Disable AFTER this tick so the button's own value still posts.

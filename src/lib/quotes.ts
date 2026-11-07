@@ -18,9 +18,17 @@ export interface Quote {
   phone: string;
   city: string;
   message: string;
+  /** The page the form was sent from. */
   source: string;
   status: Status;
   notes: string;
+  /** Exact address the visitor landed on, query string and all ('' before 2026-11-07). */
+  landing_url: string;
+  /** The outside page that sent them, '' for none. */
+  referrer: string;
+  /** Their latest Google Ads click within 90 days, '' / null for none. */
+  ad_click_url: string;
+  ad_click_at: Date | null;
 }
 
 export function isStatus(value: unknown): value is Status {
@@ -42,8 +50,14 @@ export function databaseConfigured(): boolean {
  * ten minutes returns the row already saved instead of adding a second one —
  * the same submission the email's idempotency key collapses at Resend.
  */
-export async function saveQuote(q: Pick<Quote, 'name' | 'email' | 'phone' | 'city' | 'message' | 'source'>) {
+export async function saveQuote(
+  q: Pick<
+    Quote,
+    'name' | 'email' | 'phone' | 'city' | 'message' | 'source' | 'landing_url' | 'referrer' | 'ad_click_url' | 'ad_click_at'
+  >,
+) {
   const sql = db();
+  const adClickAt = q.ad_click_at ? q.ad_click_at.toISOString() : null;
   const rows = (await sql`
     WITH existing AS (
       SELECT id FROM quotes
@@ -52,8 +66,9 @@ export async function saveQuote(q: Pick<Quote, 'name' | 'email' | 'phone' | 'cit
         AND created_at > now() - interval '10 minutes'
       ORDER BY id DESC LIMIT 1
     ), inserted AS (
-      INSERT INTO quotes (name, email, phone, city, message, source)
-      SELECT ${q.name}, ${q.email}, ${q.phone}, ${q.city}, ${q.message}, ${q.source}
+      INSERT INTO quotes (name, email, phone, city, message, source, landing_url, referrer, ad_click_url, ad_click_at)
+      SELECT ${q.name}, ${q.email}, ${q.phone}, ${q.city}, ${q.message}, ${q.source},
+             ${q.landing_url}, ${q.referrer}, ${q.ad_click_url}, ${adClickAt}::timestamptz
       WHERE NOT EXISTS (SELECT 1 FROM existing)
       RETURNING id
     )
@@ -65,12 +80,15 @@ export async function saveQuote(q: Pick<Quote, 'name' | 'email' | 'phone' | 'cit
 export async function listQuotes(opts: { status?: Status; search?: string; limit?: number }) {
   const sql = db();
   const search = opts.search ? `%${opts.search.replace(/[\\%_]/g, (c) => `\\${c}`)}%` : null;
+  // "#12" or "12" also finds quote 12 itself.
+  const idMatch = /^#?(\d{1,15})$/.exec(opts.search ?? '')?.[1] ?? null;
   const rows = (await sql`
     SELECT * FROM quotes
     WHERE (${opts.status ?? null}::text IS NULL OR status = ${opts.status ?? null})
       AND (${search}::text IS NULL OR name ILIKE ${search} OR email ILIKE ${search}
            OR phone ILIKE ${search} OR city ILIKE ${search} OR message ILIKE ${search}
-           OR notes ILIKE ${search})
+           OR notes ILIKE ${search} OR landing_url ILIKE ${search} OR referrer ILIKE ${search}
+           OR id::text = ${idMatch})
     ORDER BY created_at DESC
     LIMIT ${opts.limit ?? 200}
   `) as Quote[];

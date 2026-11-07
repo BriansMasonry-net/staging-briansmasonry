@@ -1,0 +1,45 @@
+---
+/* ---------------------------------------------------------------------------
+   LeadSourceCapture.astro — remembers where this visitor came from, so the
+   estimate form can tell the quote admin "Google Ads" or "organic search" and
+   show the exact address they landed on.
+
+   The form's own Referer can't do this: it is the page the form sits on, and
+   a visitor who lands on /?gclid=… and asks for a quote from
+   /chimney-repair-rebuilds/ has left the gclid two pages behind.
+
+   On every page view this keeps, in localStorage, for REMEMBER_DAYS:
+     last .. the latest visit that arrived from somewhere — an ad click, any
+             tagged link, or another site. Moving between this site's own
+             pages never replaces it, and nor does a later direct visit
+             (typed address, bookmark), so an ad click followed by a typed
+             return still counts as the ad. A direct visit is recorded only
+             when nothing better is on file.
+     ad .... the latest Google Ads click, kept separately so the admin can
+             show it even when the lead's last visit came another way.
+
+   Wrapped in try/catch throughout: with storage blocked the form falls back to
+   the page it was sent from (see EstimateForm.astro and /api/contact).
+   --------------------------------------------------------------------------- */
+import { REMEMBER_DAYS, STORAGE_KEY } from '../lib/attribution';
+---
+<script is:inline define:vars={{ key: STORAGE_KEY, days: REMEMBER_DAYS }}>
+  try {
+    var now = Date.now(), keep = days * 864e5;
+    var q = new URLSearchParams(location.search);
+    var ref = document.referrer, external = false;
+    try { external = !!ref && new URL(ref).host !== location.host; } catch (e) {}
+    var ad = q.has('gclid') || q.has('gbraid') || q.has('wbraid') || q.has('gad_source');
+    var tagged = ad || q.has('msclkid') || q.has('fbclid') || /(^|&)utm_[a-z]+=/i.test(location.search.slice(1));
+    // First page of this browsing session? Lets a fresh direct visit replace a stale direct one.
+    var fresh = false;
+    try { fresh = !sessionStorage.getItem(key); sessionStorage.setItem(key, '1'); } catch (e) {}
+    var s = JSON.parse(localStorage.getItem(key) || 'null') || {};
+    if (s.last && !(now - s.last.at < keep)) s.last = null;
+    if (s.ad && !(now - s.ad.at < keep)) s.ad = null;
+    var hit = { url: location.href, ref: external ? ref : '', at: now, direct: !tagged && !external };
+    if (!hit.direct || !s.last || (fresh && s.last.direct)) s.last = hit;
+    if (ad) s.ad = hit;
+    localStorage.setItem(key, JSON.stringify(s));
+  } catch (e) {}
+</script>

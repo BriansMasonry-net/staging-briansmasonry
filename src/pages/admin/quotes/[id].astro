@@ -2,6 +2,7 @@
 import Admin from '../../../layouts/Admin.astro';
 import { sameOrigin } from '../../../lib/admin-auth';
 import { getQuote, isStatus, STATUSES, updateQuote, type Quote } from '../../../lib/quotes';
+import { leadSource } from '../../../lib/attribution';
 import { formatWhen, telHref } from '../../../lib/format';
 
 export const prerender = false;
@@ -38,6 +39,12 @@ try {
   error ||= "Couldn't load this quote just now. Refresh to try again.";
 }
 if (!quote && !error) return new Response('Not found', { status: 404 });
+
+const src = quote ? leadSource(quote) : undefined;
+/** Saved addresses are checked on the way in; link only what is still a web address. */
+const isWeb = (value: string) => /^https?:\/\//.test(value);
+// A Google Ads click that isn't the visit this lead came from.
+const earlierAd = quote?.ad_click_url && quote.ad_click_url !== quote.landing_url && src?.channel !== 'google-ads';
 ---
 <Admin title={quote ? quote.name : 'Quote'}>
   <p><a href="/admin/">← All quotes</a></p>
@@ -47,18 +54,40 @@ if (!quote && !error) return new Response('Not found', { status: 404 });
   {quote && (
     <div class="grid">
       <section class="card">
-        <h1>{quote.name}</h1>
+        <h1><span class="muted">#{quote.id}</span> {quote.name}</h1>
         <dl>
           <dt>Received</dt><dd>{formatWhen(quote.created_at)}</dd>
           <dt>Phone</dt><dd><a href={telHref(quote.phone)}>{quote.phone}</a></dd>
           <dt>Email</dt><dd><a href={`mailto:${quote.email}`}>{quote.email}</a></dd>
           {quote.city && <><dt>City</dt><dd>{quote.city}</dd></>}
-          {quote.source && (
-            <><dt>Website</dt><dd>{/^https?:\/\//.test(quote.source) ? <a href={quote.source}>{quote.source}</a> : quote.source}</dd></>
-          )}
         </dl>
         <h2>Message</h2>
         <p class="message">{quote.message || <span class="muted">(no message)</span>}</p>
+
+        <h2>Lead source</h2>
+        <dl>
+          <dt>Source</dt><dd><span class={`src src-${src!.channel}`}>{src!.label}</span></dd>
+          {quote.landing_url ? (
+            <><dt>Landed on</dt><dd class="url"><a href={quote.landing_url}>{quote.landing_url}</a></dd></>
+          ) : (
+            <><dt>Landed on</dt><dd class="muted">Not recorded — this quote came in before lead sources were tracked.</dd></>
+          )}
+          {quote.landing_url && (
+            <><dt>Came from</dt><dd class="url">{quote.referrer || <span class="muted">No referring site (typed in, bookmarked, or an app that hides it)</span>}</dd></>
+          )}
+          {src!.clickId && <><dt>Google click ID</dt><dd class="url"><code>{src!.clickId.name}={src!.clickId.value}</code></dd></>}
+          {src!.campaign && <><dt>Campaign</dt><dd class="url">{src!.campaign}</dd></>}
+          {earlierAd && (
+            <><dt>Earlier ad click</dt><dd class="url">
+              <a href={quote.ad_click_url}>{quote.ad_click_url}</a>
+              {quote.ad_click_at && <span class="muted"> · {formatWhen(quote.ad_click_at)}</span>}
+              <br /><span class="muted small">This visitor clicked a Google ad before coming back another way. Google Ads will likely count the lead.</span>
+            </dd></>
+          )}
+          {quote.source && (
+            <><dt>Form sent from</dt><dd class="url">{isWeb(quote.source) ? <a href={quote.source}>{quote.source}</a> : quote.source}</dd></>
+          )}
+        </dl>
       </section>
 
       <form class="card" method="post">
@@ -83,6 +112,9 @@ if (!quote && !error) return new Response('Not found', { status: 404 });
   dt { color: var(--muted); }
   dd { margin: 0; overflow-wrap: anywhere; }
   .message { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+  /* Long ad URLs: break anywhere rather than push the card wide. */
+  .url { word-break: break-all; }
+  code { font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
   form > * + * { margin-top: 12px; }
   form label + * { margin-top: 0; }
   .small { font-size: 13px; }
