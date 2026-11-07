@@ -127,8 +127,6 @@ export const businessNode = {
   address,
   hasMap: business.mapUrl,
   openingHoursSpecification: openingHours,
-  priceRange: '$$',
-  currenciesAccepted: 'CAD',
   award: business.awards,
   areaServed: business.areaServed.map((n) => ({ '@type': 'City', name: n })),
   description:
