@@ -79,13 +79,30 @@ Enable it in the same sitting as attaching the domain.
 
 ## Deploying
 
-The isolated staging Worker is staging-briansmasonry, serving only
-staging.briansmasonry.net as verified on 22 October 2026. Workers Builds now
-has a staging-branch deploy trigger and a non-production-branch version-upload
-trigger. These supersede the original manual-only deployment setup. Never
-assume a push is inert: inspect the provider configuration before publishing.
-The review uses an exact feature-branch commit and leaves production WordPress
-unchanged. See docs/review-2026-10-22/REVIEW.md.
+**Merging to `main` deploys the live site.** The Worker staging-briansmasonry
+serves both briansmasonry.net and staging.briansmasonry.net, and Cloudflare
+Workers Builds (connected to this repo) has two triggers:
+
+| Trigger | Branches | Runs | Effect |
+|---|---|---|---|
+| Deploy main to production | `main` | `npm run build` → `npx wrangler deploy` | live on both hostnames |
+| Deploy non-production branches | everything but `main` | `npm run build` → `npx wrangler versions upload` | uploads a version, serves no traffic (`preview_urls` is off) |
+
+Set up on 2026-11-07. Before that the deploy trigger watched a `staging`
+branch that never existed, so merges to `main` only uploaded a version and
+every release was deployed by hand; for a while production ran an unmerged
+branch (#9 brought `main` back in line). The bot comment on a PR says
+"Deployment successful" for a version upload too — it does not mean live.
+
+Secrets live on the Worker and carry over to every deploy; neither trigger has
+build variables. To roll back, deploy an earlier version:
+`npx wrangler versions deploy <version-id>@100% --yes`
+(`npx wrangler deployments list` shows the history). The next merge to `main`
+deploys again, so revert on `main` as well.
+
+History: the Worker first served only staging.briansmasonry.net (verified 22
+October 2026; see docs/review-2026-10-22/REVIEW.md). The client's domain was
+attached at cutover.
 
 `wrangler.jsonc` sets `workers_dev: false` and `preview_urls: false` — without
 them every deploy publishes the client's unfinished site on a public
