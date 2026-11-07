@@ -129,7 +129,8 @@ notification email links straight to the quote.
 
     src/pages/admin/          login, list, quote detail, logout (on-demand)
     src/middleware.ts         every /admin/ page but login needs a session
-    src/lib/admin-auth.ts     email codes + signed session cookie
+    src/lib/admin-auth.ts     email codes, passwords + signed session cookie
+    bin/admin-password.mjs    makes an ADMIN_PASSWORDS entry for one person
     src/lib/quotes.ts         Neon queries
     src/lib/attribution.ts    lead source: Google Ads / organic / direct …
     src/components/LeadSourceCapture.astro   records where each visitor arrived
@@ -142,15 +143,26 @@ the email still goes and the quote is just missing from the list. A
 double-submit within ten minutes returns the existing row instead of adding
 a second.
 
-**Login.** No passwords. The person enters their email; if it is in
-`ADMIN_EMAILS` they get a 6-digit code (from `CONTACT_FROM`, via Resend) that
-lasts ten minutes and dies after five wrong tries, five codes an hour per
-address. A correct code sets a 30-day `bm_admin` cookie (HttpOnly, Secure,
-SameSite=Lax, Path=/admin) signed with `SESSION_SECRET`. Every request
-re-checks the allowlist, so removing an address ends that access immediately;
-rotating `SESSION_SECRET` signs everyone out. The page answers the same way
-for allowed and unknown addresses. Admin POSTs also require a same-origin
-`Origin` header. Missing secret or allowlist means nobody can sign in.
+**Login.** The person enters their email and, if they have one, a password.
+Without a password, an address in `ADMIN_EMAILS` gets a 6-digit code (from
+`CONTACT_FROM`, via Resend) that lasts ten minutes and dies after five wrong
+tries, five codes an hour per address. With a password, it is checked against
+that address's entry in `ADMIN_PASSWORDS` (PBKDF2-SHA256, 100 000 rounds;
+only the hash is stored), ten wrong tries an hour per address. Either way
+the address must be in `ADMIN_EMAILS`. Success sets a 30-day `bm_admin`
+cookie (HttpOnly, Secure, SameSite=Lax, Path=/admin) signed with
+`SESSION_SECRET`. Every request re-checks the allowlist, so removing an
+address ends that access immediately; rotating `SESSION_SECRET` signs
+everyone out. The page answers the same way for allowed and unknown
+addresses, with or without a password on file. Admin POSTs also require a
+same-origin `Origin` header. Missing secret or allowlist means nobody can
+sign in.
+
+Brian (briansmasonry@ymail.com) signs in with a password, added 2026-11-06
+because a one-time code to a Yahoo inbox was one email too many. Harjit uses
+the code. To set or reset a password: `node bin/admin-password.mjs
+<email>` prints a generated password once and the `email:hash` entry; put
+the entry in `ADMIN_PASSWORDS` (comma-separated with the others) and deploy.
 
 Cloudflare Access was the first choice for the login and is not used: the
 account has no Zero Trust organisation and the deploy token cannot create one.
@@ -192,7 +204,8 @@ running is unaffected by them.
 |---|---|---|
 | `DATABASE_URL` | Worker secret | Neon pooled connection string; without it the form still emails and the admin says it isn't connected |
 | `SESSION_SECRET` | Worker secret | 32+ random characters (`openssl rand -hex 32`) |
-| `ADMIN_EMAILS` | Worker secret | comma-separated; currently harjit@brandingcentres.com. A secret rather than a plain variable so `wrangler deploy` can't wipe it |
+| `ADMIN_EMAILS` | Worker secret | comma-separated; currently harjit@brandingcentres.com and briansmasonry@ymail.com. A secret rather than a plain variable so `wrangler deploy` can't wipe it |
+| `ADMIN_PASSWORDS` | Worker secret, optional | comma-separated `email:pbkdf2$…` entries from `bin/admin-password.mjs`; currently Brian's. Nobody needs one — an address without an entry gets a code |
 
 `/admin/` is excluded from the sitemap and sends `noindex` and `no-store` on
 every response.
@@ -343,6 +356,28 @@ so if those flags ever stop taking effect, turn the subdomain off directly:
 
 Secrets cannot be changed while an undeployed version exists — `wrangler secret
 put` fails with "deploy the latest version first". Deploy, then set secrets.
+
+That bites here because Workers Builds uploads an undeployed version on every
+feature-branch push. Do not reach for `wrangler versions secret put` to get
+around it: it copies the code of the most recently *uploaded* version, not the
+deployed one, so it silently turns a secret change into a feature-branch
+deploy (version 9453973f, 2026-11-06, was made that way and left undeployed).
+What works instead, as done on 2026-11-06 to add Brian to `ADMIN_EMAILS`:
+
+1. `GET /accounts/<account>/workers/workers/faa0c28d7baa44d79b3dec14dfd13f8d/versions/<deployed id>?include=modules`
+   returns the deployed version with its module contents.
+2. Rebuild the deployed commit, confirm `dist/client` matches the live site
+   byte for byte, and register its manifest with `assets-upload-session`
+   (wrangler's hash: BLAKE3 of `base64(content) + extension`, first 32 hex
+   chars). Empty `buckets` in the reply proves the files are already stored.
+3. `POST …/versions` (same beta endpoint) with those modules, the assets
+   `jwt`, every unchanged binding as `{type: "inherit", version_id: <deployed id>}`
+   and the changed secret as a new `secret_text`; then deploy that version
+   with `POST /workers/scripts/staging-briansmasonry/deployments`.
+
+When the code changes anyway, none of that is needed: `wrangler versions
+upload`, then `wrangler versions secret put` (it now copies your upload),
+then `wrangler versions deploy`.
 
 ### Proven on 2026-09-04
 
