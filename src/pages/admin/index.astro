@@ -72,7 +72,7 @@ function tabHref(s?: string) {
           </a>
           <span class={`pill pill-${q.status}`}>{q.status}</span>
           <span class="meta">
-            <span class={`src src-${src.channel}`} title={q.landing_url || q.source_note || undefined}>{src.label}</span>
+            <span class={`src src-${src.channel}`} title={q.source_note || q.landing_url || undefined}>{src.label}</span>
             <span class="muted when">{formatWhen(q.created_at)}</span>
           </span>
           <span class="contact">
