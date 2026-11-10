@@ -339,12 +339,12 @@ that touches mail re-proves the client's own mail survived it.
 
     Worker ............ staging-briansmasonry (Cloudflare account
                         Ash@brandingcentres.com's, 47a8235...)
-    Addresses ......... https://briansmasonry.net (live; cut over 2026-10-24,
-                        rolled back to WordPress the same day, live again
-                        since 2026-10-27)
-                        https://staging.briansmasonry.net (noindex)
-                        www, http:// and no-trailing-slash addresses 301 to
-                        the apex via zone redirect rules; Always Use HTTPS on.
+    Addresses ......... https://staging.briansmasonry.net (noindex) only.
+                        briansmasonry.net is WordPress again since 2026-11-10
+                        (it was this Worker 2026-10-24 and 2026-10-27 to
+                        2026-11-10). The three zone redirect rules are
+                        disabled, not deleted; Always Use HTTPS stays on.
+                        To cut over again, reverse the Rollback steps below.
     Quote admin ....... https://briansmasonry.net/admin/ (see "Quote admin")
     Rollback .......... remove the briansmasonry.net Custom Domain (and take
                         it out of wrangler.jsonc routes), re-create

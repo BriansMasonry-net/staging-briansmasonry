@@ -17,15 +17,15 @@
   // matching whatever the dashboard has at deploy time — see gate 9 above for
   // why workers_dev/preview_urls stay off instead of relying on this alone.
   //
-  // briansmasonry.net: cut over 2026-10-24, rolled back to WordPress the same
-  // day, cut over again 2026-10-27. Rollback: remove this Custom Domain,
-  // re-create A briansmasonry.net 134.122.42.18 (proxied, WordPress on
-  // Cloudways), and disable the three zone redirect rules. Take it out of this
-  // list in the same change, or the next deploy re-attaches it.
-  // www is not attached; a zone redirect rule 301s it to the apex.
+  // briansmasonry.net: cut over 2026-10-24, rolled back the same day, cut over
+  // again 2026-10-27, rolled back to WordPress 2026-11-10. It is NOT attached
+  // now: A briansmasonry.net 134.122.42.18 (proxied) points at WordPress on
+  // Cloudways, and the three zone redirect rules (uploads -> image host,
+  // www -> apex, trailing slash) are disabled, not deleted. To cut over again,
+  // add { "pattern": "briansmasonry.net", "custom_domain": true } back here,
+  // delete that A record, deploy, and re-enable the three rules.
   "routes": [
-    { "pattern": "staging.briansmasonry.net", "custom_domain": true },
-    { "pattern": "briansmasonry.net", "custom_domain": true }
+    { "pattern": "staging.briansmasonry.net", "custom_domain": true }
   ],
 
   // The adapter's own entrypoint (@astrojs/cloudflare v12+; older builds in the
