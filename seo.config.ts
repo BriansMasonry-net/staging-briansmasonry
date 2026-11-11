@@ -64,10 +64,12 @@ export const business = {
     'HomeStars Best of Award Winner 2022',
     'HomeStars Verified',
   ],
-  areaServed: [
-    'Toronto', 'York', 'North York', 'Etobicoke', 'Scarborough', 'East York',
-    'Mississauga', 'Brampton', 'Vaughan', 'Markham', 'Richmond Hill', 'Oakville',
-  ],
+  /* Only places the site itself names: York (address, About Us), and
+     Toronto, Etobicoke and Mississauga (chimney page closing CTA). The
+     earlier list also claimed North York, Scarborough, East York, Brampton,
+     Vaughan, Markham, Richmond Hill and Oakville, none of which appear on
+     any page; add them back only when the client confirms them on-page. */
+  areaServed: ['Toronto', 'York', 'Etobicoke', 'Mississauga'],
 };
 
 /* NOTE — deliberately absent: aggregateRating and Review.
