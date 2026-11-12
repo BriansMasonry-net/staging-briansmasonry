@@ -146,6 +146,12 @@ for (const f of walk(dist)) {
 
   for (const img of html.matchAll(/<img\b[^>]*>/gi)) {
     /\salt\s*=\s*["'][^"']+["']/i.test(img[0]) ? alt++ : noalt++;
+    /* A file slug ("chimney-new", "trowel-1") is not alt text: a screen reader
+       reads it aloud and image search learns nothing from it. Lowercase,
+       hyphen-joined, no spaces is the shape WordPress leaves behind. */
+    const a = img[0].match(/\salt\s*=\s*"([^"]*)"/i)?.[1];
+    if (a && /^[a-z0-9]+(?:[-_][a-z0-9]+)+$/.test(a))
+      fails.push([rel, `<img> alt looks like a filename — "${a}"`]);
   }
 }
 
