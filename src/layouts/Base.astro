@@ -38,8 +38,11 @@ const { conversion = false, ...seo } = Astro.props as Props;
       and thank-you, none of which have a hero at all. */}
   {/* Preconnect to the image host, not the old WordPress box: every image on
       the page now comes from Backblaze via Cloudflare, and nothing is fetched
-      from briansmasonry.net at all. */}
-  <link rel="preconnect" href={IMAGE_HOST} crossorigin />
+      from briansmasonry.net at all. No `crossorigin`: <img> requests are
+      no-cors and cannot reuse a CORS-mode preconnect, so with it the browser
+      warmed a connection nothing used and opened a second one for the LCP
+      hero. */}
+  <link rel="preconnect" href={IMAGE_HOST} />
 
   {/* Real icon files, served from this origin. A .webp logo off the image host
       is not a favicon: Safari will not use it, and it costs a second
