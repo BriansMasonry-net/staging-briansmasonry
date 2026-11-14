@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import { business } from '../../seo.config';
+export const prerender = true;
+---
+{/*
+  Served by Cloudflare for any address that does not exist
+  (wrangler.jsonc: "not_found_handling": "404-page" → dist/client/404.html).
+  Without this file the build fell back to Astro's bare default 404 — no
+  header, no phone number, no way back — where the old WordPress site showed a
+  branded "Page not found" page. Old addresses and mistyped ad URLs land here,
+  so it keeps the visitor one click from a service page or a call.
+
+  noindex: a not-found page must never be indexed. @astrojs/sitemap leaves
+  404 pages out of the sitemap on its own.
+*/}
+<Base title="Page Not Found – Brian's Masonry"
+      description="The page you were looking for isn't here. Browse Brian's Masonry services or call us for a free masonry estimate in York and the GTA."
+      noindex={true}>
+  <section class="sec nf">
+    <div class="wrap">
+      <h1 class="h2 h2--c">Page Not Found</h1>
+      <p>Sorry, the page you were looking for can&rsquo;t be found. It may have moved, or the
+         address may be mistyped.</p>
+      <ul class="nf__links">
+        <li><a href="/chimney-repair-rebuilds/">Chimney Repair &amp; Rebuilds</a></li>
+        <li><a href="/brick-repair-restoration/">Brick Repair &amp; Restoration</a></li>
+        <li><a href="/tuck-pointing-repointing/">Tuck-Pointing &amp; Repointing</a></li>
+        <li><a href="/commercial-masonry/">Commercial Masonry</a></li>
+      </ul>
+      <p>Need help now? Call <a href={`tel:${business.phone}`}>{business.phoneDisplay}</a>.</p>
+      <p><a class="btn" href="/">Back to home</a></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { padding: 90px 0; }
+  .nf .wrap { max-width: 720px; text-align: center; }
+  .nf__links { list-style: none; padding: 0; margin: 0 0 1.5em; }
+  .nf__links li { margin: 0.4em 0; }
+</style>
