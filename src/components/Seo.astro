@@ -14,7 +14,8 @@
       quietly without metadata. A build that fails loudly beats a page that
       ships silently wrong.
    --------------------------------------------------------------------------- */
-import site, { robotsDirective, businessNode, websiteNode, businessId } from '../../seo.config';
+import site, { robotsDirective, businessNode, websiteNode, businessId, IMAGE_HOST } from '../../seo.config';
+import manifest from '../data/image-manifest.json';
 
 export interface Props {
   title: string;
@@ -62,6 +63,17 @@ if (description.length > 160) fail(`description is ${description.length} chars, 
 
 if (!/^https?:\/\//.test(ogImage)) fail(`ogImage must be an absolute URL — got "${ogImage}"`);
 
+/* og:image:width / height / type. Without the dimensions, Facebook and
+   LinkedIn cannot lay out the large share card until they have fetched and
+   measured the image, so the first share of a page often shows no picture.
+   The numbers come from the same image manifest Img.astro uses (what
+   WordPress recorded for each upload), never typed by hand. An image outside
+   the manifest simply goes out without them, as before. */
+const ogKey = ogImage.startsWith(`${IMAGE_HOST}/`) ? ogImage.slice(IMAGE_HOST.length + 1) : null;
+const ogEntry = ogKey ? (manifest as Record<string, { w: number; h: number }>)[ogKey] : undefined;
+const ogExt = ogImage.split('?')[0].split('.').pop()?.toLowerCase();
+const ogMime = ({ webp: 'image/webp', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png' } as Record<string, string>)[ogExt ?? ''];
+
 /* Every page gets the business and the website; page-specific nodes stack on
    top and reference the business by @id rather than repeating it. */
 const graph = { '@context': 'https://schema.org', '@graph': [businessNode, websiteNode, ...schema] };
@@ -100,6 +112,9 @@ const webPage = JSON.stringify({
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
+{ogMime && <meta property="og:image:type" content={ogMime} />}
+{ogEntry && <meta property="og:image:width" content={String(ogEntry.w)} />}
+{ogEntry && <meta property="og:image:height" content={String(ogEntry.h)} />}
 <meta property="og:image:alt" content={title} />
 
 <meta name="twitter:card" content={site.twitterCard} />
