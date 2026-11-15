@@ -116,7 +116,17 @@ for (const f of walk(dist)) {
     if (!canon.endsWith('/')) fails.push([rel, `canonical has no trailing slash — ${canon}`]);
     if (canonicals.has(canon)) fails.push([rel, `duplicate canonical — ${canon}`]);
     canonicals.add(canon);
+    /* A share card that points somewhere other than the canonical splits
+       likes and shares between two addresses. */
+    const ogUrl = attr(html, meta('og:url'));
+    if (ogUrl && ogUrl !== canon) fails.push([rel, `og:url ${ogUrl} does not match canonical ${canon}`]);
   }
+
+  /* og:image dimensions, when given, must come as a numeric pair. */
+  const ogW = attr(html, meta('og:image:width'));
+  const ogH = attr(html, meta('og:image:height'));
+  if ((ogW || ogH) && !(/^\d+$/.test(ogW ?? '') && /^\d+$/.test(ogH ?? '')))
+    fails.push([rel, `og:image:width/height must both be whole numbers — got ${ogW} x ${ogH}`]);
 
   /* Duplicate titles and descriptions across pages are the classic thin-site
      signal. Report the collision, name both pages. */
