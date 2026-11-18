@@ -158,6 +158,14 @@ if (!existsSync(sitemapIndex)) {
   for (const f of readdirSync(dist).filter((n) => /^sitemap-\d+\.xml$/.test(n))) {
     const xml = readFileSync(join(dist, f), 'utf8');
     sitemapUrls.push(...[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+    /* A lastmod stamped at build time claims every page changed on every
+       deploy, which teaches crawlers to ignore the field. None is emitted
+       (astro.config.mjs); if one comes back it must be a real edit date,
+       i.e. not today's build date on every entry. */
+    const mods = [...xml.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1].slice(0, 10));
+    const today = new Date().toISOString().slice(0, 10);
+    if (mods.length > 1 && mods.every((d) => d === today))
+      fails.push([f, `every <lastmod> is the build date (${today}) — a build-time stamp, not an edit date`]);
   }
   for (const u of sitemapUrls) {
     if (!canonicals.has(u)) fails.push(['sitemap', `lists ${u}, which no page canonicalises to`]);
