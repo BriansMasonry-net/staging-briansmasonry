@@ -31,7 +31,13 @@ export default defineConfig({
       // /admin/ is Harjit's private quote list, served on demand behind a login.
       filter: (page) => !page.endsWith('/thank-you/') && !new URL(page).pathname.startsWith('/admin/'),
       serialize(item) {
-        item.lastmod = new Date().toISOString();
+        /* No <lastmod>. It used to be stamped with the build time, so every
+           deploy told search engines that all five pages had just changed.
+           Google uses lastmod only while it stays consistently accurate and
+           ignores it otherwise; an honest omission beats a date that is
+           wrong on every page. bin/check-seo.mjs fails the build if a
+           build-time stamp comes back. */
+        delete item.lastmod;
         if (item.url === 'https://briansmasonry.net/') {
           item.changefreq = 'weekly';
           item.priority = 1.0;
