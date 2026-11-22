@@ -64,10 +64,12 @@ export const business = {
     'HomeStars Best of Award Winner 2022',
     'HomeStars Verified',
   ],
-  areaServed: [
-    'Toronto', 'York', 'North York', 'Etobicoke', 'Scarborough', 'East York',
-    'Mississauga', 'Brampton', 'Vaughan', 'Markham', 'Richmond Hill', 'Oakville',
-  ],
+  /* Only places the site itself names: "located in York, Ontario", "serving
+     York and the GTA", "We serve Toronto, Etobicoke, Mississauga, and the
+     entire GTA" (chimney page). Schema must not claim towns the visible page
+     never mentions; add one here only once a page says it is served. */
+  areaServed: ['York', 'Toronto', 'Etobicoke', 'Mississauga'],
+  areaServedRegion: 'Greater Toronto Area',
 };
 
 /* NOTE — deliberately absent: aggregateRating and Review.
@@ -111,6 +113,11 @@ const openingHours = business.hours.map((h) => ({
 
 /* The organisation node, referenced by @id from every page's graph so the
    business is described once and pointed at, not repeated six times. */
+const areaServedNodes = [
+  ...business.areaServed.map((n) => ({ '@type': 'City', name: n })),
+  { '@type': 'AdministrativeArea', name: business.areaServedRegion },
+];
+
 export const businessId = `${siteUrl}/#business`;
 export const websiteId = `${siteUrl}/#website`;
 
@@ -128,7 +135,7 @@ export const businessNode = {
   hasMap: business.mapUrl,
   openingHoursSpecification: openingHours,
   award: business.awards,
-  areaServed: business.areaServed.map((n) => ({ '@type': 'City', name: n })),
+  areaServed: areaServedNodes,
   description:
     "Masonry contractor serving York and the Greater Toronto Area for over 20 years. " +
     'Chimney repair and rebuilds, brick repair and restoration, tuck-pointing and repointing, ' +
@@ -183,7 +190,7 @@ export function service(opts: {
     serviceType: opts.serviceType ?? opts.name,
     description: opts.description,
     provider: { '@id': businessId },
-    areaServed: business.areaServed.map((n) => ({ '@type': 'City', name: n })),
+    areaServed: areaServedNodes,
     ...(opts.offers && {
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
