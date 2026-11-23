@@ -171,6 +171,43 @@ if (!existsSync(sitemapIndex)) {
   }
 }
 
+/* Internal links must land. Every same-site <a href> — relative, or absolute
+   on https://briansmasonry.net — has to resolve to a page or file this build
+   produced (or an on-demand route under /api/ or /admin/), and any #fragment
+   has to match an id on the target page. The header and footer repeat their
+   links on every page and the nav uses /#About and /#Services jump links, so
+   one renamed section id or retired page breaks a link on all six pages at
+   once, and nothing else here would notice. Image hosts and other origins are
+   out of scope: they are not built here. */
+const pageIds = new Map();
+const pageLinks = [];
+for (const f of walk(dist)) {
+  const rel = f.slice(dist.length + 1).split(sep).join('/');
+  const path = '/' + rel.replace(/index\.html$/, '');
+  const html = readFileSync(f, 'utf8');
+  pageIds.set(path, new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => decode(m[1]))));
+  for (const m of html.matchAll(/<a\b[^>]*\shref="([^"]*)"/gi)) pageLinks.push([rel, path, decode(m[1])]);
+}
+let internalLinks = 0;
+for (const [rel, from, href] of pageLinks) {
+  let target = href;
+  if (target.startsWith('https://briansmasonry.net')) target = target.slice('https://briansmasonry.net'.length) || '/';
+  else if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('//')) continue;
+  internalLinks++;
+  const [pathAndQuery, frag] = target.split('#');
+  const path = (pathAndQuery.split('?')[0] || from);
+  if (/^\/(api|admin)\//.test(path)) continue;
+  const resolved = path.startsWith('/') ? path : new URL(path, `https://x${from}`).pathname;
+  const isPage = pageIds.has(resolved);
+  if (!isPage && !existsSync(join(dist, decodeURIComponent(resolved)))) {
+    fails.push([rel, `internal link to ${href} — no such page or file in this build`]);
+    continue;
+  }
+  if (frag && isPage && !pageIds.get(resolved).has(frag)) {
+    fails.push([rel, `internal link to ${href} — no id="${frag}" on ${resolved}`]);
+  }
+}
+
 if (!existsSync(join(dist, 'robots.txt'))) fails.push(['robots.txt', 'not present in dist/']);
 if (noalt) warns.push(`${noalt} <img> without alt text — empty alt="" is correct for decorative images only`);
 
@@ -180,6 +217,7 @@ p('pages', pages);
 p('JSON-LD blocks', ldBlocks);
 p('H1 elements', h1Total);
 p('sitemap addresses', sitemapUrls.length);
+p('internal links checked', internalLinks);
 p('images with alt', alt);
 p('images without alt', noalt);
 p('failures', fails.length);
