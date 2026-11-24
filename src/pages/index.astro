@@ -17,17 +17,23 @@ const badges = [
 /* The alt text on four of these was empty on the old site and three more were
    filenames ("chimney-new", "trowel (1)"). Filenames are not alt text. These
    are meaningful content images — each one labels a service — so they get
-   descriptions of what they show. */
+   descriptions of what they show.
+
+   `href`: three of these cards have their own service page, but the only
+   links to those pages were in the header dropdown. Linking the card heading
+   gives each page a contextual link from the homepage with descriptive anchor
+   text, and the ItemList below points at the same page. The other six have no
+   page of their own and stay unlinked. */
 const services = [
-  { icon: `${IMG}/2024/12/chimney-new.png`,       alt: 'Brick chimney',                title: 'Chimney Rebuilds/Sweep',  body: 'Restoring, Rebuilding, and Cleaning chimneys to ensure safety and functionality.' },
+  { icon: `${IMG}/2024/12/chimney-new.png`,       alt: 'Brick chimney',                title: 'Chimney Rebuilds/Sweep',  href: '/chimney-repair-rebuilds/', body: 'Restoring, Rebuilding, and Cleaning chimneys to ensure safety and functionality.' },
   { icon: `${IMG}/2024/12/historic-site-new.png`, alt: 'Heritage stone building',      title: 'Historical Buildings',    body: 'Specialized masonry restoration for preserving the charm and structure of heritage properties.' },
   { icon: `${IMG}/2024/12/stones.png`,            alt: 'Stacked stone blocks',         title: 'Brick/Block/Stone Work',  body: 'Custom masonry solutions using bricks, blocks, or stones for residential and commercial properties.' },
-  { icon: `${IMG}/2024/12/brickwall.png`,         alt: 'Restored brick wall',          title: 'Brick Restoration',       body: 'Bringing aged or damaged bricks back to their original condition.' },
+  { icon: `${IMG}/2024/12/brickwall.png`,         alt: 'Restored brick wall',          title: 'Brick Restoration',       href: '/brick-repair-restoration/', body: 'Bringing aged or damaged bricks back to their original condition.' },
   { icon: `${IMG}/2024/12/deck.png`,              alt: 'Masonry porch',                title: 'Porches',                 body: 'Expert masonry for durable and aesthetic porches.' },
   { icon: `${IMG}/2024/12/road.png`,              alt: 'Brick walkway',                title: 'Walkways',                body: 'Designing and constructing walkways with high-quality stone and brickwork.' },
   { icon: `${IMG}/2024/12/window-sills.png`,      alt: 'Masonry window sill',          title: 'Window Sills',            body: 'Precision masonry for window sill repairs and installations.' },
   { icon: `${IMG}/2024/12/retaining-walls.png`,   alt: 'Stone retaining wall',         title: 'Retaining Walls',         body: 'Strong and stylish retaining walls for landscaping and structural needs.' },
-  { icon: `${IMG}/2024/12/trowel-1.png`,          alt: 'Masonry trowel and mortar',    title: 'Tuck-Pointing',           body: 'Restoring mortar joints for a clean and fresh masonry appearance.' },
+  { icon: `${IMG}/2024/12/trowel-1.png`,          alt: 'Masonry trowel and mortar',    title: 'Tuck-Pointing',           href: '/tuck-pointing-repointing/', body: 'Restoring mortar joints for a clean and fresh masonry appearance.' },
 ];
 
 const testimonials = [
@@ -72,6 +78,7 @@ const schema = [
         '@type': 'Service',
         name: s.title,
         description: s.body,
+        ...(s.href && { url: `${site.siteUrl}${s.href}` }),
         provider: { '@id': businessId },
       },
     })),
@@ -129,7 +136,7 @@ const schema = [
         {services.map((s) => (
           <article class="card">
             <Img class="ico" src={s.icon} alt={s.alt} displayWidth={120} sizes="120px" />
-            <h3>{s.title}</h3>
+            <h3>{s.href ? <a href={s.href}>{s.title}</a> : s.title}</h3>
             <p>{s.body}</p>
           </article>
         ))}
