@@ -74,6 +74,7 @@ const warns = [];
 let pages = 0;
 let ldBlocks = 0;
 let alt = 0;
+let decorative = 0;
 let noalt = 0;
 let h1Total = 0;
 
@@ -144,8 +145,38 @@ for (const f of walk(dist)) {
     }
   }
 
+  /* Three kinds of <img>, not two. Astro renders alt="" as a bare `alt`
+     attribute (valid HTML, identical meaning), so the old test — "has a
+     non-empty alt value" — counted every decorative hero slide as missing its
+     alt and the lint warned about four images that were correct. Now:
+       alt="text"          described
+       alt / alt=""        decorative, deliberately silent to screen readers
+       no alt attribute    a failure — the screen reader reads the file name,
+                           and Google gets no description of the image */
   for (const img of html.matchAll(/<img\b[^>]*>/gi)) {
-    /\salt\s*=\s*["'][^"']+["']/i.test(img[0]) ? alt++ : noalt++;
+    const tag = img[0];
+    if (/\salt\s*=\s*(["'])(?!\1)[\s\S]*?\1/i.test(tag) && !/\salt\s*=\s*(["'])\s*\1/i.test(tag)) alt++;
+    else if (/\salt(?=[\s>\/=])/i.test(tag)) decorative++;
+    else {
+      noalt++;
+      const src = (tag.match(/\ssrc\s*=\s*["']([^"']+)["']/i) ?? [])[1] ?? '(no src)';
+      fails.push([rel, `<img> has no alt attribute — ${src}`]);
+    }
+  }
+
+  /* A link whose only content is a decorative image has no accessible name:
+     a screen reader announces it as "link" and nothing else, and the target
+     gets no anchor text. Either the image needs alt text or the link needs an
+     aria-label. */
+  for (const a of html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)) {
+    const [, attrs, inner] = a;
+    if (!/<img\b/i.test(inner) || /\saria-label(ledby)?\s*=/i.test(attrs)) continue;
+    const text = inner.replace(/<img\b[^>]*>/gi, '').replace(/<[^>]+>/g, '').trim();
+    const imgAlts = [...inner.matchAll(/<img\b[^>]*>/gi)].map((m) => (m[0].match(/\salt\s*=\s*["']([^"']*)["']/i) ?? [])[1] ?? '');
+    if (!text && !imgAlts.some((v) => v.trim())) {
+      const href = (attrs.match(/\shref\s*=\s*["']([^"']*)["']/i) ?? [])[1] ?? '(no href)';
+      fails.push([rel, `link to ${href} contains only a decorative image — no accessible name`]);
+    }
   }
 }
 
@@ -172,7 +203,7 @@ if (!existsSync(sitemapIndex)) {
 }
 
 if (!existsSync(join(dist, 'robots.txt'))) fails.push(['robots.txt', 'not present in dist/']);
-if (noalt) warns.push(`${noalt} <img> without alt text — empty alt="" is correct for decorative images only`);
+if (decorative) warns.push(`${decorative} decorative <img> (empty alt) — correct only for images that carry no information`);
 
 const p = (l, n) => console.log(`  ${String(l).padEnd(32, '.')} ${n}`);
 console.log('\nSEO LINT\n');
@@ -180,8 +211,9 @@ p('pages', pages);
 p('JSON-LD blocks', ldBlocks);
 p('H1 elements', h1Total);
 p('sitemap addresses', sitemapUrls.length);
-p('images with alt', alt);
-p('images without alt', noalt);
+p('images with alt text', alt);
+p('decorative images (alt="")', decorative);
+p('images missing alt', noalt);
 p('failures', fails.length);
 
 if (warns.length) {
