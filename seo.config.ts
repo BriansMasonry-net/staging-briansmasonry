@@ -57,12 +57,13 @@ export const business = {
   /* Footer: "Monday - Friday 8 AM - 10 PM" */
   hours: [{ days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '08:00', closes: '22:00' }],
   foundingBlurb: 'over 20 years',
-  /* The four HomeStars badges on the homepage. Factual, so safe as `award`. */
+  /* The three HomeStars "Best of" badges on the homepage. Factual, so safe as
+     `award`. The fourth homepage badge, "HomeStars verified", is a profile
+     verification status, not an award, so it is not claimed as one here. */
   awards: [
     'HomeStars Best of Award Winner 2024',
     'HomeStars Best of Award Winner 2023',
     'HomeStars Best of Award Winner 2022',
-    'HomeStars Verified',
   ],
   areaServed: [
     'Toronto', 'York', 'North York', 'Etobicoke', 'Scarborough', 'East York',

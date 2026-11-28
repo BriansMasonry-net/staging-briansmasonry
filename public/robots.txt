@@ -39,6 +39,8 @@
 User-agent: *
 Content-Signal: search=yes,ai-train=no,use=reference
 Allow: /
+# /api/contact is the form's POST endpoint, not a page. Nothing to index there.
+Disallow: /api/
 
 User-agent: Amazonbot
 Disallow: /
